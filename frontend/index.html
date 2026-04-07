@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — My Kitchen</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <style>
+    .fridge-wrapper { display:flex; justify-content:center; padding:2rem 1rem 3rem; }
+    .fridge { position:relative; width:100%; max-width:500px; border-radius:32px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,0.25); }
+    .fridge-img { width:100%; display:block; background:linear-gradient(160deg,#7DC8CC 0%,#4A9FA5 60%,#2D7A80 100%); min-height:700px; }
+    .fridge-welcome { position:absolute; top:8%; left:50%; transform:translateX(-50%); width:80%; text-align:center; }
+    .fridge-welcome h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:white; font-weight:700; text-shadow:0 2px 8px rgba(0,0,0,0.3); white-space:nowrap; }
+    .fridge-magnets { position:absolute; top:22%; left:50%; transform:translateX(-50%); width:85%; display:flex; flex-direction:column; gap:1.5rem; }
+    .magnet-card { background:white; border-radius:8px; padding:1rem 1.25rem; cursor:pointer; box-shadow:3px 4px 12px rgba(0,0,0,0.2); text-decoration:none; color:var(--text-dark); display:flex; flex-direction:column; align-items:center; gap:0.5rem; width:56%; transition:transform 0.2s,box-shadow 0.2s; }
+    .magnet-card:nth-child(1) { transform:rotate(1.5deg); align-self:flex-start; margin-left:5%; }
+    .magnet-card:nth-child(2) { transform:rotate(-1deg); align-self:flex-end; margin-right:5%; }
+    .magnet-card:nth-child(3) { transform:rotate(0.5deg); align-self:flex-end; margin-right:8%; }
+    .magnet-card:hover { transform:rotate(0deg) translateY(-4px) !important; box-shadow:4px 8px 20px rgba(0,0,0,0.25); }
+    .magnet-card img { width:90px; height:75px; object-fit:contain; }
+    .magnet-label { font-size:0.7rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal-dark); text-align:center; }
+    .greeting-bar { background:white; padding:0.6rem 2rem; border-bottom:1px solid var(--border); font-size:0.9rem; color:var(--text-mid); }
+    .greeting-bar span { font-weight:700; color:var(--teal-dark); }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="index.html">
+      <img class="nav-logo" src="static/images/logo.png" alt="HomeBakes" onerror="this.style.display='none'" />
+      <span class="nav-title">HomeBakes</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="meal-plans.html">Meal Plans</a></li>
+      <li><a href="recipes.html">Recipes</a></li>
+      <li><a href="shopping-lists.html">Shopping Lists</a></li>
+    </ul>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="greeting-bar">Welcome back, <span id="userName">Chef</span>!</div>
+
+  <div class="fridge-wrapper">
+    <div class="fridge">
+      <img class="fridge-img" src="static/images/fridge.png" alt="Retro teal fridge" onerror="this.style.minHeight='700px';" />
+      <div class="fridge-welcome"><h2>Welcome to Your Kitchen</h2></div>
+      <div class="fridge-magnets">
+        <a class="magnet-card" href="meal-plans.html">
+          <img src="static/images/meal-plan-icon.png" alt="Meal Plan" onerror="this.style.display='none'" />
+          <span class="magnet-label">Meal Plan</span>
+        </a>
+        <a class="magnet-card" href="recipes.html">
+          <img src="static/images/recipe-box-icon.png" alt="My Recipes" onerror="this.style.display='none'" />
+          <span class="magnet-label">My Recipes</span>
+        </a>
+        <a class="magnet-card" href="shopping-lists.html">
+          <img src="static/images/shopping-list-icon.png" alt="Shopping Lists" onerror="this.style.display='none'" />
+          <span class="magnet-label">Shopping Lists</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import { requireAuth, logout } from "./static/js/auth.js";
+  requireAuth(user => {
+    document.getElementById("userName").textContent = user.displayName || user.email.split("@")[0];
+  });
+  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+</script>
+</body>
+</html>

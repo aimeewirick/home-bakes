@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — Create Account</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <style>
+    body { background:var(--tile-beige); background-image:linear-gradient(var(--tile-line) 1px,transparent 1px),linear-gradient(90deg,var(--tile-line) 1px,transparent 1px); background-size:60px 40px; min-height:100vh; display:flex; flex-direction:column; }
+    .reg-header { background:white; padding:0.75rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+    .reg-header-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--text-dark); }
+    .reg-container { flex:1; display:flex; align-items:center; justify-content:center; padding:2rem 1rem; }
+    .reg-card { background:white; border-radius:20px; border:1px solid var(--border); box-shadow:var(--shadow); width:100%; max-width:440px; overflow:hidden; }
+    .reg-card-banner { background:var(--teal); padding:1.75rem 2rem; text-align:center; }
+    .reg-card-banner h1 { font-family:'Satisfy',cursive; font-size:2rem; color:white; font-weight:400; margin-bottom:0.25rem; }
+    .reg-card-banner p { color:rgba(255,255,255,0.85); font-size:0.9rem; }
+    .reg-form { padding:2rem; }
+    .reg-divider { height:1px; background:var(--border); margin:1.25rem 0; }
+    .btn-register { width:100%; background:var(--teal); color:white; border:none; border-radius:100px; padding:0.75rem; font-family:'Lato',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; transition:background 0.2s; margin-top:0.5rem; }
+    .btn-register:hover { background:var(--teal-dark); }
+    .reg-footer { text-align:center; margin-top:1.25rem; font-size:0.875rem; color:var(--text-light); }
+    .reg-footer a { color:var(--teal-dark); text-decoration:none; font-weight:700; }
+    .password-strength { margin-top:0.4rem; height:4px; border-radius:4px; background:var(--border); overflow:hidden; }
+    .password-strength-bar { height:100%; border-radius:4px; width:0%; transition:width 0.3s,background 0.3s; }
+    .strength-text { font-size:0.75rem; color:var(--text-light); margin-top:0.25rem; }
+  </style>
+</head>
+<body>
+  <header class="reg-header">
+    <img src="static/images/logo.png" alt="HomeBakes" width="50" height="50" style="border-radius:50%;border:2px solid var(--teal-light);" onerror="this.style.display='none'" />
+    <span class="reg-header-title">HomeBakes</span>
+  </header>
+
+  <div class="reg-container">
+    <div class="reg-card">
+      <div class="reg-card-banner">
+        <h1>Join HomeBakes</h1>
+        <p>Create your personal recipe kitchen</p>
+      </div>
+      <div class="reg-form">
+        <div class="form-group">
+          <label for="displayName">Your Name</label>
+          <input type="text" id="displayName" class="form-control" placeholder="e.g. Grandma Rose" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="reg-divider"></div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="At least 6 characters" autocomplete="new-password" />
+          <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
+          <p class="strength-text" id="strengthText"></p>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter your password" autocomplete="new-password" />
+        </div>
+        <div class="error-msg" id="regError"></div>
+        <button class="btn-register" id="registerBtn">Create My Kitchen</button>
+        <div class="reg-footer">Already have an account? <a href="login.html">Log in</a></div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import { register, redirectIfLoggedIn } from "./static/js/auth.js";
+  redirectIfLoggedIn();
+
+  document.getElementById("password").addEventListener("input", function () {
+    const val=this.value, bar=document.getElementById("strengthBar"), text=document.getElementById("strengthText");
+    let s=0;
+    if(val.length>=6)s++; if(val.length>=10)s++; if(/[A-Z]/.test(val))s++; if(/[0-9]/.test(val))s++; if(/[^A-Za-z0-9]/.test(val))s++;
+    const levels=[{w:"0%",c:"",l:""},{w:"25%",c:"#e74c3c",l:"Weak"},{w:"50%",c:"#e67e22",l:"Fair"},{w:"75%",c:"#f1c40f",l:"Good"},{w:"100%",c:"#27ae60",l:"Strong"}];
+    const lv=levels[Math.min(s,4)]; bar.style.width=lv.w; bar.style.background=lv.c; text.textContent=lv.l?`Password strength: ${lv.l}`:"";
+  });
+
+  document.getElementById("registerBtn").addEventListener("click", async () => {
+    const name=document.getElementById("displayName").value.trim();
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value;
+    const confirm=document.getElementById("confirmPassword").value;
+    const errorEl=document.getElementById("regError");
+    errorEl.classList.remove("visible");
+    if(!name) return show(errorEl,"Please enter your name.");
+    if(!email) return show(errorEl,"Please enter your email.");
+    if(password.length<6) return show(errorEl,"Password must be at least 6 characters.");
+    if(password!==confirm) return show(errorEl,"Passwords do not match.");
+    try { await register(email,password,name); window.location.href="index.html"; }
+    catch(err) { show(errorEl,friendlyError(err.code)); }
+  });
+
+  document.addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("registerBtn").click(); });
+  function show(el,msg){ el.textContent=msg; el.classList.add("visible"); }
+  function friendlyError(code){ return {"auth/email-already-in-use":"An account with this email already exists.","auth/invalid-email":"Please enter a valid email address.","auth/weak-password":"Password too weak. Use at least 6 characters."}[code]||"Registration failed. Please try again."; }
+</script>
+</body>
+</html>
