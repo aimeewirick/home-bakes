@@ -7,7 +7,7 @@ import { getToken } from "./auth.js";
 // ── Base URL detection ───────────────────────────────────────────────────────
 // Update RENDER_API_URL below once you have your Render backend URL.
 // It will look like: https://home-bakes-api.onrender.com
-const RENDER_API_URL = "https://home-bakes-api.onrender.com";
+const RENDER_API_URL = "https://home-bakes-404h.onrender.com";
 const LOCAL_API_URL  = "http://localhost:5000";
 
 const isLocal = window.location.hostname === "localhost"
