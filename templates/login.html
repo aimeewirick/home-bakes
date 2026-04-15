@@ -4,41 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeBakes — Login</title>
-  <link rel="stylesheet" href="static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
   <style>
     body { background:#FAF7F0; background-image:none; min-height:100vh; display:flex; flex-direction:column; }
-    .login-page { flex:1; display:flex; flex-direction:column; }
-
     .login-header { background:white; padding:0.75rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
     .login-header-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--text-dark); }
-
     .hero-section { position:relative; width:100%; height:480px; overflow:hidden; background:#5BA8AE; display:flex; align-items:center; justify-content:center; }
     .hero-kitchen-bg { width:100%; height:100%; object-fit:cover; }
-
-    .tagline-badge {
-      position:absolute; top:2rem; left:50%; transform:translateX(-50%);
-      background:rgba(224,242,243,0.92); border:2.5px dashed var(--red-accent);
-      border-radius:16px; padding:1rem 1.75rem; text-align:center; max-width:320px; width:90%;
-    }
+    .tagline-badge { position:absolute; top:2rem; left:50%; transform:translateX(-50%); background:rgba(224,242,243,0.92); border:2.5px dashed var(--red-accent); border-radius:16px; padding:1rem 1.75rem; text-align:center; max-width:320px; width:90%; }
     .tagline-badge p { font-family:'Satisfy',cursive; font-size:1.3rem; color:var(--red-accent); line-height:1.4; }
-
     .login-overlay { position:absolute; bottom:2rem; left:50%; transform:translateX(-50%); width:90%; max-width:340px; text-align:center; }
     .login-label { font-size:0.75rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:white; text-shadow:0 1px 4px rgba(0,0,0,0.5); margin-bottom:0.75rem; }
-
     .login-input-group { display:flex; align-items:center; background:rgba(255,255,255,0.88); border-radius:100px; padding:0.5rem 1rem; margin-bottom:0.6rem; gap:0.5rem; }
     .login-input-group svg { color:var(--text-light); flex-shrink:0; width:18px; height:18px; }
     .login-input-group input { flex:1; border:none; background:transparent; outline:none; font-family:'Lato',sans-serif; font-size:0.95rem; color:var(--text-dark); }
     .login-input-group input::placeholder { color:var(--text-light); }
-
     .btn-login { background:var(--teal); color:white; border:none; border-radius:100px; padding:0.65rem 2rem; font-family:'Lato',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; width:100%; margin-top:0.25rem; transition:background 0.2s; }
     .btn-login:hover { background:var(--teal-dark); }
-
     .login-error { color:#fff; background:rgba(192,57,43,0.85); border-radius:8px; padding:0.4rem 0.75rem; font-size:0.85rem; margin-top:0.5rem; display:none; }
     .login-error.visible { display:block; }
-
     .register-link { text-align:center; margin-top:0.75rem; }
     .register-link a { color:white; font-size:0.85rem; text-shadow:0 1px 3px rgba(0,0,0,0.4); text-decoration:underline; cursor:pointer; }
-
     .features-strip { background:var(--cream); padding:2.5rem 1rem; display:flex; justify-content:center; gap:3rem; flex-wrap:wrap; border-top:1px solid var(--teal-light); }
     .feature-item { display:flex; flex-direction:column; align-items:center; gap:0.75rem; text-align:center; max-width:140px; }
     .feature-item img { width:90px; height:90px; object-fit:contain; }
@@ -46,74 +32,64 @@
   </style>
 </head>
 <body>
-<div class="login-page">
   <header class="login-header">
-    <img src="static/images/logo.png" alt="HomeBakes" width="50" height="50" style="border-radius:50%;border:2px solid var(--teal-light);" onerror="this.style.display='none'" />
+    <img src="/static/images/logo.png" alt="HomeBakes" width="50" height="50" style="border-radius:50%;border:2px solid var(--teal-light);" onerror="this.style.display='none'" />
     <span class="login-header-title">HomeBakes</span>
   </header>
 
-  <div class="hero-section">
-    <img class="hero-kitchen-bg" src="static/images/kitchen-hero.jpg" alt="Retro kitchen" onerror="this.style.display='none'" />
-
-    <div class="tagline-badge">
-      <p>Where you can recreate<br>Your Grandmother's Kitchen</p>
+  <div style="flex:1;display:flex;flex-direction:column;">
+    <div class="hero-section">
+      <img class="hero-kitchen-bg" src="/static/images/kitchen-hero.jpg" alt="Retro kitchen" onerror="this.style.display='none'" />
+      <div class="tagline-badge">
+        <p>Where you can recreate<br>Your Grandmother's Kitchen</p>
+      </div>
+      <div class="login-overlay">
+        <p class="login-label">Login</p>
+        <div class="login-input-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <input type="email" id="email" placeholder="email" autocomplete="email" />
+        </div>
+        <div class="login-input-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <input type="password" id="password" placeholder="password" autocomplete="current-password" />
+        </div>
+        <button class="btn-login" id="loginBtn">Login</button>
+        <div class="login-error" id="loginError"></div>
+        <div class="register-link"><a href="/register.html">Create an Account</a></div>
+      </div>
     </div>
 
-    <div class="login-overlay">
-      <p class="login-label">Login</p>
-      <div class="login-input-group">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        <input type="email" id="email" placeholder="email" autocomplete="email" />
+    <div class="features-strip">
+      <div class="feature-item">
+        <img src="/static/images/shopping-list-icon.png" alt="Shopping Lists" onerror="this.style.display='none'" />
+        <span>Make Shopping Lists</span>
       </div>
-      <div class="login-input-group">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        <input type="password" id="password" placeholder="password" autocomplete="current-password" />
+      <div class="feature-item">
+        <img src="/static/images/recipe-box-icon.png" alt="Recipe Box" onerror="this.style.display='none'" />
+        <span>Archive &amp; Share Heritage Recipes</span>
       </div>
-      <button class="btn-login" id="loginBtn">Login</button>
-      <div class="login-error" id="loginError"></div>
-      <div class="register-link"><a href="register.html">Create an Account</a></div>
+      <div class="feature-item">
+        <img src="/static/images/meal-plan-icon.png" alt="Meal Plans" onerror="this.style.display='none'" />
+        <span>Plan Weekly Meals</span>
+      </div>
     </div>
   </div>
-
-  <div class="features-strip">
-    <div class="feature-item">
-      <img src="static/images/shopping-list-icon.png" alt="Shopping Lists" onerror="this.style.display='none'" />
-      <span>Make Shopping Lists</span>
-    </div>
-    <div class="feature-item">
-      <img src="static/images/recipe-box-icon.png" alt="Recipe Box" onerror="this.style.display='none'" />
-      <span>Archive &amp; Share Heritage Recipes</span>
-    </div>
-    <div class="feature-item">
-      <img src="static/images/meal-plan-icon.png" alt="Meal Plans" onerror="this.style.display='none'" />
-      <span>Plan Weekly Meals</span>
-    </div>
-  </div>
-</div>
 
 <script type="module">
-  import { login, redirectIfLoggedIn } from "./static/js/auth.js";
+  import { login, redirectIfLoggedIn } from "/static/js/auth.js";
   redirectIfLoggedIn();
-
   document.getElementById("loginBtn").addEventListener("click", async () => {
-    const email   = document.getElementById("email").value.trim();
-    const password= document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
     const errorEl = document.getElementById("loginError");
     errorEl.classList.remove("visible");
     if (!email || !password) { errorEl.textContent = "Please enter your email and password."; errorEl.classList.add("visible"); return; }
-    try {
-      await login(email, password);
-      window.location.href = "index.html";
-    } catch (err) {
-      errorEl.textContent = friendlyError(err.code);
-      errorEl.classList.add("visible");
-    }
+    try { await login(email, password); window.location.href = "/index.html"; }
+    catch (err) { errorEl.textContent = friendlyError(err.code); errorEl.classList.add("visible"); }
   });
-
   document.addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("loginBtn").click(); });
-
   function friendlyError(code) {
-    return { "auth/invalid-email":"Please enter a valid email address.", "auth/user-not-found":"No account found with that email.", "auth/wrong-password":"Incorrect password. Please try again.", "auth/too-many-requests":"Too many attempts. Please try again later.", "auth/invalid-credential":"Incorrect email or password." }[code] || "Login failed. Please try again.";
+    return {"auth/invalid-email":"Please enter a valid email address.","auth/user-not-found":"No account found with that email.","auth/wrong-password":"Incorrect password.","auth/too-many-requests":"Too many attempts. Try again later.","auth/invalid-credential":"Incorrect email or password."}[code] || "Login failed. Please try again.";
   }
 </script>
 </body>

@@ -1,0 +1,90 @@
+import os
+import json
+import firebase_admin
+from firebase_admin import credentials
+from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ── Flask setup ───────────────────────────────────────────────────────────────
+# template_folder and static_folder tell Flask where to find your HTML/CSS/JS.
+# Now Flask serves EVERYTHING — frontend and API — from one place.
+app = Flask(
+    __name__,
+    template_folder="templates",   # HTML files go here
+    static_folder="static"         # CSS/JS/images go here
+)
+
+CORS(app)
+
+# ── Firebase Admin SDK ────────────────────────────────────────────────────────
+if os.environ.get("FIREBASE_CREDENTIALS"):
+    # Render/production: credentials stored as environment variable
+    cred_dict = json.loads(os.environ["FIREBASE_CREDENTIALS"])
+    cred = credentials.Certificate(cred_dict)
+else:
+    # Local development: use the JSON key file
+    key_path = os.path.join(os.path.dirname(__file__), "firebase_admin_key.json")
+    cred = credentials.Certificate(key_path)
+
+firebase_admin.initialize_app(cred)
+
+# ── API Blueprints ────────────────────────────────────────────────────────────
+from routes.recipes        import recipes_bp
+from routes.meal_plans     import meal_plans_bp
+from routes.shopping_lists import shopping_lists_bp
+from routes.ingredients    import ingredients_bp
+
+app.register_blueprint(recipes_bp,        url_prefix="/api/recipes")
+app.register_blueprint(meal_plans_bp,     url_prefix="/api/meal-plans")
+app.register_blueprint(shopping_lists_bp, url_prefix="/api/shopping-lists")
+app.register_blueprint(ingredients_bp,    url_prefix="/api/ingredients")
+
+# ── Health check ──────────────────────────────────────────────────────────────
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "HomeBakes API is running"})
+
+# ── Serve HTML pages ──────────────────────────────────────────────────────────
+# Flask serves each HTML file directly from the templates/ folder.
+# Add a new route here for every new page you create.
+
+@app.route("/")
+@app.route("/index.html")
+def home():
+    return send_from_directory("templates", "index.html")
+
+@app.route("/login.html")
+def login():
+    return send_from_directory("templates", "login.html")
+
+@app.route("/register.html")
+def register():
+    return send_from_directory("templates", "register.html")
+
+@app.route("/recipes.html")
+def recipes():
+    return send_from_directory("templates", "recipes.html")
+
+@app.route("/recipe-form.html")
+def recipe_form():
+    return send_from_directory("templates", "recipe-form.html")
+
+@app.route("/recipe-view.html")
+def recipe_view():
+    return send_from_directory("templates", "recipe-view.html")
+
+@app.route("/meal-plans.html")
+def meal_plans():
+    return send_from_directory("templates", "meal-plans.html")
+
+@app.route("/shopping-lists.html")
+def shopping_lists():
+    return send_from_directory("templates", "shopping-lists.html")
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port)

@@ -1,6 +1,4 @@
-// auth.js — Firebase Authentication helpers
-
-import { auth } from "./firebase-init.js";
+import { auth } from "/static/js/firebase-init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -31,7 +29,6 @@ export async function getToken() {
   return await user.getIdToken();
 }
 
-// Call on protected pages — redirects to login if not signed in
 export function requireAuth(callback) {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -42,7 +39,6 @@ export function requireAuth(callback) {
   });
 }
 
-// Call on login/register pages — skips them if already signed in
 export function redirectIfLoggedIn() {
   onAuthStateChanged(auth, (user) => {
     if (user) window.location.href = "/index.html";

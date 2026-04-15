@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeBakes — My Kitchen</title>
-  <link rel="stylesheet" href="static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
   <style>
     .fridge-wrapper { display:flex; justify-content:center; padding:2rem 1rem 3rem; }
     .fridge { position:relative; width:100%; max-width:500px; border-radius:32px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,0.25); }
@@ -25,15 +25,15 @@
 </head>
 <body>
   <nav>
-    <a class="nav-brand" href="index.html">
-      <img class="nav-logo" src="static/images/logo.png" alt="HomeBakes" onerror="this.style.display='none'" />
+    <a class="nav-brand" href="/index.html">
+      <img class="nav-logo" src="/static/images/logo.png" alt="HomeBakes" onerror="this.style.display='none'" />
       <span class="nav-title">HomeBakes</span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="meal-plans.html">Meal Plans</a></li>
-      <li><a href="recipes.html">Recipes</a></li>
-      <li><a href="shopping-lists.html">Shopping Lists</a></li>
+      <li><a href="/index.html" class="active">Home</a></li>
+      <li><a href="/meal-plans.html">Meal Plans</a></li>
+      <li><a href="/recipes.html">Recipes</a></li>
+      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
     </ul>
     <div class="nav-icons">
       <button class="nav-icon-btn" id="logoutBtn" title="Log out">
@@ -46,19 +46,19 @@
 
   <div class="fridge-wrapper">
     <div class="fridge">
-      <img class="fridge-img" src="static/images/fridge.png" alt="Retro teal fridge" onerror="this.style.minHeight='700px';" />
+      <img class="fridge-img" src="/static/images/fridge.png" alt="Retro teal fridge" onerror="this.style.minHeight='700px';" />
       <div class="fridge-welcome"><h2>Welcome to Your Kitchen</h2></div>
       <div class="fridge-magnets">
-        <a class="magnet-card" href="meal-plans.html">
-          <img src="static/images/meal-plan-icon.png" alt="Meal Plan" onerror="this.style.display='none'" />
+        <a class="magnet-card" href="/meal-plans.html">
+          <img src="/static/images/meal-plan-icon.png" alt="Meal Plan" onerror="this.style.display='none'" />
           <span class="magnet-label">Meal Plan</span>
         </a>
-        <a class="magnet-card" href="recipes.html">
-          <img src="static/images/recipe-box-icon.png" alt="My Recipes" onerror="this.style.display='none'" />
+        <a class="magnet-card" href="/recipes.html">
+          <img src="/static/images/recipe-box-icon.png" alt="My Recipes" onerror="this.style.display='none'" />
           <span class="magnet-label">My Recipes</span>
         </a>
-        <a class="magnet-card" href="shopping-lists.html">
-          <img src="static/images/shopping-list-icon.png" alt="Shopping Lists" onerror="this.style.display='none'" />
+        <a class="magnet-card" href="/shopping-lists.html">
+          <img src="/static/images/shopping-list-icon.png" alt="Shopping Lists" onerror="this.style.display='none'" />
           <span class="magnet-label">Shopping Lists</span>
         </a>
       </div>
@@ -66,7 +66,7 @@
   </div>
 
 <script type="module">
-  import { requireAuth, logout } from "./static/js/auth.js";
+  import { requireAuth, logout } from "/static/js/auth.js";
   requireAuth(user => {
     document.getElementById("userName").textContent = user.displayName || user.email.split("@")[0];
   });

@@ -1,14 +1,11 @@
 services:
   - type: web
-    name: home-bakes-api
+    name: home-bakes
     runtime: python
-    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: FIREBASE_CREDENTIALS
-        sync: false          # You paste this secret in the Render dashboard
-      - key: RENDER_FRONTEND_URL
-        sync: false          # e.g. https://home-bakes.onrender.com
+        sync: false

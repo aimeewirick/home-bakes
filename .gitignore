@@ -1,29 +1,22 @@
-# ── Firebase secret key — NEVER commit this ──
-backend/firebase_admin_key.json
+# Firebase secret key — NEVER commit this
+firebase_admin_key.json
 
-# ── Python ────────────────────────────────────
+# Python
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
-.eggs/
 .venv/
 venv/
 env/
 
-# ── Environment files ─────────────────────────
+# Environment files
 .env
 .env.local
-.env.production
 
-# ── OS junk ───────────────────────────────────
+# OS junk
 .DS_Store
 Thumbs.db
 
-# ── Editor folders ────────────────────────────
+# Editor
 .vscode/
 .idea/

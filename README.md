@@ -6,39 +6,44 @@ home-bakes/                        ← your GitHub repo root
 ├── .gitignore
 ├── render.yaml                    ← tells Render how to deploy
 ├── README.md
-├── backend/
-│   ├── app.py                     ← Flask entry point
-│   ├── requirements.txt
-│   ├── firebase_admin_key.json    ← LOCAL ONLY — never pushed to GitHub
-│   └── routes/
-│       ├── auth.py
-│       ├── recipes.py
-│       ├── meal_plans.py
-│       ├── shopping_lists.py
-│       └── ingredients.py
-└── frontend/
-    ├── index.html                 ← Home (fridge dashboard)
-    ├── login.html
-    ├── register.html
-    ├── recipes.html               ← Week 3
-    ├── recipe-view.html           ← Week 2
-    ├── recipe-form.html           ← Week 2
-    ├── meal-plans.html            ← Week 4
-    ├── shopping-lists.html        ← Week 7
-    └── static/
-        ├── css/style.css
-        ├── js/
-        │   ├── firebase-init.js   ← PUT YOUR FIREBASE CONFIG HERE
-        │   ├── auth.js
-        │   └── api.js
-        └── images/                ← add your images here
-            ├── logo.png
-            ├── kitchen-hero.jpg
-            ├── fridge.png
-            ├── recipe-box-icon.png
-            ├── meal-plan-icon.png
-            └── shopping-list-icon.png
+├── app.py                         ← Flask entry point (serves EVERYTHING)
+├── requirements.txt
+├── firebase_admin_key.json        ← LOCAL ONLY — never pushed to GitHub
+├── routes/
+│   ├── auth.py
+│   ├── recipes.py
+│   ├── meal_plans.py
+│   ├── shopping_lists.py
+│   └── ingredients.py
+├── templates/                     ← ALL your HTML pages go here
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   ├── recipes.html               ← Week 3
+│   ├── recipe-form.html           ← Week 2
+│   ├── recipe-view.html           ← Week 2
+│   ├── meal-plans.html            ← Week 4
+│   └── shopping-lists.html        ← Week 7
+└── static/                        ← ALL your CSS/JS/images go here
+    ├── css/
+    │   └── style.css
+    ├── js/
+    │   ├── firebase-init.js       ← your Firebase config lives here
+    │   ├── auth.js
+    │   └── api.js
+    └── images/
+        ├── logo.png
+        ├── kitchen-hero.jpg
+        ├── fridge.png
+        ├── recipe-box-icon.png
+        ├── meal-plan-icon.png
+        └── shopping-list-icon.png
 ```
+
+### Why this structure?
+Flask serves EVERYTHING from one place — your HTML pages from `templates/`
+and your CSS/JS/images from `static/`. There is no separate frontend service.
+One GitHub repo → one Render service → one URL. Simple.
 
 ---
 
@@ -47,7 +52,6 @@ home-bakes/                        ← your GitHub repo root
 ### Step 1 — Create a Firebase Project
 1. Go to https://console.firebase.google.com
 2. Click **Add project** → name it **HomeBakes** → Create project
-3. Disable Google Analytics (not needed)
 
 ### Step 2 — Enable Authentication
 1. Firebase Console → **Authentication** → Get started
@@ -107,144 +111,118 @@ service cloud.firestore {
 ```
 
 ### Step 5 — Get Your Firebase Web Config (for frontend)
-1. Firebase Console → Project Settings (gear icon) → **Your apps**
-2. Click **Add app** → Web (</>)  → Register app
-3. Copy the `firebaseConfig` object
-4. Open `frontend/static/js/firebase-init.js`
-5. Replace the placeholder values with your real config
+1. Firebase Console → Project Settings → **Your apps** → Web app
+2. Copy the `firebaseConfig` object — your values are already filled into
+   `static/js/firebase-init.js` so you don't need to do anything here
 
 ### Step 6 — Get Your Service Account Key (for backend)
 1. Firebase Console → Project Settings → **Service accounts**
 2. Click **Generate new private key** → Download the JSON file
 3. Rename it to `firebase_admin_key.json`
-4. Place it in `backend/`
-5. ⚠️ This file is in `.gitignore` — it will NEVER be pushed to GitHub
+4. Place it in the ROOT of your project (same folder as `app.py`)
+5. ⚠️ It's in `.gitignore` — it will NEVER be pushed to GitHub
 
 ---
 
-## PART 2 — GitHub Setup
+## PART 2 — Running Locally
 
-You already have the repo at: https://github.com/aimeewirick/home-bakes
-
-### Clone and add the project files
 ```bash
-# Clone your repo locally
-git clone https://github.com/aimeewirick/home-bakes.git
-cd home-bakes
-
-# Copy all the project files from the zip into this folder,
-# then push them up to GitHub:
-git add .
-git commit -m "Week 1: project setup, auth, base structure"
-git push origin main
-```
-
-### Your weekly git workflow (every time you work on it)
-```bash
-# 1. Before you start — pull any changes
-git pull origin main
-
-# 2. Write your code...
-
-# 3. When done — save your work to GitHub
-git add .
-git commit -m "describe what you did"
-git push origin main
-
-# → Render will automatically detect the push and redeploy within ~2 minutes
-```
-
----
-
-## PART 3 — Render Deployment (auto-deploy from GitHub)
-
-### Step 1 — Create a Render Account
-Go to https://render.com → Sign up (free) → Connect your GitHub account
-
-### Step 2 — Create a New Web Service
-1. Render Dashboard → **New** → **Web Service**
-2. Connect your GitHub repo: `aimeewirick/home-bakes`
-3. Render will detect the `render.yaml` file automatically and fill in the settings
-4. If it asks manually, use these settings:
-   - **Root directory:** `backend`
-   - **Build command:** `pip install -r requirements.txt`
-   - **Start command:** `gunicorn app:app`
-   - **Python version:** 3.11
-
-### Step 3 — Add Your Secret Environment Variables
-In the Render service dashboard → **Environment** tab, add these two variables:
-
-**Variable 1:**
-- Key: `FIREBASE_CREDENTIALS`
-- Value: Open your `firebase_admin_key.json` file, select ALL the text,
-  and paste the entire JSON as the value. It will look like:
-  `{"type": "service_account", "project_id": "...", ...}`
-
-**Variable 2 (add after your frontend is deployed):**
-- Key: `RENDER_FRONTEND_URL`
-- Value: the URL of your deployed frontend (e.g. `https://home-bakes.onrender.com`)
-
-### Step 4 — Deploy
-Click **Deploy** — Render will install dependencies and start your Flask app.
-Your API will be live at something like: `https://home-bakes-api.onrender.com`
-
-Test it by visiting: `https://home-bakes-api.onrender.com/api/health`
-You should see: `{"status": "HomeBakes API is running"}`
-
-### Step 5 — Update api.js with your Render URL
-Open `frontend/static/js/api.js` and update this line:
-```javascript
-const RENDER_API_URL = "https://home-bakes-api.onrender.com";  // ← your actual URL
-```
-Then push to GitHub — Render will redeploy automatically.
-
-### Step 6 — Host your Frontend on Render (optional but recommended)
-1. Render Dashboard → **New** → **Static Site**
-2. Connect the same GitHub repo
-3. Set **Root directory:** `frontend`
-4. Set **Publish directory:** `.` (just a dot)
-5. Deploy — your frontend will be live at a `.onrender.com` URL
-
----
-
-## PART 4 — Running Locally (for development)
-
-### Backend
-```bash
-cd backend
+# From the root of your project (home-bakes/)
 pip install -r requirements.txt
 python app.py
-# Flask runs at http://localhost:5000
-# Test: http://localhost:5000/api/health
 ```
 
-### Frontend
-Use VS Code's **Live Server** extension:
-1. Install "Live Server" from the VS Code extensions panel
-2. Open `frontend/index.html`
-3. Right-click → **Open with Live Server**
-4. Runs at: http://127.0.0.1:5500
+Then open your browser to: **http://localhost:5000**
 
-The `api.js` file automatically uses `localhost:5000` when running locally
-and your Render URL when running on the live site.
+That's it — Flask serves both the pages AND the API from one place.
+No Live Server, no separate frontend server needed.
+
+---
+
+## PART 3 — GitHub Workflow
+
+Your repo: https://github.com/aimeewirick/home-bakes
+
+### Every time you work on the project:
+```powershell
+# Navigate to your repo
+cd "C:\Projects Class Sprin 2026\homebakes\home-bakes"
+
+# Pull latest changes first
+git pull origin main
+
+# ... write your code ...
+
+# Save and push when done
+git add .
+git commit -m "describe what you changed"
+git push origin main
+
+# → Render automatically detects the push and redeploys within ~2 minutes
+```
+
+---
+
+## PART 4 — Render Setup (One Service Only)
+
+You only need ONE Render service. If you created a second one (static site)
+during setup, delete it — you don't need it.
+
+### Render Service Settings:
+| Setting | Value |
+|---|---|
+| Name | `home-bakes` |
+| Language | Python 3 |
+| Branch | `main` |
+| Root Directory | *(leave blank)* |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `gunicorn app:app` |
+| Instance Type | Free |
+
+### Add your Firebase secret:
+Render Dashboard → your service → **Environment** tab → Add:
+
+| Key | Value |
+|---|---|
+| `FIREBASE_CREDENTIALS` | Paste the ENTIRE contents of `firebase_admin_key.json` |
+
+Your live URL: **https://home-bakes-404h.onrender.com**
+
+Test it: https://home-bakes-404h.onrender.com/api/health
+Should return: `{"status": "HomeBakes API is running"}`
 
 ---
 
 ## PART 5 — Add Your Images
 
-Place these in `frontend/static/images/`:
+Place these in `static/images/`:
 
 | Filename | What it is |
 |---|---|
-| `logo.png` | The circular HomeBakes logo from your wireframe |
-| `kitchen-hero.jpg` | The retro kitchen photo for the login page |
-| `fridge.png` | The teal retro fridge for the home page |
-| `recipe-box-icon.png` | The teal recipe tin (fridge magnet) |
-| `meal-plan-icon.png` | The weekly meal plan image (fridge magnet) |
-| `shopping-list-icon.png` | The notepad shopping list (fridge magnet) |
+| `logo.png` | The circular HomeBakes logo |
+| `kitchen-hero.jpg` | Retro kitchen photo for login page |
+| `fridge.png` | Teal retro fridge for home dashboard |
+| `recipe-box-icon.png` | Recipe tin (fridge magnet) |
+| `meal-plan-icon.png` | Meal plan (fridge magnet) |
+| `shopping-list-icon.png` | Shopping list notepad (fridge magnet) |
 
-Export these from your Miro board or source from your own files.
-The pages will still work without them (images fail silently).
+---
+
+## PART 6 — Adding New Pages (every week)
+
+When you build a new page, do TWO things:
+
+**1. Create the HTML file in `templates/`**
+e.g. `templates/recipes.html`
+
+**2. Add a route for it in `app.py`**
+```python
+@app.route("/recipes.html")
+def recipes():
+    return send_from_directory("templates", "recipes.html")
+```
+
+That's all — Flask will serve it automatically.
 
 ---
 
@@ -253,30 +231,26 @@ The pages will still work without them (images fail silently).
 ### Firebase
 - [ ] Firebase project created
 - [ ] Email/Password authentication enabled
-- [ ] Firestore database created
+- [ ] Firestore database created in test mode
 - [ ] Security rules applied
-- [ ] `firebase-init.js` updated with your web app config
-- [ ] `firebase_admin_key.json` downloaded and placed in `backend/`
+- [ ] `firebase_admin_key.json` downloaded and placed in project root
+
+### Local Development
+- [ ] `pip install -r requirements.txt` completed
+- [ ] `python app.py` runs without errors
+- [ ] http://localhost:5000 loads the login page
+- [ ] Can create a new account (register)
+- [ ] Can log in and reach the home/fridge page
+- [ ] Logout works and returns to login
 
 ### GitHub
-- [ ] Repo cloned locally
-- [ ] Project files added and pushed to `main`
-- [ ] `.gitignore` confirmed — `firebase_admin_key.json` is NOT in GitHub
+- [ ] All files pushed to `main`
+- [ ] `firebase_admin_key.json` confirmed NOT in GitHub
 
-### Local development
-- [ ] `pip install -r requirements.txt` completed
-- [ ] Flask running at `localhost:5000`
-- [ ] `/api/health` returns OK
-- [ ] Login page loads in browser
-- [ ] Register page loads in browser
-- [ ] Can create a new account
-- [ ] Can log in and reach the home/fridge page
-- [ ] Logout works and returns to login page
-
-### Render (can do this after confirming local works)
-- [ ] Render account created and GitHub connected
-- [ ] Web service created from `home-bakes` repo
-- [ ] `FIREBASE_CREDENTIALS` environment variable set
-- [ ] Backend deployed and `/api/health` works at Render URL
-- [ ] `RENDER_API_URL` updated in `api.js` and pushed
-- [ ] Auto-deploy confirmed — push to GitHub → Render updates automatically
+### Render
+- [ ] Single web service created (NOT a static site)
+- [ ] Root Directory left blank
+- [ ] Build/Start commands set correctly
+- [ ] `FIREBASE_CREDENTIALS` environment variable added
+- [ ] https://home-bakes-404h.onrender.com/api/health returns OK
+- [ ] Push to GitHub triggers auto-deploy in Render

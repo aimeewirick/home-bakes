@@ -4,10 +4,6 @@ from firebase_admin import auth
 
 
 def require_auth(f):
-    """
-    Decorator that verifies the Firebase ID token on every protected route.
-    Sets g.uid to the authenticated user's Firebase UID.
-    """
     @wraps(f)
     def decorated(*args, **kwargs):
         auth_header = request.headers.get("Authorization", "")
