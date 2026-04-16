@@ -5,85 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeBakes — My Kitchen</title>
   <link rel="stylesheet" href="/static/css/style.css" />
-  <style>
-    /* Tile background using actual image */
-    body {
-      background-image: url('/static/images/yellow_tile.png');
-      background-repeat: repeat;
-      background-size: 300px;
-    }
-
-    .greeting-bar { background:white; padding:0.6rem 2rem; border-bottom:1px solid var(--border); font-size:0.9rem; color:var(--text-mid); }
-    .greeting-bar span { font-weight:700; color:var(--teal-dark); }
-
-    /* Main dashboard layout */
-    .dashboard {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem 3rem;
-      gap: 2rem;
-    }
-
-    /* Oven hero image */
-    .oven-hero {
-      width: 100%;
-      max-width: 420px;
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
-    }
-
-    /* Welcome text */
-    .welcome-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      text-align: center;
-    }
-
-    /* Magnet cards row */
-    .magnet-row {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      width: 100%;
-      max-width: 700px;
-    }
-
-    .magnet-card {
-      background: white;
-      border-radius: 8px;
-      padding: 1.25rem 1rem;
-      cursor: pointer;
-      box-shadow: 3px 4px 12px rgba(0,0,0,0.2);
-      text-decoration: none;
-      color: var(--text-dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.6rem;
-      width: 180px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .magnet-card:nth-child(1) { transform: rotate(-1.5deg); }
-    .magnet-card:nth-child(2) { transform: rotate(1deg); }
-    .magnet-card:nth-child(3) { transform: rotate(-0.5deg); }
-    .magnet-card:hover { transform: rotate(0deg) translateY(-5px) !important; box-shadow: 4px 10px 24px rgba(0,0,0,0.25); }
-
-    .magnet-card img { width: 120px; height: 100px; object-fit: contain; }
-
-    .magnet-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--teal-dark);
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/index.css" />
 </head>
 <body>
 
@@ -110,11 +32,12 @@
   </nav>
 
   <!-- Greeting bar -->
-  <div class="greeting-bar">Welcome back, <span id="userName">Chef</span>!</div>
+  <div class="greeting-bar">
+    Welcome back, <span id="userName">Chef</span>!
+  </div>
 
   <!-- Main dashboard -->
   <div class="dashboard">
-
     <h2 class="welcome-text">Welcome to Your Kitchen</h2>
 
     <!-- Oven hero image -->
@@ -124,22 +47,18 @@
 
     <!-- Three navigation magnet cards -->
     <div class="magnet-row">
-
       <a class="magnet-card" href="/meal-plans.html">
         <img src="/static/images/Calendar.png" alt="Meal Plan" />
         <span class="magnet-label">Meal Plan</span>
       </a>
-
       <a class="magnet-card" href="/recipes.html">
         <img src="/static/images/recipe_box1.PNG" alt="My Recipes" />
         <span class="magnet-label">My Recipes</span>
       </a>
-
       <a class="magnet-card" href="/shopping-lists.html">
         <img src="/static/images/short_recipe.png" alt="Shopping Lists" />
         <span class="magnet-label">Shopping Lists</span>
       </a>
-
     </div>
   </div>
 
