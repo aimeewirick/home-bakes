@@ -6,6 +6,7 @@
   <title>HomeBakes — My Kitchen</title>
   <link rel="stylesheet" href="/static/css/style.css" />
   <link rel="stylesheet" href="/static/css/index.css" />
+  <link rel="stylesheet" href="/static/css/frame-styles.css" />
 </head>
 <body>
 
@@ -22,7 +23,8 @@
     </ul>
     <div class="nav-icons">
       <button class="nav-icon-btn" id="logoutBtn" title="Log out">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
@@ -38,21 +40,59 @@
 
   <!-- Main dashboard -->
   <div class="dashboard">
-
-    <!-- Fridge with magnet cards overlaid -->
     <div class="fridge-container">
 
+      <!-- Welcome text at top of fridge -->
       <h2 class="welcome-text">Welcome to Your Kitchen</h2>
 
-      <!-- The fridge image -->
+      <!-- Fridge image -->
       <img class="fridge-img"
            src="/static/images/refrigerator.png"
            alt="Retro teal refrigerator" />
 
-      <!-- Magnet cards sit on top of the fridge -->
+      <!-- ── Picture frame — centered on freezer section ── -->
+      <div class="fridge-frame-wrapper">
+
+        <div class="fridge-frame">
+          <!-- Photo sits BEHIND the frame -->
+          <img id="framePhoto"
+               class="fridge-frame-photo"
+               src="/static/images/flower.png"
+               alt="Your photo" />
+
+          <!-- Frame image on top -->
+          <img class="fridge-frame-img"
+               src="/static/images/picture_frame.png"
+               alt="Picture frame" />
+
+          <!-- Hover/click overlay -->
+          <div class="fridge-frame-overlay" id="frameOverlay">
+            <span class="teaser-text" id="teaserText"></span>
+          </div>
+
+          <!-- Hidden file input -->
+          <input type="file"
+                 id="frameFileInput"
+                 class="frame-file-input"
+                 accept="image/*" />
+        </div>
+
+        <!-- Caption below frame — click to edit -->
+        <div class="frame-caption-wrapper">
+          <span class="frame-caption" id="frameCaption">~ my happy place ~</span>
+          <input type="text"
+                 class="frame-caption-input"
+                 id="frameCaptionInput"
+                 maxlength="30"
+                 placeholder="add a caption..." />
+        </div>
+
+      </div>
+
+      <!-- Magnet cards on lower fridge door -->
       <div class="magnet-row">
 
-        <a class="magnet-card" href="/meal_plans.html">
+        <a class="magnet-card" href="/meal-plans.html">
           <img src="/static/images/meal_plan.png" alt="Meal Plan" />
           <span class="magnet-label">Meal Plan</span>
         </a>
@@ -73,10 +113,13 @@
 
 <script type="module">
   import { requireAuth, logout } from "/static/js/auth.js";
+  import "/static/js/profile.js";
+
   requireAuth(user => {
     document.getElementById("userName").textContent =
       user.displayName || user.email.split("@")[0];
   });
+
   document.getElementById("logoutBtn").addEventListener("click", () => logout());
 </script>
 </body>

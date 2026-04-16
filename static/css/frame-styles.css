@@ -1,0 +1,142 @@
+/* ═══════════════════════════════════════════
+   HomeBakes — Fridge Frame Styles
+═══════════════════════════════════════════ */
+
+/* ── Frame wrapper — sits on freezer section ── */
+.fridge-frame-wrapper {
+  position: absolute;
+  top: 9%;
+  left: 75%;
+  transform: translateX(-50%);
+  width: 30%;                /* wider — no left/right clipping */
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Frame container — relative so photo sits inside ── */
+.fridge-frame {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* ── The photo inside the frame — behind the frame image ── */
+.fridge-frame-photo {
+  position: absolute;
+  top: 30%;
+  left: 13%;
+  width: 74%;
+  height: 40%;
+  object-fit: cover;
+  border-radius: 2px;
+  z-index: 1;
+  background: white;    /* solid backing */
+}
+
+/* ── The picture frame image — on top of photo ── */
+.fridge-frame-img {
+  position: relative;
+  width: 100%;
+  display: block;
+  z-index: 2;
+  pointer-events: none;
+  /* remove mix-blend-mode: multiply */
+}
+
+/* ── Hover overlay ── */
+.fridge-frame-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;        /* this stays within .fridge-frame only */
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+.fridge-frame-overlay.hovered {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Teaser text ── */
+.teaser-text {
+  font-family: 'Satisfy', cursive;
+  font-size: 0.85rem;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  text-align: center;
+  padding: 0.3rem 0.75rem;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Hidden file input ── */
+.frame-file-input { display: none; }
+
+/* ── Caption below the frame ── */
+.frame-caption-wrapper {
+  margin-top: -2rem;
+  text-align: center;
+  width: 100%;
+  position: relative;
+  z-index: 10;        /* higher than overlay's z-index: 4 */
+}
+
+.frame-caption {
+  font-family: 'Satisfy', cursive;
+  font-size: 1rem;
+  color: white;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  cursor: pointer;
+  display: block;
+  transition: opacity 0.2s;
+  padding: 0.2rem 0.5rem;
+  border-bottom: 1.5px dashed rgba(255,255,255,0.4);
+  position: relative;
+  z-index: 10;        /* sits above the overlay */
+}
+.frame-caption:hover {
+  opacity: 0.75;
+  border-bottom-color: rgba(255,255,255,0.8);
+}
+
+/* Small pencil hint on hover */
+.frame-caption::after {
+  content: " ✏️";
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.frame-caption:hover::after { opacity: 1; }
+
+.frame-caption-input {
+  display: none;
+  width: 90%;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  font-family: 'Satisfy', cursive;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  text-align: center;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .fridge-frame-wrapper { width: 60%; top: 3%; }
+  .teaser-text { font-size: 0.7rem; }
+  .frame-caption { font-size: 0.85rem; }
+}
