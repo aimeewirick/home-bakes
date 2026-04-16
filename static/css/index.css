@@ -60,7 +60,7 @@ body {
 /* top: ~52% puts them just below the freezer/fridge split line */
 .magnet-row {
   position: absolute;
-  top: 52%;
+  top: 30%;
   left: 50%;
   transform: translateX(-50%);
   width: 82%;
