@@ -30,15 +30,20 @@ body {
   padding: 1.5rem 1rem 3rem;
 }
 
-/* ── Welcome text ── */
 .welcome-text {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'Playfair Display', serif;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: white;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 8px rgba(15, 15, 15, 0.5);
   text-align: center;
-  margin-bottom: 1.25rem;
+  white-space: nowrap;
+  z-index: 2;
+  margin-bottom: 0;
 }
 
 /* ── Fridge container ── */
@@ -66,13 +71,13 @@ body {
   width: 88%;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 0.5rem;
 }
 
 /* ── Individual magnet card — portrait post-it style ── */
 .magnet-card {
   background: white;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 0.6rem 1.2rem;
   cursor: pointer;
   box-shadow: 3px 4px 10px rgba(0,0,0,0.22);
   text-decoration: none;
@@ -80,26 +85,26 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  width: 44%;                  /* narrower = more portrait */
+  gap: 0.05rem;
+  width: 35%;                  /* narrower = more portrait */
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 /* Alternating positions and rotations */
 .magnet-card:nth-child(1) {
   transform: rotate(-2deg);
-  align-self: flex-start;
-  margin-left: 4%;
+  align-self: flex-end;
+  margin-right: 15%;
 }
 .magnet-card:nth-child(2) {
   transform: rotate(1.5deg);
-  align-self: flex-end;
-  margin-right: 4%;
+  align-self: flex-start;
+  margin-left: 9%;
 }
 .magnet-card:nth-child(3) {
   transform: rotate(-1deg);
-  align-self: flex-start;
-  margin-left: 8%;
+  align-self: flex-end;
+  margin-right: 15%;
 }
 
 .magnet-card:hover {
@@ -109,8 +114,8 @@ body {
 
 /* ── Magnet card images ── */
 .magnet-card img {
-  width: 115px;
-  height: 115px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   background: transparent;
   mix-blend-mode: multiply;
@@ -118,7 +123,7 @@ body {
 
 /* ── Magnet label ── */
 .magnet-label {
-  font-size: 0.6rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
