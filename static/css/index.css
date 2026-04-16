@@ -60,7 +60,7 @@ body {
 /* top: ~52% puts them just below the freezer/fridge split line */
 .magnet-row {
   position: absolute;
-  top: 15%;
+  top: 30%;
   left: 50%;
   transform: translateX(-50%);
   width: 88%;
@@ -109,8 +109,8 @@ body {
 
 /* ── Magnet card images ── */
 .magnet-card img {
-  width: 95px;
-  height: 95px;
+  width: 115px;
+  height: 115px;
   object-fit: contain;
   background: transparent;
   mix-blend-mode: multiply;
