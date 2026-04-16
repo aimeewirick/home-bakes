@@ -89,8 +89,9 @@ body {
   width: 120px;
   height: 100px;
   object-fit: contain;
+  background: transparent;
+  mix-blend-mode: multiply;
 }
-
 .magnet-label {
   font-size: 0.72rem;
   font-weight: 700;
