@@ -193,7 +193,13 @@ body {
   max-width: 140px;
 }
 
-.feature-item img { width: 90px; height: 90px; object-fit: contain; }
+.feature-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  background: transparent;
+  mix-blend-mode: multiply;
+}
 
 .feature-item span {
   font-size: 0.75rem;
