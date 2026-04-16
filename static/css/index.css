@@ -63,7 +63,7 @@ body {
   top: 15%;
   left: 50%;
   transform: translateX(-50%);
-  width: 82%;
+  width: 88%;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -109,8 +109,8 @@ body {
 
 /* ── Magnet card images ── */
 .magnet-card img {
-  width: 70px;
-  height: 70px;
+  width: 95px;
+  height: 95px;
   object-fit: contain;
   background: transparent;
   mix-blend-mode: multiply;
