@@ -1,0 +1,508 @@
+/* ═══════════════════════════════════════════
+   HomeBakes — Recipe Form Page Styles
+   Matches the teal recipe card from wireframe
+═══════════════════════════════════════════ */
+
+body {
+  background-image: url('/static/images/yellow_tile.png');
+  background-repeat: repeat;
+  background-size: 300px;
+}
+
+/* ── Page layout ── */
+.page-content {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.top-bar h1 { font-size: 1.5rem; color: white; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+
+/* ── Teal recipe card ── */
+.recipe-card-form {
+  background: #5BBFC5;
+  border-radius: 0 20px 20px 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+/* Folder tab at top left */
+.card-tab {
+  position: absolute;
+  top: -2.6rem;
+  left: 0;
+  background: #4A9FA5;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.5rem 1.75rem;
+  border-radius: 10px 10px 0 0;
+}
+
+/* ── Recipe header row — name + categories ── */
+.recipe-header-row {
+  background: rgba(255,255,255,0.55);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.recipe-header-row .form-group { margin-bottom: 0; }
+
+/* ── Labels inside teal card ── */
+.recipe-card-form .form-group label {
+  color: #0D3D40;
+  font-size: 0.78rem;
+}
+
+/* ── Inputs inside teal card ── */
+.recipe-card-form .form-control {
+  background: rgba(255,255,255,0.8);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+}
+
+.recipe-card-form .form-control:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+.recipe-card-form select.form-control {
+  cursor: pointer;
+}
+
+/* ── Section headers ── */
+.section-header {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #0D3D40;
+  margin: 1.5rem 0 0.75rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background: rgba(255,255,255,0.4);
+}
+
+/* ── Ingredients table ── */
+.ingredients-table-wrapper {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ingredients-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ingredients-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0D3D40;
+  padding: 0 0.5rem 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ingredient-row td {
+  padding: 0.3rem 0.4rem;
+  vertical-align: middle;
+}
+
+/* ── Typeahead search container ── */
+.typeahead-wrapper {
+  position: relative;
+}
+
+.typeahead-input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.875rem;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.typeahead-input:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+/* Dropdown results */
+.typeahead-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1.5px solid var(--teal-light);
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: none;
+}
+
+.typeahead-dropdown.open { display: block; }
+
+.typeahead-item {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--text-dark);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.typeahead-item:last-child { border-bottom: none; }
+
+.typeahead-item:hover,
+.typeahead-item.highlighted {
+  background: var(--teal-pale);
+  color: var(--teal-dark);
+}
+
+.typeahead-category {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.typeahead-empty {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-light);
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Amount + unit inputs ── */
+.amount-input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.875rem;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-dark);
+  outline: none;
+}
+
+.amount-input:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+.unit-select {
+  width: 100%;
+  padding: 0.45rem 0.4rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.875rem;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-dark);
+  outline: none;
+  cursor: pointer;
+}
+
+.unit-select:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+/* Note input */
+.note-input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.8rem;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-mid);
+  outline: none;
+  font-style: italic;
+}
+
+.note-input:focus {
+  background: white;
+  border-color: var(--teal-dark);
+  font-style: normal;
+}
+
+/* Remove row button */
+.btn-remove-row {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  font-size: 1.1rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.btn-remove-row:hover {
+  background: rgba(192,57,43,0.2);
+  color: #C0392B;
+}
+
+/* Add ingredient button */
+.btn-add-ingredient {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.4);
+  border: 1.5px dashed rgba(13,61,64,0.4);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  color: #0D3D40;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+
+.btn-add-ingredient:hover { background: rgba(255,255,255,0.6); }
+
+/* ── Directions section ── */
+.direction-block {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.direction-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.direction-title-input {
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-dark);
+  outline: none;
+}
+
+.direction-title-input:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+.direction-text-input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.8);
+  color: var(--text-dark);
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.direction-text-input:focus {
+  background: white;
+  border-color: var(--teal-dark);
+}
+
+.btn-add-direction {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.4);
+  border: 1.5px dashed rgba(13,61,64,0.4);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  color: #0D3D40;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.25rem;
+}
+
+.btn-add-direction:hover { background: rgba(255,255,255,0.6); }
+
+/* ── Cutlery divider ── */
+.cutlery-divider {
+  text-align: center;
+  margin: 1.25rem 0;
+  opacity: 0.5;
+  font-size: 1.4rem;
+  letter-spacing: 0.5rem;
+}
+
+/* ── Form actions ── */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-actions-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Public toggle */
+.toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #0D3D40;
+  font-weight: 700;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.4);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider { background: var(--teal-dark); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* Buttons inside teal card */
+.btn-save {
+  background: var(--teal-dark);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 0.7rem 2rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.btn-save:hover { opacity: 0.85; }
+
+.btn-cancel {
+  background: rgba(255,255,255,0.4);
+  color: #0D3D40;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  border-radius: 100px;
+  padding: 0.7rem 1.5rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-cancel:hover { background: rgba(255,255,255,0.6); }
+
+/* ── Saving spinner ── */
+.saving-msg {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.saving-msg.visible { display: flex; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .recipe-header-row { grid-template-columns: 1fr; }
+  .ingredients-table th:nth-child(4),
+  .ingredient-row td:nth-child(4) { display: none; }
+  .page-content { padding: 1rem; }
+  .top-bar h1 { font-size: 1.2rem; }
+}

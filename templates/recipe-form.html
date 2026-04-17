@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — Add Recipe</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/recipe-form.css" />
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a class="nav-brand" href="/index.html">
+      <span class="nav-title">HomeBakes</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/index.html">Home</a></li>
+      <li><a href="/meal-plans.html">Meal Plans</a></li>
+      <li><a href="/recipes.html" class="active">Recipes</a></li>
+      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
+    </ul>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <h1 id="pageTitle">Add a Recipe</h1>
+      <a href="/recipes.html" class="btn-cancel">← Back to Recipes</a>
+    </div>
+
+    <!-- Teal recipe card form -->
+    <div class="recipe-card-form">
+      <div class="card-tab" id="cardTab">RECIPE</div>
+
+      <!-- Recipe name + meal type + category -->
+      <div class="recipe-header-row">
+        <div class="form-group">
+          <label for="recipeTitle">Recipe Name</label>
+          <input type="text" id="recipeTitle" class="form-control"
+                 placeholder="e.g. Grandma's Apple Pie" maxlength="100" />
+        </div>
+        <div class="form-group">
+          <label for="mealType">Meal Type</label>
+          <select id="mealType" class="form-control">
+            <option value="">Select...</option>
+            <option>Breakfast</option>
+            <option>Brunch</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Dessert</option>
+            <option>Snack</option>
+            <option>Drink</option>
+            <option>Side Dish</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="recipeCategory">Recipe Category</label>
+          <select id="recipeCategory" class="form-control">
+            <option value="">Select...</option>
+            <option>Breads</option>
+            <option>Cakes</option>
+            <option>Cookies</option>
+            <option>Pies</option>
+            <option>Muffins & Scones</option>
+            <option>Poultry</option>
+            <option>Meat</option>
+            <option>Fish & Seafood</option>
+            <option>Pasta</option>
+            <option>Soups & Stews</option>
+            <option>Salads</option>
+            <option>Vegetables</option>
+            <option>Breakfast & Brunch</option>
+            <option>Drinks</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── Ingredients ── -->
+      <div class="section-header">Ingredients</div>
+
+      <div class="ingredients-table-wrapper">
+        <table class="ingredients-table">
+          <thead>
+            <tr>
+              <th>Ingredient</th>
+              <th style="width:80px">Amount</th>
+              <th style="width:90px">Unit</th>
+              <th>Note</th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="ingredientsBody">
+            <!-- Rows added dynamically by recipe-form.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <button class="btn-add-ingredient" id="addIngredientBtn" type="button">
+        + add ingredient
+      </button>
+
+      <div class="cutlery-divider">🥄 🍴</div>
+
+      <!-- ── Directions ── -->
+      <div class="section-header">Directions</div>
+
+      <div id="directionsBody">
+        <!-- Direction blocks added dynamically by recipe-form.js -->
+      </div>
+
+      <button class="btn-add-direction" id="addDirectionBtn" type="button">
+        + add direction section
+      </button>
+
+      <!-- ── Form actions ── -->
+      <div class="form-actions">
+
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" id="isPublic" />
+            <span class="toggle-slider"></span>
+          </label>
+          Make recipe public
+        </div>
+
+        <div class="form-actions-right">
+          <div class="saving-msg" id="savingMsg">
+            <div class="spinner"></div>
+            Saving...
+          </div>
+          <a href="/recipes.html" class="btn-cancel">Cancel</a>
+          <button class="btn-save" id="saveBtn" type="button">
+            Save Recipe
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import { logout } from "/static/js/auth.js";
+  import "/static/js/recipe-form.js";
+  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+</script>
+</body>
+</html>

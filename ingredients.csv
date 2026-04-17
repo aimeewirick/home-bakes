@@ -1,0 +1,361 @@
+name,category
+All-Purpose Flour,Baking
+Whole Wheat Flour,Baking
+Bread Flour,Baking
+Cake Flour,Baking
+Self-Rising Flour,Baking
+Almond Flour,Baking
+Cornstarch,Baking
+Baking Powder,Baking
+Baking Soda,Baking
+Active Dry Yeast,Baking
+Instant Yeast,Baking
+Granulated Sugar,Baking
+Powdered Sugar,Baking
+Brown Sugar Light,Baking
+Brown Sugar Dark,Baking
+Raw Sugar,Baking
+Honey,Baking
+Maple Syrup,Baking
+Molasses,Baking
+Corn Syrup Light,Baking
+Corn Syrup Dark,Baking
+Cocoa Powder Unsweetened,Baking
+Cocoa Powder Dutch Process,Baking
+Cream of Tartar,Baking
+Unflavored Gelatin,Baking
+Tapioca Starch,Baking
+Arrowroot Powder,Baking
+Butter Unsalted,Dairy
+Butter Salted,Dairy
+Whole Milk,Dairy
+2% Milk,Dairy
+Skim Milk,Dairy
+Buttermilk,Dairy
+Heavy Whipping Cream,Dairy
+Half and Half,Dairy
+Sour Cream,Dairy
+Cream Cheese,Dairy
+Ricotta Cheese,Dairy
+Mascarpone,Dairy
+Cheddar Cheese,Dairy
+Mozzarella Cheese,Dairy
+Parmesan Cheese,Dairy
+Gruyere Cheese,Dairy
+Feta Cheese,Dairy
+Goat Cheese,Dairy
+Evaporated Milk,Dairy
+Sweetened Condensed Milk,Dairy
+Eggs Large,Eggs
+Eggs Extra Large,Eggs
+Egg Whites,Eggs
+Egg Yolks,Eggs
+Ground Beef,Meat
+Ground Beef Lean,Meat
+Chuck Roast,Meat
+Beef Tenderloin,Meat
+Ribeye Steak,Meat
+Sirloin Steak,Meat
+Flank Steak,Meat
+Beef Short Ribs,Meat
+Beef Brisket,Meat
+Lamb Chops,Meat
+Ground Lamb,Meat
+Pork Tenderloin,Meat
+Pork Chops,Meat
+Ground Pork,Meat
+Bacon,Meat
+Ham,Meat
+Italian Sausage,Meat
+Breakfast Sausage,Meat
+Pepperoni,Meat
+Prosciutto,Meat
+Chicken Breast,Poultry
+Chicken Thighs,Poultry
+Chicken Wings,Poultry
+Chicken Drumsticks,Poultry
+Whole Chicken,Poultry
+Ground Chicken,Poultry
+Turkey Breast,Poultry
+Ground Turkey,Poultry
+Whole Turkey,Poultry
+Duck Breast,Poultry
+Salmon Fillet,Fish & Seafood
+Tuna Canned,Fish & Seafood
+Tuna Steak,Fish & Seafood
+Cod Fillet,Fish & Seafood
+Tilapia,Fish & Seafood
+Halibut,Fish & Seafood
+Shrimp,Fish & Seafood
+Scallops,Fish & Seafood
+Crab Meat,Fish & Seafood
+Lobster,Fish & Seafood
+Clams,Fish & Seafood
+Mussels,Fish & Seafood
+Oysters,Fish & Seafood
+Anchovies,Fish & Seafood
+Sardines,Fish & Seafood
+Black Beans,Legumes
+Kidney Beans,Legumes
+Chickpeas,Legumes
+Lentils Green,Legumes
+Lentils Red,Legumes
+Pinto Beans,Legumes
+Navy Beans,Legumes
+Cannellini Beans,Legumes
+Edamame,Legumes
+Peanuts,Legumes
+Peanut Butter,Legumes
+Tofu Firm,Legumes
+Tofu Silken,Legumes
+Almonds,Tree Nuts
+Walnuts,Tree Nuts
+Pecans,Tree Nuts
+Cashews,Tree Nuts
+Pistachios,Tree Nuts
+Pine Nuts,Tree Nuts
+Hazelnuts,Tree Nuts
+Macadamia Nuts,Tree Nuts
+Brazil Nuts,Tree Nuts
+Almond Butter,Tree Nuts
+Cashew Butter,Tree Nuts
+White Rice,Grains
+Brown Rice,Grains
+Jasmine Rice,Grains
+Basmati Rice,Grains
+Wild Rice,Grains
+Arborio Rice,Grains
+Spaghetti,Grains
+Penne,Grains
+Fettuccine,Grains
+Linguine,Grains
+Rigatoni,Grains
+Lasagna Noodles,Grains
+Egg Noodles,Grains
+Ramen Noodles,Grains
+Rice Noodles,Grains
+Rolled Oats,Grains
+Steel Cut Oats,Grains
+Quinoa,Grains
+Cornmeal,Grains
+Breadcrumbs Plain,Grains
+Breadcrumbs Panko,Grains
+Couscous,Grains
+Barley,Grains
+Apples,Fruits
+Bananas,Fruits
+Strawberries,Fruits
+Blueberries,Fruits
+Raspberries,Fruits
+Blackberries,Fruits
+Cherries,Fruits
+Peaches,Fruits
+Pears,Fruits
+Plums,Fruits
+Mangoes,Fruits
+Pineapple,Fruits
+Oranges,Fruits
+Lemons,Fruits
+Limes,Fruits
+Grapefruit,Fruits
+Grapes,Fruits
+Watermelon,Fruits
+Cantaloupe,Fruits
+Avocado,Fruits
+Coconut,Fruits
+Dried Cranberries,Fruits
+Raisins,Fruits
+Dates,Fruits
+Garlic,Vegetables
+Yellow Onion,Vegetables
+Red Onion,Vegetables
+White Onion,Vegetables
+Green Onions,Vegetables
+Shallots,Vegetables
+Leeks,Vegetables
+Tomatoes,Vegetables
+Cherry Tomatoes,Vegetables
+Roma Tomatoes,Vegetables
+Sun-Dried Tomatoes,Vegetables
+Bell Pepper Red,Vegetables
+Bell Pepper Green,Vegetables
+Bell Pepper Yellow,Vegetables
+Jalapeno,Vegetables
+Serrano Pepper,Vegetables
+Poblano Pepper,Vegetables
+Carrots,Vegetables
+Celery,Vegetables
+Broccoli,Vegetables
+Cauliflower,Vegetables
+Spinach,Vegetables
+Kale,Vegetables
+Arugula,Vegetables
+Romaine Lettuce,Vegetables
+Iceberg Lettuce,Vegetables
+Cabbage Green,Vegetables
+Cabbage Red,Vegetables
+Brussels Sprouts,Vegetables
+Asparagus,Vegetables
+Green Beans,Vegetables
+Peas Fresh,Vegetables
+Peas Frozen,Vegetables
+Corn,Vegetables
+Zucchini,Vegetables
+Yellow Squash,Vegetables
+Butternut Squash,Vegetables
+Acorn Squash,Vegetables
+Sweet Potato,Vegetables
+Russet Potato,Vegetables
+Red Potato,Vegetables
+Yukon Gold Potato,Vegetables
+Mushrooms Button,Vegetables
+Mushrooms Cremini,Vegetables
+Mushrooms Portobello,Vegetables
+Mushrooms Shiitake,Vegetables
+Cucumber,Vegetables
+Eggplant,Vegetables
+Artichoke Hearts,Vegetables
+Beets,Vegetables
+Radishes,Vegetables
+Basil Fresh,Herbs & Spices
+Basil Dried,Herbs & Spices
+Parsley Fresh,Herbs & Spices
+Parsley Dried,Herbs & Spices
+Cilantro,Herbs & Spices
+Rosemary Fresh,Herbs & Spices
+Rosemary Dried,Herbs & Spices
+Thyme Fresh,Herbs & Spices
+Thyme Dried,Herbs & Spices
+Oregano Fresh,Herbs & Spices
+Oregano Dried,Herbs & Spices
+Sage Fresh,Herbs & Spices
+Sage Dried,Herbs & Spices
+Mint Fresh,Herbs & Spices
+Dill Fresh,Herbs & Spices
+Dill Dried,Herbs & Spices
+Chives,Herbs & Spices
+Bay Leaves,Herbs & Spices
+Salt Kosher,Herbs & Spices
+Salt Sea,Herbs & Spices
+Black Pepper,Herbs & Spices
+White Pepper,Herbs & Spices
+Red Pepper Flakes,Herbs & Spices
+Cayenne Pepper,Herbs & Spices
+Paprika,Herbs & Spices
+Paprika Smoked,Herbs & Spices
+Cumin Ground,Herbs & Spices
+Cumin Seeds,Herbs & Spices
+Coriander Ground,Herbs & Spices
+Turmeric,Herbs & Spices
+Cinnamon Ground,Herbs & Spices
+Cinnamon Sticks,Herbs & Spices
+Nutmeg,Herbs & Spices
+Cloves Ground,Herbs & Spices
+Cloves Whole,Herbs & Spices
+Allspice,Herbs & Spices
+Cardamom,Herbs & Spices
+Ginger Ground,Herbs & Spices
+Ginger Fresh,Herbs & Spices
+Garlic Powder,Herbs & Spices
+Onion Powder,Herbs & Spices
+Chili Powder,Herbs & Spices
+Italian Seasoning,Herbs & Spices
+Everything Bagel Seasoning,Herbs & Spices
+Old Bay Seasoning,Herbs & Spices
+Olive Oil,Pantry
+Extra Virgin Olive Oil,Pantry
+Vegetable Oil,Pantry
+Canola Oil,Pantry
+Coconut Oil,Pantry
+Sesame Oil,Pantry
+Avocado Oil,Pantry
+Cooking Spray,Pantry
+Chicken Broth,Pantry
+Beef Broth,Pantry
+Vegetable Broth,Pantry
+Tomato Paste,Pantry
+Tomato Sauce Canned,Pantry
+Diced Tomatoes Canned,Pantry
+Whole Tomatoes Canned,Pantry
+Coconut Milk,Pantry
+Soy Sauce,Pantry
+Worcestershire Sauce,Pantry
+Fish Sauce,Pantry
+Hot Sauce,Pantry
+Sriracha,Pantry
+Hoisin Sauce,Pantry
+Oyster Sauce,Pantry
+Teriyaki Sauce,Pantry
+Dark Chocolate Chips,Candy & Chocolate
+Semi-Sweet Chocolate Chips,Candy & Chocolate
+Milk Chocolate Chips,Candy & Chocolate
+White Chocolate Chips,Candy & Chocolate
+Dark Chocolate Bar,Candy & Chocolate
+Milk Chocolate Bar,Candy & Chocolate
+Caramel Bits,Candy & Chocolate
+Butterscotch Chips,Candy & Chocolate
+Peanut Butter Chips,Candy & Chocolate
+M&Ms,Candy & Chocolate
+Reeses Pieces,Candy & Chocolate
+Oreos,Candy & Chocolate
+Graham Crackers,Candy & Chocolate
+Candy Canes,Candy & Chocolate
+Mini Marshmallows,Candy & Chocolate
+Toffee Bits,Candy & Chocolate
+Sprinkles,Candy & Chocolate
+Tomato Ketchup,Condiments
+Yellow Mustard,Condiments
+Dijon Mustard,Condiments
+Whole Grain Mustard,Condiments
+Mayonnaise,Condiments
+Ranch Dressing,Condiments
+Caesar Dressing,Condiments
+Italian Dressing,Condiments
+Balsamic Glaze,Condiments
+Salsa,Condiments
+Guacamole,Condiments
+Hummus,Condiments
+Lemon Juice,Acids & Liquids
+Lime Juice,Acids & Liquids
+Orange Juice,Acids & Liquids
+White Wine Vinegar,Acids & Liquids
+Red Wine Vinegar,Acids & Liquids
+Apple Cider Vinegar,Acids & Liquids
+Balsamic Vinegar,Acids & Liquids
+Rice Vinegar,Acids & Liquids
+White Wine,Acids & Liquids
+Red Wine,Acids & Liquids
+Beer,Acids & Liquids
+Water,Acids & Liquids
+Vanilla Extract,Drinks & Extracts
+Almond Extract,Drinks & Extracts
+Peppermint Extract,Drinks & Extracts
+Lemon Extract,Drinks & Extracts
+Coffee Espresso,Drinks & Extracts
+Coffee Brewed,Drinks & Extracts
+Rum,Drinks & Extracts
+Bourbon,Drinks & Extracts
+Brandy,Drinks & Extracts
+Kahlua,Drinks & Extracts
+Sandwich Bread,Breads & Doughs
+Sourdough Bread,Breads & Doughs
+French Bread,Breads & Doughs
+Italian Bread,Breads & Doughs
+Whole Wheat Bread,Breads & Doughs
+Brioche,Breads & Doughs
+Pita Bread,Breads & Doughs
+Naan,Breads & Doughs
+Flour Tortillas,Breads & Doughs
+Corn Tortillas,Breads & Doughs
+Pie Crust Store Bought,Breads & Doughs
+Puff Pastry,Breads & Doughs
+Phyllo Dough,Breads & Doughs
+Pizza Dough,Breads & Doughs
+Crescent Roll Dough,Breads & Doughs
+English Muffins,Breads & Doughs
+Bagels,Breads & Doughs
+Hamburger Buns,Breads & Doughs
+Hot Dog Buns,Breads & Doughs
+Coolwhip,Dairy
+Jello,Baking
+Pectin,Dairy

@@ -45,3 +45,6 @@ export const createShoppingList= (data)       => apiFetch("/api/shopping-lists/"
 export const deleteShoppingList= (id)         => apiFetch(`/api/shopping-lists/${id}`, { method: "DELETE" });
 export const addShoppingItem   = (lid, item)  => apiFetch(`/api/shopping-lists/${lid}/items`,        { method: "POST",  body: JSON.stringify(item) });
 export const toggleHaveIt      = (lid,iid,val)=> apiFetch(`/api/shopping-lists/${lid}/items/${iid}`, { method: "PATCH", body: JSON.stringify({ have_it: val }) });
+
+// ── Units ─────────────────────────────────────────────────────────────────────
+export const getUnits = () => apiFetch("/api/units/");

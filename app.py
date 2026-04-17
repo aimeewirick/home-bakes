@@ -36,11 +36,13 @@ from routes.recipes        import recipes_bp
 from routes.meal_plans     import meal_plans_bp
 from routes.shopping_lists import shopping_lists_bp
 from routes.ingredients    import ingredients_bp
+from routes.units          import units_bp
 
 app.register_blueprint(recipes_bp,        url_prefix="/api/recipes")
 app.register_blueprint(meal_plans_bp,     url_prefix="/api/meal-plans")
 app.register_blueprint(shopping_lists_bp, url_prefix="/api/shopping-lists")
 app.register_blueprint(ingredients_bp,    url_prefix="/api/ingredients")
+app.register_blueprint(units_bp,          url_prefix="/api/units")
 
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.route("/api/health")
