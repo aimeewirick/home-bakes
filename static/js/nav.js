@@ -226,19 +226,20 @@ if (path === "/" || path === "/index.html") {
   welcomeEl.style.cssText = `
     font-family: 'Playfair Display', serif;
     font-size: 0.9rem;
-    color: var(--teal-dark, #35595F);
+    color: #35595F;
     font-style: italic;
     white-space: nowrap;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     pointer-events: none;
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    min-width: 0;
   `;
   welcomeEl.textContent = "Welcome to Chef's Kitchen";
 
-  // Insert after the brand title
-  const brand = nav.querySelector(".hb-nav-brand");
-  brand.insertAdjacentElement("afterend", welcomeEl);
+  // Insert BEFORE nav links so it sits in the middle flex slot
+  const navLinks = nav.querySelector(".hb-nav-links");
+  nav.insertBefore(welcomeEl, navLinks);
 
   // Update with actual username once loaded
   const observer = new MutationObserver(() => {
@@ -249,4 +250,6 @@ if (path === "/" || path === "/index.html") {
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
+
+
 }

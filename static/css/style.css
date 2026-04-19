@@ -96,8 +96,7 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.6; }
 .text-muted { color: var(--text-light); font-size: 0.85rem; }
 
 /* ── Responsive ── */
-
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   #navWelcome {
     display: none !important;
   }
