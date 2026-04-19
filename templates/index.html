@@ -6,57 +6,43 @@
   <title>HomeBakes — My Kitchen</title>
   <link rel="stylesheet" href="/static/css/style.css" />
   <link rel="stylesheet" href="/static/css/index.css" />
-  <link rel="stylesheet" href="/static/css/frame-styles.css" />
 </head>
 <body>
 
   <!-- Universal nav injected by nav.js -->
+  <!-- nav.js detects home page and adds personalized welcome -->
 
-  <!-- Greeting bar -->
-  <div class="greeting-bar">
-    Welcome back, <span id="userName">Chef</span>!
-  </div>
-
-  <!-- Main dashboard -->
   <div class="dashboard">
-    <div class="fridge-container">
+    <div class="kitchen-scene">
 
-      <!-- Welcome text at top of fridge -->
-      <h2 class="welcome-text">Welcome to Your Kitchen</h2>
+      <!-- Cropped kitchen scene — full width -->
+      <img class="kitchen-img"
+           src="/static/images/kitchen_scene.png"
+           alt="My Kitchen" />
 
-      <!-- Fridge image -->
-      <img class="fridge-img"
-           src="/static/images/refrigerator.png"
-           alt="Retro teal refrigerator" />
+      <!-- Recipe box — right counter, image only, hover glow -->
+      <a class="recipe-box-counter" href="/recipes.html">
+        <img src="/static/images/recipe_box2.png" alt="My Recipe Box" />
+      </a>
 
-      <!-- ── Picture frame — centered on freezer section ── -->
+      <!-- Picture frame — freezer section -->
       <div class="fridge-frame-wrapper">
-
         <div class="fridge-frame">
-          <!-- Photo sits BEHIND the frame -->
           <img id="framePhoto"
                class="fridge-frame-photo"
                src="/static/images/flower.png"
                alt="Your photo" />
-
-          <!-- Frame image on top -->
           <img class="fridge-frame-img"
                src="/static/images/picture_frame.png"
                alt="Picture frame" />
-
-          <!-- Hover/click overlay -->
           <div class="fridge-frame-overlay" id="frameOverlay">
             <span class="teaser-text" id="teaserText"></span>
           </div>
-
-          <!-- Hidden file input -->
           <input type="file"
                  id="frameFileInput"
                  class="frame-file-input"
                  accept="image/*" />
         </div>
-
-        <!-- Caption below frame — click to edit -->
         <div class="frame-caption-wrapper">
           <span class="frame-caption" id="frameCaption">~ my happy place ~</span>
           <input type="text"
@@ -65,30 +51,22 @@
                  maxlength="30"
                  placeholder="add a caption..." />
         </div>
-
       </div>
 
-      <!-- Magnet cards on lower fridge door -->
+      <!-- Magnet cards — Meal Plan + Shopping List -->
       <div class="magnet-row">
-
         <a class="magnet-card" href="/meal-plans.html">
           <img src="/static/images/meal_plan.png" alt="Meal Plan" />
           <span class="magnet-label">Meal Plan</span>
         </a>
-
-        <a class="magnet-card" href="/recipes.html">
-          <img src="/static/images/recipe_box1.png" alt="My Recipes" />
-          <span class="magnet-label">My Recipes</span>
-        </a>
-
         <a class="magnet-card" href="/shopping-lists.html">
           <img src="/static/images/short_recipe.png" alt="Shopping Lists" />
           <span class="magnet-label">Shopping Lists</span>
         </a>
-
       </div>
-    </div>
-  </div>
+
+    </div><!-- end kitchen-scene -->
+  </div><!-- end dashboard -->
 
 <script type="module">
   import "/static/js/nav.js";
@@ -96,9 +74,15 @@
   import "/static/js/profile.js";
 
   requireAuth(user => {
-    document.getElementById("userName").textContent =
-      user.displayName || user.email.split("@")[0];
+    // Pass username to nav.js for home page welcome
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("userName").textContent = name;
+    // Update page title with name
+    document.title = `HomeBakes — ${name}'s Kitchen`;
   });
 </script>
+
+<!-- Hidden span for nav.js to read username -->
+<span id="userName" style="display:none;"></span>
 </body>
 </html>

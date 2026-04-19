@@ -1,25 +1,19 @@
 /* ═══════════════════════════════════════════
    HomeBakes — Home Dashboard Styles
+   Uses refrigerator_background_teal.png as
+   single composite kitchen scene image
 ═══════════════════════════════════════════ */
 
 body {
   background-image: url('/static/images/yellow_tile.png');
   background-repeat: repeat;
   background-size: 300px;
+  margin: 0;
 }
 
-/* ── Greeting bar ── */
+/* ── Greeting bar — hidden, welcome in nav instead ── */
 .greeting-bar {
-  background: white;
-  padding: 0.6rem 2rem;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
-  color: var(--text-mid);
-}
-
-.greeting-bar span {
-  font-weight: 700;
-  color: var(--teal-dark);
+  display: none;
 }
 
 /* ── Dashboard wrapper ── */
@@ -27,117 +21,239 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 1rem 3rem;
+  padding: 0;
 }
 
-.welcome-text {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 8px rgba(15, 15, 15, 0.5);
-  text-align: center;
-  white-space: nowrap;
-  z-index: 2;
-  margin-bottom: 0;
-}
-
-/* ── Fridge container ── */
-.fridge-container {
+/* ── Kitchen scene container ── */
+.kitchen-scene {
   position: relative;
   width: 100%;
-  max-width: 700px;
+  max-width: 660px;   /* ← back to crisp size */
   margin: 0 auto;
-  background-color: #5BBFC5;  /* teal to match the fridge color */
-  border-radius: 65px;
 }
 
-/* ── Fridge image ── */
-.fridge-img {
+/* ── Kitchen composite image ── */
+.kitchen-img {
   width: 100%;
   display: block;
-  filter: drop-shadow(0 12px 32px rgba(0,0,0,0.3));
-  opacity: 1;
 }
 
-/* ── Magnet cards overlaid on lower fridge door ── */
-/* top: ~52% puts them just below the freezer/fridge split line */
+/* ══════════════════════════════════════════
+   RECIPE BOX — sits on right counter
+══════════════════════════════════════════ */
+.recipe-box-counter {
+  position: absolute;
+  top: 38%;
+  left: 77%;
+  width: 15%;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(255,255,255,0.3));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.recipe-box-counter img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.recipe-box-counter:hover {
+  filter:
+    drop-shadow(0 0 12px rgba(255,255,255,0.75))
+    drop-shadow(0 4px 16px rgba(0,0,0,0.2));
+  transform: translateY(-3px);
+}
+
+/* ══════════════════════════════════════════
+   MAGNET CARDS — image only, no white card
+   Hover glow indicates clickable
+══════════════════════════════════════════ */
 .magnet-row {
   position: absolute;
-  top: 30%;
+  top: 46%;
   left: 50%;
   transform: translateX(-50%);
-  width: 88%;
+  width: 40%;        /* ← was 25%, more room for both cards */
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-/* ── Individual magnet card — portrait post-it style ── */
 .magnet-card {
-  background: white;
-  padding: 0.6rem 0.6rem 1.2rem;
+  background: none;          /* ← no white card */
+  border-radius: 0;
+  padding: 0;
   cursor: pointer;
-  box-shadow: 3px 4px 10px rgba(0,0,0,0.22);
+  box-shadow: none;          /* ← no shadow on card */
   text-decoration: none;
   color: var(--text-dark);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.05rem;
-  width: 35%;                  /* narrower = more portrait */
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 0rem;
+  width: 120%;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  transition: filter 0.3s ease, transform 0.2s ease;
 }
 
-/* Alternating positions and rotations */
-.magnet-card:nth-child(1) {
-  transform: rotate(-2deg);
-  align-self: flex-end;
-  margin-right: 15%;
-}
-.magnet-card:nth-child(2) {
-  transform: rotate(1.5deg);
-  align-self: flex-start;
-  margin-left: 9%;
-}
-.magnet-card:nth-child(3) {
-  transform: rotate(-1deg);
-  align-self: flex-end;
-  margin-right: 15%;
-}
+.magnet-card:nth-child(1) { transform: rotate(-2deg); }
+.magnet-card:nth-child(2) { transform: rotate(1.5deg); }
 
 .magnet-card:hover {
+  filter:
+    drop-shadow(0 0 10px rgba(255,255,255,0.8))
+    drop-shadow(0 4px 12px rgba(0,0,0,0.2));
   transform: rotate(0deg) translateY(-4px) !important;
-  box-shadow: 4px 10px 24px rgba(0,0,0,0.3);
 }
 
-/* ── Magnet card images ── */
 .magnet-card img {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  max-width: 120px;
+  height: 120px;
   object-fit: contain;
-  background: transparent;
+  /* remove mix-blend-mode: multiply */
+}
+
+.magnet-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: white;              /* ← white so visible against teal fridge */
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   PICTURE FRAME — on freezer section
+══════════════════════════════════════════ */
+.fridge-frame-wrapper {
+  position: absolute;
+  top: 17%;
+  left: 53%;
+  transform: translateX(-50%);
+  width: 18%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fridge-frame {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.fridge-frame-photo {
+  position: absolute;
+  top: 38%;
+  left: 13%;
+  width: 74%;
+  height: 40%;
+  object-fit: cover;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.fridge-frame-img {
+  position: relative;
+  width: 100%;
+  display: block;
+  z-index: 2;
   mix-blend-mode: multiply;
 }
 
-/* ── Magnet label ── */
-.magnet-label {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--teal-dark);
+/* Overlay stops before caption so it's clickable */
+.fridge-frame-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 20%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.fridge-frame-overlay.hovered {
+  background: rgba(255,255,255,0.18);
+}
+
+.teaser-text {
+  font-family: 'Satisfy', cursive;
+  font-size: 0.7rem;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
   text-align: center;
+  padding: 0.25rem 0.6rem;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.frame-file-input { display: none; }
+
+/* ── Caption below frame ── */
+.frame-caption-wrapper {
+  margin-top: -2rem;
+  text-align: center;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.frame-caption {
+  font-family: 'Satisfy', cursive;
+  font-size: 0.75rem;
+  color: rgb(19, 18, 18);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  cursor: pointer;
+  display: block;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  transition: opacity 0.2s;
+  padding: 0.2rem 0.5rem;
+  border-bottom: none;
+  position: relative;
+  z-index: 10;
+}
+
+.frame-caption:hover { opacity: 0.75; border-bottom-color: rgba(255,255,255,0.8); }
+.frame-caption::after { content: " ✏️"; font-size: 0.6rem; opacity: 0; transition: opacity 0.2s; }
+.frame-caption:hover::after { opacity: 1; }
+
+.frame-caption-input {
+  display: none;
+  width: 90%;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 20px;
+  padding: 0.25rem 0.6rem;
+  font-family: 'Satisfy', cursive;
+  font-size: 0.8rem;
+  color: var(--text-dark);
+  text-align: center;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .fridge-container { max-width: 320px; }
-  .welcome-text { font-size: 1.5rem; }
-  .magnet-card { width: 46%; }
-  .magnet-card img { width: 55px; height: 55px; }
+  .kitchen-scene { max-width: 100%; }
+  .teaser-text { font-size: 0.6rem; }
+  .frame-caption { font-size: 0.65rem; }
+  .magnet-label { font-size: 0.5rem; }
 }

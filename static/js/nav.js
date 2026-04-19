@@ -183,6 +183,18 @@ nav.innerHTML = `
     `).join("")}
   </ul>
 
+  <!-- Home page welcome text — only shown on index -->
+  <span id="hb-nav-welcome" style="
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: #35595F;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.5s;
+  "></span>
+
   <!-- Icons -->
   <div class="hb-nav-icons">
     <button class="hb-nav-icon-btn" id="navLogoutBtn" title="Log out">
@@ -206,3 +218,34 @@ spacer.insertAdjacentElement("afterend", nav);
 
 // Wire logout button
 document.getElementById("navLogoutBtn").addEventListener("click", () => logout());
+
+// ── Home page only — show personalized welcome in nav ──────────────────────
+if (path === "/" || path === "/index.html") {
+  const welcomeEl = document.createElement("span");
+  welcomeEl.id = "navWelcome";
+  welcomeEl.style.cssText = `
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--teal-dark, #35595F);
+    font-style: italic;
+    white-space: nowrap;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  `;
+  welcomeEl.textContent = "Welcome to Chef's Kitchen";
+
+  // Insert after the brand title
+  const brand = nav.querySelector(".hb-nav-brand");
+  brand.insertAdjacentElement("afterend", welcomeEl);
+
+  // Update with actual username once loaded
+  const observer = new MutationObserver(() => {
+    const name = document.getElementById("userName")?.textContent;
+    if (name && name !== "Chef") {
+      welcomeEl.textContent = `Welcome to ${name}'s Kitchen`;
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
