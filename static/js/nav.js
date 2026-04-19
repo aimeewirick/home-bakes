@@ -225,13 +225,14 @@ if (path === "/" || path === "/index.html") {
   welcomeEl.id = "navWelcome";
   welcomeEl.style.cssText = `
     font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     color: var(--teal-dark, #35595F);
     font-style: italic;
     white-space: nowrap;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    pointer-events: none;
   `;
   welcomeEl.textContent = "Welcome to Chef's Kitchen";
 
