@@ -1,0 +1,193 @@
+/* ═══════════════════════════════════════════════════════
+   HomeBakes — Recipe Box (Listing) Page Styles
+═══════════════════════════════════════════════════════ */
+
+body {
+  min-height: 100vh;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%23F8F5EE' opacity='0.5'/%3E%3C/svg%3E"),
+    url('/static/images/rose_formica1.png');
+  background-repeat: no-repeat, repeat;
+  background-size: cover, 600px;
+  background-color: #EDE0D8;
+}
+
+.page-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* ── Recipe Box hero ── */
+.recipe-box-hero {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 0;
+}
+
+.recipe-box-img {
+  width: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.18));
+}
+
+/* ── Toolbar — search centered, add button is fixed so just center search ── */
+.recipes-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 1rem;
+  margin: 1.25rem auto 1rem;
+  max-width: 600px;
+  flex-wrap: wrap;
+}
+
+/* ── Filter chips ── */
+.filter-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin: 0 auto 1rem;
+}
+
+.filter-chip {
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  color: var(--text-mid);
+  transition: all 0.2s;
+}
+.filter-chip:hover { border-color: var(--teal); color: var(--teal-dark); }
+.filter-chip.active { background: var(--teal); border-color: var(--teal); color: white; }
+
+/* ── Recipe grid — 2 columns ── */
+.recipes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Individual recipe card ── */
+.recipe-list-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-dark);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.recipe-list-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+/* ── Thumbnail ── */
+.recipe-thumb {
+  width: 72px;
+  height: 64px;
+  flex-shrink: 0;
+  background: var(--teal-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.recipe-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.recipe-thumb-placeholder { font-size: 1.4rem; opacity: 0.35; }
+
+/* ── Card info ── */
+.recipe-card-info { padding: 0.6rem 0.75rem; flex: 1; min-width: 0; }
+.recipe-card-title { font-weight: 700; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recipe-card-meta { font-size: 0.78rem; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Empty state ── */
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: var(--text-light); }
+.empty-state h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-mid); margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+/* ── Loading ── */
+.loading-state { grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-light); font-style: italic; }
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .recipes-grid { grid-template-columns: 1fr; max-width: 100%; }
+  .recipe-box-img { width: 200px; }
+  .recipes-toolbar { max-width: 100%; }
+  .filter-chips { max-width: 100%; }
+}
+
+/* ══════════════════════════════════════════
+   ADD RECIPE BUTTON
+   - Fixed upper right below nav
+   - Teal circle with white plus
+   - Semi-transparent oval, no border
+   - Teal text
+══════════════════════════════════════════ */
+
+.btn-add-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  position: fixed;          /* floats on screen */
+  top: 110px;                /* sits just below the nav */
+  right: 1.5rem;            /* anchored to right edge */
+  z-index: 50;
+}
+
+/* Semi-transparent oval — no border */
+.btn-add-new-oval {
+  background: rgba(255,255,255,0.65);
+  border: none;
+  border-radius: 100px;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #35595F;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);   /* frosted glass against formica */
+}
+
+.btn-add-new:hover .btn-add-new-oval {
+  background: rgba(255,255,255,0.88);
+}
+
+/* Teal circle with white plus — no border */
+.btn-add-new-circle {
+  position: absolute;
+  left: -1px;
+  width: 38px;
+  height: 38px;
+  background: #98D0D6;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);   /* subtle lift */
+}
+
+.btn-add-new:hover .btn-add-new-circle {
+  background: #35595F;
+}
+
+.btn-add-new-circle svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  stroke-width: 2.5;
+}

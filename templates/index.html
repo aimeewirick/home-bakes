@@ -10,28 +10,7 @@
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav>
-    <a class="nav-brand" href="/index.html">
-      <span class="nav-title">HomeBakes</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="/index.html" class="active">Home</a></li>
-      <li><a href="/meal-plans.html">Meal Plans</a></li>
-      <li><a href="/recipes.html">Recipes</a></li>
-      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
-    </ul>
-    <div class="nav-icons">
-      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
+  <!-- Universal nav injected by nav.js -->
 
   <!-- Greeting bar -->
   <div class="greeting-bar">
@@ -49,6 +28,7 @@
       <img class="fridge-img"
            src="/static/images/refrigerator.png"
            alt="Retro teal refrigerator" />
+
       <!-- ── Picture frame — centered on freezer section ── -->
       <div class="fridge-frame-wrapper">
 
@@ -111,15 +91,14 @@
   </div>
 
 <script type="module">
-  import { requireAuth, logout } from "/static/js/auth.js";
+  import "/static/js/nav.js";
+  import { requireAuth } from "/static/js/auth.js";
   import "/static/js/profile.js";
 
   requireAuth(user => {
     document.getElementById("userName").textContent =
       user.displayName || user.email.split("@")[0];
   });
-
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
 </script>
 </body>
 </html>

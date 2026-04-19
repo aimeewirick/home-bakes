@@ -9,24 +9,7 @@
 </head>
 <body>
 
-  <nav>
-    <a class="nav-brand" href="/index.html"><span class="nav-title">HomeBakes</span></a>
-    <ul class="nav-links">
-      <li><a href="/index.html">Home</a></li>
-      <li><a href="/meal-plans.html">Meal Plans</a></li>
-      <li><a href="/recipes.html" class="active">Recipes</a></li>
-      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
-    </ul>
-    <div class="nav-icons">
-      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
+  <!-- Universal nav injected by nav.js -->
 
   <div class="page-content">
 
@@ -36,20 +19,21 @@
       <a href="/recipes.html" class="btn-cancel">← Back to Recipes</a>
     </div>
 
+    <!-- Font picker — sits ABOVE the card, below the top bar -->
+    <!-- Extra margin-bottom leaves room for the card tab that floats up -->
+    <div class="font-picker">
+      <span class="font-picker-label">Card font:</span>
+      <button class="font-btn typewriter active"  data-font="font-typewriter">Typewriter</button>
+      <button class="font-btn handwriting"         data-font="font-handwriting">Grandma's Hand</button>
+      <button class="font-btn modern"              data-font="font-modern">Modern</button>
+    </div>
+
     <!-- Recipe card outer — handles the irregular drop shadow -->
     <div class="recipe-card-outer">
 
-      <!-- Tab stays alone, absolutely positioned as before -->
+      <!-- CSS folder tab — floats above the card -->
       <div class="card-tab">
         <span class="card-tab-text" id="cardTab">RECIPE</span>
-      </div>
-
-      <!-- Font picker positioned right of the tab -->
-      <div class="font-picker">
-        <span class="font-picker-label">Font:</span>
-        <button class="font-btn typewriter active" data-font="font-typewriter">Typewriter</button>
-        <button class="font-btn handwriting" data-font="font-handwriting">Grandma's Hand</button>
-        <button class="font-btn modern" data-font="font-modern">Modern</button>
       </div>
 
       <!-- The unified card — tab and body share same color + texture -->
@@ -176,26 +160,26 @@
         ══════════════════════════════════════════ -->
         <div class="recipe-card-footer">
           <div class="cutlery-icon">
-            <svg viewBox="0 0 80 32"
-                xmlns="http://www.w3.org/2000/svg"
-                width="80" height="32">
+            <svg viewBox="0 0 100 35"
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="80" height="28">
 
-              <!-- Spoon: centered around x=25 -->
-              <ellipse cx="25" cy="7" rx="6" ry="7"
-                      fill="#35595F" opacity="0.6"/>
-              <rect x="23" y="13" width="4" height="16"
+              <!-- Spoon: bowl + handle -->
+              <ellipse cx="35" cy="7" rx="6" ry="7"
+                       fill="#35595F" opacity="0.6"/>
+              <rect x="33" y="13" width="4" height="18"
                     rx="2" fill="#35595F" opacity="0.6"/>
 
-              <!-- Fork: centered around x=55 -->
-              <rect x="49" y="2" width="2.5" height="10"
-                    rx="1.25" fill="#35595F" opacity="0.6"/>
-              <rect x="54" y="2" width="2.5" height="10"
-                    rx="1.25" fill="#35595F" opacity="0.6"/>
+              <!-- Fork: 3 tines + connector + handle -->
               <rect x="59" y="2" width="2.5" height="10"
                     rx="1.25" fill="#35595F" opacity="0.6"/>
-              <rect x="49" y="11" width="12.5" height="2"
+              <rect x="64" y="2" width="2.5" height="10"
+                    rx="1.25" fill="#35595F" opacity="0.6"/>
+              <rect x="69" y="2" width="2.5" height="10"
+                    rx="1.25" fill="#35595F" opacity="0.6"/>
+              <rect x="59" y="11" width="12.5" height="2"
                     rx="1" fill="#35595F" opacity="0.6"/>
-              <rect x="53.5" y="12" width="4" height="16"
+              <rect x="63.5" y="12" width="4" height="18"
                     rx="2" fill="#35595F" opacity="0.6"/>
 
             </svg>
@@ -207,6 +191,7 @@
   </div><!-- end page-content -->
 
 <script type="module">
+  import "/static/js/nav.js";
   import { logout } from "/static/js/auth.js";
   import "/static/js/recipe-form.js";
   document.getElementById("logoutBtn").addEventListener("click", () => logout());

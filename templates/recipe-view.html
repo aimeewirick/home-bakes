@@ -9,27 +9,7 @@
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav>
-    <a class="nav-brand" href="/index.html">
-      <span class="nav-title">HomeBakes</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="/index.html">Home</a></li>
-      <li><a href="/meal-plans.html">Meal Plans</a></li>
-      <li><a href="/recipes.html" class="active">Recipes</a></li>
-      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
-    </ul>
-    <div class="nav-icons">
-      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
+  <!-- Universal nav injected by nav.js -->
 
   <div class="page-content">
 
@@ -54,24 +34,26 @@
     <!-- Loading state -->
     <div class="loading-card" id="loadingCard">Loading recipe...</div>
 
-    <!-- ══════════════════════════════════════════════════
-         CARD CONTAINER — tab is a sibling of the wrapper
-         so overflow:hidden on wrapper never clips it
-    ══════════════════════════════════════════════════ -->
+    <!-- Recipe card — hidden until loaded -->
     <div class="recipe-card-outer" id="recipeCardOuter" style="display:none;">
 
-      <!-- CSS folder tab — OUTSIDE the wrapper, never clipped -->
-      <div class="recipe-card-tab-css">
-        <span class="recipe-card-tab-text">RECIPE</span>
-      </div>
+      <!-- ══════════════════════════════════════════
+           HEADER ROW
+           Tab (taller teal) + cream bar (shorter)
+           align-items flex-end = shared bottom edge
+      ══════════════════════════════════════════ -->
+      <div class="recipe-card-header-row">
 
-      <!-- Card wrapper — overflow:hidden clips its children cleanly -->
-      <div class="recipe-card-wrapper">
+        <!-- Teal tab -->
+        <div class="recipe-card-tab-css">
+          <span class="recipe-card-tab-text">RECIPE</span>
+        </div>
 
-        <!-- Cream header — recipe name + category -->
+        <!-- Cream bar — title · category · meal type | edit delete -->
         <div class="recipe-card-header">
           <h1 class="recipe-name" id="recipeName">Recipe Name</h1>
-          <p class="recipe-category-badge" id="recipeCategory">Category</p>
+          <span class="recipe-name-sep">·</span>
+          <span class="recipe-category-badge" id="recipeCategory">Category</span>
           <div class="recipe-actions">
             <button class="btn-icon-sm" id="editBtn" title="Edit recipe">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -89,6 +71,11 @@
             </button>
           </div>
         </div>
+
+      </div><!-- end header-row -->
+
+      <!-- Card wrapper — clips content, rounded bottom -->
+      <div class="recipe-card-wrapper">
 
         <!-- Teal card body with paper texture -->
         <div class="recipe-card-body font-typewriter" id="recipeCardBody">
@@ -141,7 +128,7 @@
       <div class="recipe-image-placeholder">📷 No recipe image yet</div>
     </div>
 
-  </div>
+  </div><!-- end page-content -->
 
   <!-- Delete confirmation modal -->
   <div id="deleteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center;">
@@ -159,12 +146,13 @@
   @media print {
     nav, .action-bar, .recipe-actions, .recipe-image-section { display: none !important; }
     body { background: white !important; }
-    .recipe-card-wrapper { box-shadow: none !important; }
+    .recipe-card-outer { filter: none !important; }
     .page-content { padding: 0 !important; }
   }
 </style>
 
 <script type="module">
+  import "/static/js/nav.js";
   import { requireAuth, logout } from "/static/js/auth.js";
   import { getRecipe, deleteRecipe } from "/static/js/api.js";
 
@@ -173,7 +161,6 @@
   requireAuth(async (user) => {
     const params   = new URLSearchParams(window.location.search);
     const recipeId = params.get("id");
-
     if (!recipeId) { window.location.href = "/recipes.html"; return; }
 
     const savedFont = localStorage.getItem(FONT_KEY) || "font-typewriter";
@@ -189,7 +176,7 @@
 
   function renderRecipe(recipe, uid) {
     document.title = `HomeBakes — ${recipe.title}`;
-    document.getElementById("recipeName").textContent     = recipe.title || "Untitled";
+    document.getElementById("recipeName").textContent = recipe.title || "Untitled";
     document.getElementById("recipeCategory").textContent =
       [recipe.meal_type, recipe.recipe_category].filter(Boolean).join(" · ") || "Uncategorized";
 
@@ -228,27 +215,22 @@
       dirContainer.innerHTML = `<div class="direction-block"><p class="direction-text" style="opacity:0.5;font-style:italic">No directions yet</p></div>`;
     }
 
-    // Notes
     if (recipe.notes) document.getElementById("recipeNotes").textContent = recipe.notes;
 
-    // Image
     if (recipe.imageUrl) {
       document.getElementById("recipeImageSection").innerHTML =
         `<img src="${recipe.imageUrl}" alt="${recipe.title}" />`;
     }
 
-    // Show card — reveal the outer container (tab + wrapper together)
-    document.getElementById("loadingCard").style.display  = "none";
+    document.getElementById("loadingCard").style.display     = "none";
     document.getElementById("recipeCardOuter").style.display = "block";
   }
 
-  // Edit
   document.getElementById("editBtn").addEventListener("click", () => {
     const id = new URLSearchParams(window.location.search).get("id");
     window.location.href = `/recipe-form.html?id=${id}`;
   });
 
-  // Delete
   const modal = document.getElementById("deleteModal");
   document.getElementById("deleteBtn").addEventListener("click", () => modal.style.display = "flex");
   document.getElementById("cancelDelete").addEventListener("click", () => modal.style.display = "none");
@@ -258,12 +240,9 @@
     catch(err) { alert("Failed to delete. Please try again."); }
   });
 
-  // Print + Download
   document.getElementById("printBtn").addEventListener("click", () => window.print());
   document.getElementById("downloadBtn").addEventListener("click", () => window.print());
-
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+  document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
 </html>

@@ -3,47 +3,166 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HomeBakes — Recipes</title>
+  <title>HomeBakes — My Recipe Box</title>
   <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/recipes.css" />
 </head>
 <body>
-  <nav>
-    <a class="nav-brand" href="/index.html">
-      <span class="nav-title">HomeBakes</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="/index.html">Home</a></li>
-      <li><a href="/meal-plans.html">Meal Plans</a></li>
-      <li><a href="/recipes.html" class="active">Recipes</a></li>
-      <li><a href="/shopping-lists.html">Shopping Lists</a></li>
-    </ul>
-    <div class="nav-icons">
-      <button class="nav-icon-btn" id="logoutBtn" title="Log out">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
+
+  <!-- Universal nav injected by nav.js -->
+
+  <div class="page-content">
+
+    <!-- Recipe Box tin hero image -->
+    <div class="recipe-box-hero">
+      <img class="recipe-box-img"
+           src="/static/images/recipe_box1.png"
+           alt="My Recipe Box"
+           onerror="this.style.display='none'" />
     </div>
-  </nav>
 
-  <div class="page-banner">
-    <h1>My Recipe Box</h1>
-    <a href="/recipe-form.html" class="btn btn-primary">+ Add a Recipe</a>
-  </div>
+    <!-- Toolbar — search + add button -->
+    <div class="recipes-toolbar">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search recipes..." />
+      </div>
 
-  <div class="container" style="text-align:center; padding-top: 4rem;">
-    <p style="font-size:1.1rem; color: var(--text-light);">
-      Recipe box coming in Week 3! 🍳
-    </p>
-    <br />
-    <a href="/recipe-form.html" class="btn btn-primary">+ Add your first recipe</a>
+      <a href="/recipe-form.html" class="btn-add-new">
+        <span class="btn-add-new-circle">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+        <span class="btn-add-new-oval">add recipe</span>
+      </a>
+    </div>
+
+    <!-- Category filter chips -->
+    <div class="filter-chips" id="filterChips">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="Breakfast">Breakfast</button>
+      <button class="filter-chip" data-filter="Lunch">Lunch</button>
+      <button class="filter-chip" data-filter="Dinner">Dinner</button>
+      <button class="filter-chip" data-filter="Dessert">Dessert</button>
+      <button class="filter-chip" data-filter="Baking">Baking</button>
+      <button class="filter-chip" data-filter="Snack">Snack</button>
+    </div>
+
+    <!-- Recipe grid -->
+    <div class="recipes-grid" id="recipesGrid">
+      <div class="loading-state">Loading your recipes...</div>
+    </div>
+
   </div>
 
 <script type="module">
+  import "/static/js/nav.js";
   import { requireAuth, logout } from "/static/js/auth.js";
-  requireAuth();
+  import { getMyRecipes } from "/static/js/api.js";
+
+  let allRecipes    = [];
+  let activeFilter  = "all";
+  let searchQuery   = "";
+
+  requireAuth(async () => {
+    try {
+      allRecipes = await getMyRecipes();
+      renderRecipes();
+    } catch (err) {
+      console.error("Failed to load recipes:", err);
+      document.getElementById("recipesGrid").innerHTML =
+        `<div class="loading-state">Failed to load recipes. Please refresh.</div>`;
+    }
+  });
+
+  // ── Render recipe cards ───────────────────────────────────────────────────
+  function renderRecipes() {
+    const grid = document.getElementById("recipesGrid");
+
+    // Filter by meal type
+    let filtered = allRecipes;
+    if (activeFilter !== "all") {
+      filtered = filtered.filter(r =>
+        r.meal_type === activeFilter ||
+        r.recipe_category === activeFilter
+      );
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(r =>
+        r.title?.toLowerCase().includes(q) ||
+        r.meal_type?.toLowerCase().includes(q) ||
+        r.recipe_category?.toLowerCase().includes(q)
+      );
+    }
+
+    // Empty state
+    if (filtered.length === 0) {
+      if (allRecipes.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h3>Your recipe box is empty!</h3>
+            <p>Add your first family recipe to get started.</p>
+            <a href="/recipe-form.html" class="btn btn-primary">+ Add your first recipe</a>
+          </div>`;
+      } else {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h3>No recipes found</h3>
+            <p>Try a different search or filter.</p>
+          </div>`;
+      }
+      return;
+    }
+
+    // Sort alphabetically
+    filtered.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+
+    // Build cards
+    grid.innerHTML = filtered.map(recipe => `
+      <a class="recipe-list-card" href="/recipe-view.html?id=${recipe.id}">
+        <div class="recipe-thumb">
+          ${recipe.imageUrl
+            ? `<img src="${recipe.imageUrl}" alt="${recipe.title}" />`
+            : `<span class="recipe-thumb-placeholder">🍽️</span>`
+          }
+        </div>
+        <div class="recipe-card-info">
+          <div class="recipe-card-title">${recipe.title || "Untitled"}</div>
+          <div class="recipe-card-meta">
+            ${[recipe.meal_type, recipe.recipe_category].filter(Boolean).join(" · ") || "No category"}
+          </div>
+        </div>
+      </a>
+    `).join("");
+  }
+
+  // ── Search ────────────────────────────────────────────────────────────────
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value.trim();
+    renderRecipes();
+  });
+
+  // ── Filter chips ──────────────────────────────────────────────────────────
+  document.getElementById("filterChips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    activeFilter = chip.dataset.filter;
+    renderRecipes();
+  });
+
+  // ── Logout ────────────────────────────────────────────────────────────────
   document.getElementById("logoutBtn").addEventListener("click", () => logout());
 </script>
 </body>
