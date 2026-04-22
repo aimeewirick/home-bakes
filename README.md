@@ -1,256 +1,196 @@
-# HomeBakes — Setup & Deployment Guide
+<p align="center">
+  <img src="static/images/HomBakes_Icon.png" width="120" alt="HomeBakes Icon" />
+</p>
 
-## Project Structure
+# 🏠 HomeBakes
+
+> *A retro kitchen-inspired recipe management web app built with Flask and Firebase.*
+
+HomeBakes is a full-stack web application that brings the warmth of a vintage kitchen to recipe management. Users can store, organize, and browse their family recipes in a beautifully designed digital recipe box — complete with a personalized kitchen dashboard, picture frame, and fridge magnets.
+
+---
+
+## 📸 Screenshots
+
+### Kitchen Dashboard
+![HomeBakes Kitchen Dashboard](static/images/kitchen_scene.png)
+
+---
+
+## ✨ Features
+
+- **Personalized Kitchen Dashboard** — A retro teal refrigerator scene with your name in the nav, a clickable picture frame for your photo, and fridge magnets linking to your meal planner and shopping lists
+- **Recipe Box** — Create, view, edit, and delete recipes with ingredients, directions, and notes
+- **Recipe Card Design** — Beautiful teal recipe cards with paper texture, a CSS folder tab, and three font styles (Typewriter, Grandma's Hand, Modern)
+- **Ingredient Typeahead** — Search from a database of 360+ categorized ingredients with unit selection
+- **Recipe Photo Upload** — Upload a photo of your dish, stored in Firebase Storage
+- **Recipe Listing** — Browse your recipes with search and category filters on a custom FlowerPetal Formica background
+- **Secure Auth** — Email/password authentication with ownership-based edit/delete protection
+- **Universal Nav** — Consistent navigation across all pages with an oversized circular icon
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python / Flask |
+| Frontend | HTML, CSS, JavaScript (no framework) |
+| Database | Google Firestore (NoSQL) |
+| Auth | Firebase Authentication |
+| Storage | Firebase Storage |
+| Hosting | Render (free tier) |
+| Deployment | GitHub → GitHub Actions → Render auto-deploy |
+
+---
+
+## 🎨 Design System
+
+HomeBakes uses a retro 1950s kitchen aesthetic throughout:
+
+- **Colors:** Teal (`#98D0D6`), dark teal (`#35595F`), warm cream (`#FAF7F0`)
+- **Fonts:** Playfair Display, Lato, Special Elite, Caveat, DM Sans, Satisfy
+- **Backgrounds:**
+  - Home: Yellow subway tile + kitchen scene composite image
+  - Recipes: *FlowerPetal Formica* — a custom pure-CSS boomerang petal pattern
+  - Recipe Form/View: CSS cream gingham
+
+---
+
+## 📁 Project Structure
+
 ```
-home-bakes/                        ← your GitHub repo root
-├── .gitignore
-├── render.yaml                    ← tells Render how to deploy
-├── README.md
-├── app.py                         ← Flask entry point (serves EVERYTHING)
+home-bakes/
+├── app.py                    ← Flask entry point
 ├── requirements.txt
-├── firebase_admin_key.json        ← LOCAL ONLY — never pushed to GitHub
+├── render.yaml               ← Render deployment config
 ├── routes/
-│   ├── auth.py
-│   ├── recipes.py
+│   ├── auth.py               ← Auth decorator
+│   ├── recipes.py            ← Recipe CRUD
 │   ├── meal_plans.py
 │   ├── shopping_lists.py
-│   └── ingredients.py
-├── templates/                     ← ALL your HTML pages go here
-│   ├── index.html
+│   ├── ingredients.py
+│   └── units.py
+├── templates/
+│   ├── index.html            ← Kitchen dashboard
+│   ├── recipes.html          ← Recipe listing
+│   ├── recipe-form.html      ← Create/edit recipe
+│   ├── recipe-view.html      ← View single recipe
+│   ├── meal-plans.html
+│   ├── shopping-lists.html
 │   ├── login.html
-│   ├── register.html
-│   ├── recipes.html               ← Week 3
-│   ├── recipe-form.html           ← Week 2
-│   ├── recipe-view.html           ← Week 2
-│   ├── meal-plans.html            ← Week 4
-│   └── shopping-lists.html        ← Week 7
-└── static/                        ← ALL your CSS/JS/images go here
-    ├── css/
-    │   └── style.css
-    ├── js/
-    │   ├── firebase-init.js       ← your Firebase config lives here
-    │   ├── auth.js
-    │   └── api.js
-    └── images/
-        ├── logo.png
-        ├── kitchen-hero.jpg
-        ├── fridge.png
-        ├── recipe-box-icon.png
-        ├── meal-plan-icon.png
-        └── shopping-list-icon.png
+│   └── register.html
+└── static/
+    ├── css/                  ← Page-specific stylesheets
+    ├── js/                   ← Firebase, auth, API, nav
+    └── images/               ← Kitchen scene, icons, magnets
 ```
-
-### Why this structure?
-Flask serves EVERYTHING from one place — your HTML pages from `templates/`
-and your CSS/JS/images from `static/`. There is no separate frontend service.
-One GitHub repo → one Render service → one URL. Simple.
 
 ---
 
-## PART 1 — Firebase Setup
+## 🗄️ Data Model
 
-### Step 1 — Create a Firebase Project
-1. Go to https://console.firebase.google.com
-2. Click **Add project** → name it **HomeBakes** → Create project
+### Firestore Collections
 
-### Step 2 — Enable Authentication
-1. Firebase Console → **Authentication** → Get started
-2. Click **Email/Password** → Enable → Save
+**ingredients/** — 360+ pre-seeded ingredients across 19 categories
 
-### Step 3 — Create Firestore Database
-1. Firebase Console → **Firestore Database** → Create database
-2. Choose **Start in test mode** → pick your nearest region → Enable
+**units/** — 27+ units (tsp, Tbsp, cup, oz, lb, g, ea, etc.)
 
-### Step 4 — Paste Firestore Security Rules
-In Firestore → **Rules** tab, replace everything with:
-
+**users/**
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    match /ingredients/{id} {
-      allow read: if request.auth != null;
-      allow write: if false;
-    }
-
-    match /users/{uid} {
-      allow read, write: if request.auth.uid == uid;
-    }
-
-    match /recipes/{recipeId} {
-      allow read: if resource.data.isPublic == true
-                  || request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.uid;
-      match /recipe_ingredients/{id} {
-        allow read, write: if request.auth.uid ==
-          get(/databases/$(database)/documents/recipes/$(recipeId)).data.uid;
-      }
-    }
-
-    match /meal_plans/{planId} {
-      allow read, write: if request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null;
-      match /days/{dayId} {
-        allow read, write: if request.auth.uid ==
-          get(/databases/$(database)/documents/meal_plans/$(planId)).data.uid;
-      }
-    }
-
-    match /shopping_lists/{listId} {
-      allow read, write: if request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null;
-      match /items/{itemId} {
-        allow read, write: if request.auth.uid ==
-          get(/databases/$(database)/documents/shopping_lists/$(listId)).data.uid;
-      }
-    }
-  }
-}
+{uid}: displayName, email, framePhotoURL, frameCaption, createdAt
 ```
 
-### Step 5 — Get Your Firebase Web Config (for frontend)
-1. Firebase Console → Project Settings → **Your apps** → Web app
-2. Copy the `firebaseConfig` object — your values are already filled into
-   `static/js/firebase-init.js` so you don't need to do anything here
-
-### Step 6 — Get Your Service Account Key (for backend)
-1. Firebase Console → Project Settings → **Service accounts**
-2. Click **Generate new private key** → Download the JSON file
-3. Rename it to `firebase_admin_key.json`
-4. Place it in the ROOT of your project (same folder as `app.py`)
-5. ⚠️ It's in `.gitignore` — it will NEVER be pushed to GitHub
+**recipes/**
+```
+{id}: uid, title, meal_type, recipe_category, isPublic, imageUrl, createdAt
+  └── recipe_ingredients/: order, ingredientName, amount, unitName, note
+  └── directions/: order, title, text
+```
 
 ---
 
-## PART 2 — Running Locally
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.10+
+- Firebase project with Firestore, Auth, and Storage enabled
+- A `firebase_admin_key.json` service account key
+
+### Local Setup
 
 ```bash
-# From the root of your project (home-bakes/)
+# Clone the repo
+git clone https://github.com/aimeewirick/home-bakes.git
+cd home-bakes
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Set up environment variable (local)
+export FIREBASE_CREDENTIALS=$(cat firebase_admin_key.json)
+
+# Seed the ingredient database (run once)
+python populate_ingredients.py
+python populate_units.py
+
+# Run locally
 python app.py
 ```
 
-Then open your browser to: **http://localhost:5000**
+Visit `http://localhost:5000`
 
-That's it — Flask serves both the pages AND the API from one place.
-No Live Server, no separate frontend server needed.
+### Deployment (Render)
 
----
-
-## PART 3 — GitHub Workflow
-
-Your repo: https://github.com/aimeewirick/home-bakes
-
-### Every time you work on the project:
-```powershell
-# Navigate to your repo
-cd "C:\Projects Class Sprin 2026\homebakes\home-bakes"
-
-# Pull latest changes first
-git pull origin main
-
-# ... write your code ...
-
-# Save and push when done
-git add .
-git commit -m "describe what you changed"
-git push origin main
-
-# → Render automatically detects the push and redeploys within ~2 minutes
-```
+1. Push to `main` branch on GitHub
+2. GitHub Actions triggers automatically
+3. Render builds and deploys from `render.yaml`
+4. Set `FIREBASE_CREDENTIALS` as an environment variable in Render dashboard
 
 ---
 
-## PART 4 — Render Setup (One Service Only)
+## 🔒 Security
 
-You only need ONE Render service. If you created a second one (static site)
-during setup, delete it — you don't need it.
+- All recipe edit/delete routes verify `uid === g.uid` server-side
+- Firebase Storage rules restrict frame photo uploads to the authenticated user
+- Recipe images are publicly readable but only writable by the recipe owner
+- Frontend also hides edit/delete buttons from non-owners
 
-### Render Service Settings:
-| Setting | Value |
+---
+
+## 📅 Development Timeline
+
+This project is being built over a 10-week class term:
+
+| Week | Focus |
 |---|---|
-| Name | `home-bakes` |
-| Language | Python 3 |
-| Branch | `main` |
-| Root Directory | *(leave blank)* |
-| Build Command | `pip install -r requirements.txt` |
-| Start Command | `gunicorn app:app` |
-| Instance Type | Free |
-
-### Add your Firebase secret:
-Render Dashboard → your service → **Environment** tab → Add:
-
-| Key | Value |
-|---|---|
-| `FIREBASE_CREDENTIALS` | Paste the ENTIRE contents of `firebase_admin_key.json` |
-
-Your live URL: **https://home-bakes-404h.onrender.com**
-
-Test it: https://home-bakes-404h.onrender.com/api/health
-Should return: `{"status": "HomeBakes API is running"}`
+| 1 ✅ | Project setup, Firebase, auth, home dashboard |
+| 2 ✅ | Recipe form, recipe view, ingredient typeahead, image upload |
+| 3 ✅ | Recipe listing, universal nav, FlowerPetal Formica, kitchen scene |
+| 4 🔄 | Admin ingredients page, meal planner foundation |
+| 5 | Meal planner — adding meals |
+| 6 | Shopping list generation |
+| 7 | Shopping lists page |
+| 8 | Mobile responsive, color themes |
+| 9 | PDF export, shareable links |
+| 10 | Testing, bug fixes, final polish |
 
 ---
 
-## PART 5 — Add Your Images
+## 🌐 Live Demo
 
-Place these in `static/images/`:
+**[https://home-bakes-404h.onrender.com](https://home-bakes-404h.onrender.com)**
 
-| Filename | What it is |
-|---|---|
-| `logo.png` | The circular HomeBakes logo |
-| `kitchen-hero.jpg` | Retro kitchen photo for login page |
-| `fridge.png` | Teal retro fridge for home dashboard |
-| `recipe-box-icon.png` | Recipe tin (fridge magnet) |
-| `meal-plan-icon.png` | Meal plan (fridge magnet) |
-| `shopping-list-icon.png` | Shopping list notepad (fridge magnet) |
+> Note: The app is hosted on Render's free tier and may take 30-60 seconds to wake up after inactivity.
 
 ---
 
-## PART 6 — Adding New Pages (every week)
+## 👩‍🍳 Author
 
-When you build a new page, do TWO things:
-
-**1. Create the HTML file in `templates/`**
-e.g. `templates/recipes.html`
-
-**2. Add a route for it in `app.py`**
-```python
-@app.route("/recipes.html")
-def recipes():
-    return send_from_directory("templates", "recipes.html")
-```
-
-That's all — Flask will serve it automatically.
+**Aimee Wirick**
+Oregon State University — CS361 Web Development
+GitHub: [@aimeewirick](https://github.com/aimeewirick)
 
 ---
 
-## Week 1 Completion Checklist
-
-### Firebase
-- [ ] Firebase project created
-- [ ] Email/Password authentication enabled
-- [ ] Firestore database created in test mode
-- [ ] Security rules applied
-- [ ] `firebase_admin_key.json` downloaded and placed in project root
-
-### Local Development
-- [ ] `pip install -r requirements.txt` completed
-- [ ] `python app.py` runs without errors
-- [ ] http://localhost:5000 loads the login page
-- [ ] Can create a new account (register)
-- [ ] Can log in and reach the home/fridge page
-- [ ] Logout works and returns to login
-
-### GitHub
-- [ ] All files pushed to `main`
-- [ ] `firebase_admin_key.json` confirmed NOT in GitHub
-
-### Render
-- [ ] Single web service created (NOT a static site)
-- [ ] Root Directory left blank
-- [ ] Build/Start commands set correctly
-- [ ] `FIREBASE_CREDENTIALS` environment variable added
-- [ ] https://home-bakes-404h.onrender.com/api/health returns OK
-- [ ] Push to GitHub triggers auto-deploy in Render
+*Built with 💙 and a love of retro kitchens*
