@@ -13,7 +13,7 @@ HomeBakes is a full-stack web application that brings the warmth of a vintage ki
 ## 📸 Screenshots
 
 ### Kitchen Dashboard
-![HomeBakes Kitchen Dashboard](static/images/kitchen_scene.png)
+![HomeBakes Kitchen Dashboard](static/images/HomeBakesLandingPage.png)
 
 ---
 
