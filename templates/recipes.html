@@ -65,6 +65,7 @@
   import "/static/js/nav.js";
   import { requireAuth, logout } from "/static/js/auth.js";
   import { getMyRecipes } from "/static/js/api.js";
+  import { getMyRecipes, getPublicRecipes } from "/static/js/api.js";
 
   let allRecipes    = [];
   let activeFilter  = "all";
@@ -72,7 +73,20 @@
 
   requireAuth(async () => {
     try {
-      allRecipes = await getMyRecipes();
+      // Fetch both my recipes AND all public recipes
+      const [mine, publicRecipes] = await Promise.all([
+        getMyRecipes(),
+        getPublicRecipes()
+      ]);
+
+      // Merge — deduplicate by id so own public recipes don't show twice
+      const seen = new Set();
+      allRecipes = [...mine, ...publicRecipes].filter(r => {
+        if (seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+      });
+
       renderRecipes();
     } catch (err) {
       console.error("Failed to load recipes:", err);
@@ -80,7 +94,6 @@
         `<div class="loading-state">Failed to load recipes. Please refresh.</div>`;
     }
   });
-
   // ── Render recipe cards ───────────────────────────────────────────────────
   function renderRecipes() {
     const grid = document.getElementById("recipesGrid");
