@@ -48,3 +48,10 @@ export const toggleHaveIt      = (lid,iid,val)=> apiFetch(`/api/shopping-lists/$
 
 // ── Units ─────────────────────────────────────────────────────────────────────
 export const getUnits = () => apiFetch("/api/units/");
+
+// ── Reference Collections ─────────────────────────────────────────────────────
+export const getRecipeCategories = () => apiFetch("/api/recipe-categories/");
+export const getMealTypes        = () => apiFetch("/api/meal-types/");
+
+// -- Allergens -----------------------------------------------------------------
+export const getAllergens = () => apiFetch("/api/allergens/");

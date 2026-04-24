@@ -32,47 +32,110 @@ body {
   filter: drop-shadow(0 6px 16px rgba(0,0,0,0.18));
 }
 
-/* ── Toolbar — search centered, add button is fixed so just center search ── */
-.recipes-toolbar {
+/* ── Search + Add wrapper ── */
+.search-wrapper {
   display: flex;
   align-items: center;
-  justify-content: left;
   gap: 1rem;
-  margin: 1.25rem auto 1rem;
-  max-width: 600px;
-  flex-wrap: wrap;
+  margin: 1.25rem 0 1rem;
 }
 
-/* ── Filter chips ── */
-.filter-chips {
+/* ── Main layout — recipe grid left, tabs right ── */
+.recipes-layout {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  max-width: 600px;
-  margin: 0 auto 1rem;
+  gap: 1rem;
+  align-items: flex-start;
 }
 
-.filter-chip {
-  background: rgba(255,255,255,0.7);
-  border: 1.5px solid var(--border);
-  border-radius: 100px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.78rem;
-  font-family: 'Lato', sans-serif;
-  cursor: pointer;
-  color: var(--text-mid);
-  transition: all 0.2s;
+/* ── Recipe grid — 75% ── */
+.recipes-grid-wrapper {
+  flex: 3;
+  min-width: 0;
 }
-.filter-chip:hover { border-color: var(--teal); color: var(--teal-dark); }
-.filter-chip.active { background: var(--teal); border-color: var(--teal); color: white; }
 
-/* ── Recipe grid — 2 columns ── */
 .recipes-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
-  max-width: 600px;
-  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════════
+   VERTICAL CATEGORY TABS
+   Recipe book divider style
+   Paper texture, teal colors, hover grows
+══════════════════════════════════════════ */
+.category-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  position: sticky;
+  top: 100px;
+}
+
+.category-tab {
+  background-color: #B8DEE2;
+  border: none;
+  border-radius: 0 10px 10px 0;
+  padding: 0.45rem 1rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #35595F;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: -1px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  letter-spacing: 0.02em;
+  z-index: 1;
+  overflow: hidden;  /* for paper texture */
+}
+
+/* Paper texture overlay on tabs */
+.category-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 150px 150px;
+}
+
+/* Inner edge softening */
+.category-tab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 2px 1px 3px rgba(255,255,255,0.3),
+    inset -1px 0 2px rgba(0,0,0,0.04);
+  border-radius: inherit;
+}
+
+/* Hover — tab grows taller */
+.category-tab:hover {
+  background-color: #98D0D6;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  z-index: 2;
+}
+
+/* Active — full teal, bold, tallest */
+.category-tab.active {
+  background-color: #98D0D6;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  z-index: 3;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.18);
 }
 
 /* ── Individual recipe card ── */
@@ -92,13 +155,10 @@ body {
 
 /* ── Thumbnail ── */
 .recipe-thumb {
-  width: 72px;
-  height: 64px;
+  width: 72px; height: 64px;
   flex-shrink: 0;
   background: var(--teal-pale);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
 .recipe-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -118,33 +178,28 @@ body {
 .loading-state { grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-light); font-style: italic; }
 
 /* ── Responsive ── */
-@media (max-width: 560px) {
-  .recipes-grid { grid-template-columns: 1fr; max-width: 100%; }
+@media (max-width: 640px) {
+  .recipes-layout { flex-direction: column-reverse; }
+  .category-tabs { flex-direction: row; flex-wrap: wrap; position: static; }
+  .category-tab { border-radius: 20px; margin: 0.2rem; }
+  .recipes-grid { grid-template-columns: 1fr; }
   .recipe-box-img { width: 200px; }
-  .recipes-toolbar { max-width: 100%; }
-  .filter-chips { max-width: 100%; }
 }
 
 /* ══════════════════════════════════════════
    ADD RECIPE BUTTON
-   - Fixed upper right below nav
-   - Teal circle with white plus
-   - Semi-transparent oval, no border
-   - Teal text
 ══════════════════════════════════════════ */
-
 .btn-add-new {
   display: inline-flex;
   align-items: center;
   gap: 0;
   text-decoration: none;
-  position: fixed;          /* floats on screen */
-  top: 110px;                /* sits just below the nav */
-  right: 1.5rem;            /* anchored to right edge */
+  position: fixed;
+  top: 110px;
+  right: 1.5rem;
   z-index: 50;
 }
 
-/* Semi-transparent oval — no border */
 .btn-add-new-oval {
   background: rgba(255,255,255,0.65);
   border: none;
@@ -157,14 +212,11 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
-  backdrop-filter: blur(4px);   /* frosted glass against formica */
+  backdrop-filter: blur(4px);
 }
 
-.btn-add-new:hover .btn-add-new-oval {
-  background: rgba(255,255,255,0.88);
-}
+.btn-add-new:hover .btn-add-new-oval { background: rgba(255,255,255,0.85); }
 
-/* Teal circle with white plus — no border */
 .btn-add-new-circle {
   position: absolute;
   left: -1px;
@@ -179,12 +231,10 @@ body {
   flex-shrink: 0;
   z-index: 1;
   transition: background 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);   /* subtle lift */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-.btn-add-new:hover .btn-add-new-circle {
-  background: #35595F;
-}
+.btn-add-new:hover .btn-add-new-circle { background: #35595F; }
 
 .btn-add-new-circle svg {
   width: 18px;

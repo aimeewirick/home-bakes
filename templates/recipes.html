@@ -21,8 +21,8 @@
            onerror="this.style.display='none'" />
     </div>
 
-    <!-- Toolbar — search + add button -->
-    <div class="recipes-toolbar">
+    <!-- Search bar -->
+    <div class="search-wrapper">
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
@@ -32,6 +32,7 @@
         <input type="text" id="searchInput" placeholder="Search recipes..." />
       </div>
 
+      <!-- Add recipe button -->
       <a href="/recipe-form.html" class="btn-add-new">
         <span class="btn-add-new-circle">
           <svg viewBox="0 0 24 24" fill="none">
@@ -43,42 +44,44 @@
       </a>
     </div>
 
-    <!-- Category filter chips -->
-    <div class="filter-chips" id="filterChips">
-      <button class="filter-chip active" data-filter="all">All</button>
-      <button class="filter-chip" data-filter="Breakfast">Breakfast</button>
-      <button class="filter-chip" data-filter="Lunch">Lunch</button>
-      <button class="filter-chip" data-filter="Dinner">Dinner</button>
-      <button class="filter-chip" data-filter="Dessert">Dessert</button>
-      <button class="filter-chip" data-filter="Baking">Baking</button>
-      <button class="filter-chip" data-filter="Snack">Snack</button>
+    <!-- Main layout: recipe grid + vertical tabs -->
+    <div class="recipes-layout">
+
+      <!-- Recipe grid — 75% -->
+      <div class="recipes-grid-wrapper">
+        <div class="recipes-grid" id="recipesGrid">
+          <div class="loading-state">Loading your recipes...</div>
+        </div>
+      </div>
+
+      <!-- Vertical category tabs — 25% -->
+      <div class="category-tabs" id="categoryTabs">
+        <!-- Injected by JS from Firestore -->
+      </div>
+
     </div>
 
-    <!-- Recipe grid -->
-    <div class="recipes-grid" id="recipesGrid">
-      <div class="loading-state">Loading your recipes...</div>
-    </div>
-
-  </div>
+  </div><!-- end page-content -->
 
 <script type="module">
   import "/static/js/nav.js";
-  import { requireAuth, logout } from "/static/js/auth.js";
-  import { getMyRecipes, getPublicRecipes } from "/static/js/api.js";
+  import { requireAuth } from "/static/js/auth.js";
+  import { getMyRecipes, getPublicRecipes, getRecipeCategories } from "/static/js/api.js";
 
-  let allRecipes    = [];
-  let activeFilter  = "all";
-  let searchQuery   = "";
+  let allRecipes      = [];
+  let activeCategory  = "All";
+  let searchQuery     = "";
 
   requireAuth(async () => {
     try {
-      // Fetch both my recipes AND all public recipes
-      const [mine, publicRecipes] = await Promise.all([
+      // Load recipes and categories in parallel
+      const [mine, publicRecipes, categories] = await Promise.all([
         getMyRecipes(),
-        getPublicRecipes()
+        getPublicRecipes(),
+        getRecipeCategories()
       ]);
 
-      // Merge — deduplicate by id so own public recipes don't show twice
+      // Merge and deduplicate
       const seen = new Set();
       allRecipes = [...mine, ...publicRecipes].filter(r => {
         if (seen.has(r.id)) return false;
@@ -86,27 +89,45 @@
         return true;
       });
 
+      buildTabs(categories);
       renderRecipes();
     } catch (err) {
-      console.error("Failed to load recipes:", err);
+      console.error("Failed to load:", err);
       document.getElementById("recipesGrid").innerHTML =
         `<div class="loading-state">Failed to load recipes. Please refresh.</div>`;
     }
   });
+
+  // ── Build vertical category tabs ──────────────────────────────────────────
+  function buildTabs(categories) {
+    const container = document.getElementById("categoryTabs");
+    container.innerHTML = "";
+    categories.forEach(cat => {
+      const tab = document.createElement("button");
+      tab.className = "category-tab" + (cat.name === "All" ? " active" : "");
+      tab.textContent = cat.name;
+      tab.dataset.category = cat.name;
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".category-tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeCategory = cat.name;
+        renderRecipes();
+      });
+      container.appendChild(tab);
+    });
+  }
+
   // ── Render recipe cards ───────────────────────────────────────────────────
   function renderRecipes() {
     const grid = document.getElementById("recipesGrid");
-
-    // Filter by meal type
     let filtered = allRecipes;
-    if (activeFilter !== "all") {
-      filtered = filtered.filter(r =>
-        r.meal_type === activeFilter ||
-        r.recipe_category === activeFilter
-      );
+
+    // Filter by category
+    if (activeCategory !== "All") {
+      filtered = filtered.filter(r => r.recipe_category === activeCategory);
     }
 
-    // Filter by search query
+    // Filter by search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(r =>
@@ -116,7 +137,10 @@
       );
     }
 
-    // Empty state
+    // Sort alphabetically
+    filtered.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+
+    // Empty states
     if (filtered.length === 0) {
       if (allRecipes.length === 0) {
         grid.innerHTML = `
@@ -129,14 +153,11 @@
         grid.innerHTML = `
           <div class="empty-state">
             <h3>No recipes found</h3>
-            <p>Try a different search or filter.</p>
+            <p>Try a different search or category.</p>
           </div>`;
       }
       return;
     }
-
-    // Sort alphabetically
-    filtered.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
 
     // Build cards
     grid.innerHTML = filtered.map(recipe => `
@@ -158,22 +179,10 @@
   }
 
   // ── Search ────────────────────────────────────────────────────────────────
-  document.getElementById("searchInput").addEventListener("input", (e) => {
+  document.getElementById("searchInput").addEventListener("input", e => {
     searchQuery = e.target.value.trim();
     renderRecipes();
   });
-
-  // ── Filter chips ──────────────────────────────────────────────────────────
-  document.getElementById("filterChips").addEventListener("click", (e) => {
-    const chip = e.target.closest(".filter-chip");
-    if (!chip) return;
-
-    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-    chip.classList.add("active");
-    activeFilter = chip.dataset.filter;
-    renderRecipes();
-  });
-
 
 </script>
 </body>

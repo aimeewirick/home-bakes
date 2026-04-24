@@ -9,40 +9,41 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Flask setup ───────────────────────────────────────────────────────────────
-# template_folder and static_folder tell Flask where to find your HTML/CSS/JS.
-# Now Flask serves EVERYTHING — frontend and API — from one place.
 app = Flask(
     __name__,
-    template_folder="templates",   # HTML files go here
-    static_folder="static"         # CSS/JS/images go here
+    template_folder="templates",
+    static_folder="static"
 )
 
 CORS(app)
 
 # ── Firebase Admin SDK ────────────────────────────────────────────────────────
 if os.environ.get("FIREBASE_CREDENTIALS"):
-    # Render/production: credentials stored as environment variable
     cred_dict = json.loads(os.environ["FIREBASE_CREDENTIALS"])
     cred = credentials.Certificate(cred_dict)
 else:
-    # Local development: use the JSON key file
     key_path = os.path.join(os.path.dirname(__file__), "firebase_admin_key.json")
     cred = credentials.Certificate(key_path)
 
 firebase_admin.initialize_app(cred)
 
 # ── API Blueprints ────────────────────────────────────────────────────────────
-from routes.recipes        import recipes_bp
-from routes.meal_plans     import meal_plans_bp
-from routes.shopping_lists import shopping_lists_bp
-from routes.ingredients    import ingredients_bp
-from routes.units          import units_bp
+from routes.recipes             import recipes_bp
+from routes.meal_plans          import meal_plans_bp
+from routes.shopping_lists      import shopping_lists_bp
+from routes.ingredients         import ingredients_bp
+from routes.units               import units_bp
+from routes.recipe_categories   import recipe_categories_bp, meal_types_bp
+from routes.recipe_categories   import recipe_categories_bp, meal_types_bp, allergens_bp
 
-app.register_blueprint(recipes_bp,        url_prefix="/api/recipes")
-app.register_blueprint(meal_plans_bp,     url_prefix="/api/meal-plans")
-app.register_blueprint(shopping_lists_bp, url_prefix="/api/shopping-lists")
-app.register_blueprint(ingredients_bp,    url_prefix="/api/ingredients")
-app.register_blueprint(units_bp,          url_prefix="/api/units")
+app.register_blueprint(recipes_bp,              url_prefix="/api/recipes")
+app.register_blueprint(meal_plans_bp,           url_prefix="/api/meal-plans")
+app.register_blueprint(shopping_lists_bp,       url_prefix="/api/shopping-lists")
+app.register_blueprint(ingredients_bp,          url_prefix="/api/ingredients")
+app.register_blueprint(units_bp,                url_prefix="/api/units")
+app.register_blueprint(recipe_categories_bp,    url_prefix="/api/recipe-categories")
+app.register_blueprint(meal_types_bp,           url_prefix="/api/meal-types")
+app.register_blueprint(allergens_bp,            url_prefix="/api/allergens")
 
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.route("/api/health")
@@ -50,9 +51,6 @@ def health():
     return jsonify({"status": "HomeBakes API is running"})
 
 # ── Serve HTML pages ──────────────────────────────────────────────────────────
-# Flask serves each HTML file directly from the templates/ folder.
-# Add a new route here for every new page you create.
-
 @app.route("/")
 @app.route("/index.html")
 def home():
