@@ -50,37 +50,13 @@
             <div class="form-group">
               <label for="mealType">Meal Type</label>
               <select id="mealType">
-                <option value="">Select...</option>
-                <option>Breakfast</option>
-                <option>Brunch</option>
-                <option>Lunch</option>
-                <option>Dinner</option>
-                <option>Dessert</option>
-                <option>Snack</option>
-                <option>Drink</option>
-                <option>Side Dish</option>
-                <option>Other</option>
+                <option value="">Loading...</option>
               </select>
             </div>
             <div class="form-group">
               <label for="recipeCategory">Recipe Category</label>
               <select id="recipeCategory">
-                <option value="">Select...</option>
-                <option>Breads</option>
-                <option>Cakes</option>
-                <option>Cookies</option>
-                <option>Pies</option>
-                <option>Muffins & Scones</option>
-                <option>Poultry</option>
-                <option>Meat</option>
-                <option>Fish & Seafood</option>
-                <option>Pasta</option>
-                <option>Soups & Stews</option>
-                <option>Salads</option>
-                <option>Vegetables</option>
-                <option>Breakfast & Brunch</option>
-                <option>Drinks</option>
-                <option>Other</option>
+                <option value="">Loading...</option>
               </select>
             </div>
           </div>
@@ -192,10 +168,42 @@
 
 <script type="module">
   import "/static/js/nav.js";
-  import { logout } from "/static/js/auth.js";
   import "/static/js/recipe-form.js";
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+  import { getMealTypes, getRecipeCategories } from "/static/js/api.js";
 
+  // ── Load dropdowns from Firestore ─────────────────────────────────────────
+  async function loadDropdowns() {
+    try {
+      const [mealTypes, categories] = await Promise.all([
+        getMealTypes(),
+        getRecipeCategories()
+      ]);
+
+      const mealSelect = document.getElementById("mealType");
+      mealSelect.innerHTML = '<option value="">Select...</option>';
+      mealTypes.forEach(mt => {
+        const opt = document.createElement("option");
+        opt.value = mt.name;
+        opt.textContent = mt.name;
+        mealSelect.appendChild(opt);
+      });
+
+      const catSelect = document.getElementById("recipeCategory");
+      catSelect.innerHTML = '<option value="">Select...</option>';
+      // Skip "All" — that's only for filtering
+      categories.filter(c => c.name !== "All").forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        catSelect.appendChild(opt);
+      });
+
+    } catch (err) {
+      console.error("Failed to load dropdowns:", err);
+    }
+  }
+
+  loadDropdowns();
   // ── Font picker ────────────────────────────────────────────────────────────
   const cardBody = document.getElementById("recipeCardBody");
   const fontBtns = document.querySelectorAll(".font-btn");
