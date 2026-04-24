@@ -64,7 +64,6 @@
 <script type="module">
   import "/static/js/nav.js";
   import { requireAuth, logout } from "/static/js/auth.js";
-  import { getMyRecipes } from "/static/js/api.js";
   import { getMyRecipes, getPublicRecipes } from "/static/js/api.js";
 
   let allRecipes    = [];
@@ -175,8 +174,7 @@
     renderRecipes();
   });
 
-  // ── Logout ────────────────────────────────────────────────────────────────
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+
 </script>
 </body>
 </html>
