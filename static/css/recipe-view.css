@@ -302,7 +302,7 @@ body {
 }
 
 .direction-title { font-weight: 700; font-size: 1rem; color: #35595F; margin-bottom: 0.5rem; }
-.direction-text { color: #35595F; font-size: 0.95rem; line-height: 1.75; white-space: pre-wrap; }
+.direction-text { color: #35595F; font-size: 0.95rem; line-height: 1.75; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; }
 
 /* ── Notes ── */
 .notes-section {

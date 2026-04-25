@@ -14,6 +14,7 @@ import {
   updateRecipe,
   getRecipe,
   getIngredients,
+  getPrivateIngredients,
   getUnits
 } from "/static/js/api.js";
 
@@ -48,12 +49,21 @@ requireAuth(async () => {
   }
 
   try {
-    const [ingredients, units] = await Promise.all([
+    const [globalIngredients, privateIngredients, units] = await Promise.all([
       getIngredients(),
+      getPrivateIngredients().catch(() => []),  // fail gracefully if none exist
       getUnits()
     ]);
 
-    allIngredients = ingredients.sort((a, b) => a.name.localeCompare(b.name));
+    // Merge global + private, deduplicate by name, sort alphabetically
+    const seen = new Set();
+    allIngredients = [...globalIngredients, ...privateIngredients]
+      .filter(i => {
+        if (seen.has(i.name.toLowerCase())) return false;
+        seen.add(i.name.toLowerCase());
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
     allUnits = units.sort((a, b) => {
       const order = { volume: 0, weight: 1, count: 2, other: 3 };
       return (order[a.type] ?? 4) - (order[b.type] ?? 4) || a.name.localeCompare(b.name);
@@ -182,7 +192,15 @@ function createTypeahead(rowIndex) {
 
   function selectIngredient(ingredient) {
     input.value = ingredient.name;
-    ingredientRows[rowIndex] = ingredient;
+    // Snapshot full ingredient data including allergens + calories
+    ingredientRows[rowIndex] = {
+      id:           ingredient.id,
+      name:         ingredient.name,
+      category:     ingredient.category || "",
+      allergens:    ingredient.allergens || [],
+      calories:     ingredient.calories  || null,
+      calorie_unit: ingredient.calorie_unit || null,
+    };
     dropdown.classList.remove("open");
   }
 
@@ -286,7 +304,12 @@ function addIngredientRow(prefill = null) {
 
   const tdIngredient = document.createElement("td");
   const typeahead = createTypeahead(rowIndex);
-  if (prefill) typeahead._setIngredient({ id: prefill.ingredientId, name: prefill.ingredientName, category: "" });
+  if (prefill) {
+    // Look up full ingredient data so allergens/calories are preserved
+    const fullIngredient = allIngredients.find(i => i.id === prefill.ingredientId)
+      || { id: prefill.ingredientId, name: prefill.ingredientName, category: "", allergens: prefill.allergens || [], calories: prefill.calories || null, calorie_unit: prefill.calorie_unit || null };
+    typeahead._setIngredient(fullIngredient);
+  }
   tdIngredient.appendChild(typeahead);
 
   const tdAmount = document.createElement("td");
@@ -420,7 +443,10 @@ function collectFormData() {
       amount:         parseFloat(row.querySelector(".amount-input").value) || 0,
       unitId:         unitSelect.value,
       unitName:       selectedUnit?.dataset?.name || "",
-      note:           row.querySelector(".note-input").value.trim()
+      note:           row.querySelector(".note-input").value.trim(),
+      allergens:      ingredient.allergens    || [],
+      calories:       ingredient.calories     || null,
+      calorie_unit:   ingredient.calorie_unit || null,
     });
   });
 
@@ -435,7 +461,12 @@ function collectFormData() {
     });
   });
 
-  return { title, meal_type: mealType, recipe_category: category, isPublic, ingredients, directions };
+  // Compute recipe-level allergen summary from all ingredients
+  const allergenSet = new Set();
+  ingredients.forEach(ing => (ing.allergens || []).forEach(a => allergenSet.add(a)));
+  const allergens = [...allergenSet].sort();
+
+  return { title, meal_type: mealType, recipe_category: category, isPublic, ingredients, directions, allergens };
 }
 
 // ── Save recipe ───────────────────────────────────────────────────────────────

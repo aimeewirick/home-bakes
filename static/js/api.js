@@ -30,6 +30,7 @@ export const deleteRecipe     = (id)      => apiFetch(`/api/recipes/${id}`, { me
 // ── Ingredients ───────────────────────────────────────────────────────────────
 export const getIngredients         = (cat="") => apiFetch(`/api/ingredients/${cat ? "?category="+cat : ""}`);
 export const getIngredientCategories= ()       => apiFetch("/api/ingredients/categories");
+export const getPrivateIngredients  = ()       => apiFetch("/api/ingredients/private");
 
 // ── Meal Plans ────────────────────────────────────────────────────────────────
 export const getMealPlans   = ()        => apiFetch("/api/meal-plans/");
@@ -52,6 +53,7 @@ export const getUnits = () => apiFetch("/api/units/");
 // ── Reference Collections ─────────────────────────────────────────────────────
 export const getRecipeCategories = () => apiFetch("/api/recipe-categories/");
 export const getMealTypes        = () => apiFetch("/api/meal-types/");
+export const getAllergens        = () => apiFetch("/api/allergens/");
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 export const adminGetIngredients     = (cat="")  => apiFetch(`/api/admin/ingredients${cat ? "?category="+cat : ""}`);
@@ -61,6 +63,3 @@ export const adminDeleteIngredient   = (id)      => apiFetch(`/api/admin/ingredi
 export const adminGetPending         = ()        => apiFetch("/api/admin/pending-ingredients");
 export const adminApproveIngredient  = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/approve`, { method: "POST" });
 export const adminRejectIngredient   = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/reject`,  { method: "DELETE" });
-
-// -- Allergens ------------------------------------------------------------------
-export const getAllergens = () => apiFetch("/api/allergens/");

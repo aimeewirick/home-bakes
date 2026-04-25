@@ -103,6 +103,12 @@
             <p class="notes-text" id="recipeNotes">—</p>
           </div>
 
+          <!-- Allergen warning — below notes -->
+          <div class="allergen-warning" id="allergenWarning" style="display:none;">
+            <div class="allergen-warning-header">⚠️ Contains Allergens</div>
+            <div class="allergen-badges" id="allergenBadges"></div>
+          </div>
+
         </div><!-- end recipe-card-body -->
 
         <!-- Cutlery footer -->
@@ -143,6 +149,48 @@
   </div>
 
 <style>
+  /* ── Allergen warning styles ── */
+  .allergen-warning {
+    background: rgba(220, 38, 38, 0.06);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .allergen-warning-header {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #DC2626;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .allergen-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .allergen-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #DC2626;
+    border-radius: 100px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Lato', sans-serif;
+    white-space: nowrap;
+  }
+
   @media print {
     nav, .action-bar, .recipe-actions, .recipe-image-section { display: none !important; }
     body { background: white !important; }
@@ -216,6 +264,22 @@
     }
 
     if (recipe.notes) document.getElementById("recipeNotes").textContent = recipe.notes;
+
+    // Allergens
+    const allergens = recipe.allergens || [];
+    if (allergens.length > 0) {
+      const warningEl = document.getElementById("allergenWarning");
+      const badgesEl  = document.getElementById("allergenBadges");
+      const icons = {
+        "Eggs": "🥚", "Fish": "🐟", "Milk": "🥛", "Peanuts": "🥜",
+        "Sesame": "🫙", "Shellfish": "🦐", "Soybeans": "🫘",
+        "Tree Nuts": "🌰", "Wheat": "🌾"
+      };
+      badgesEl.innerHTML = allergens.map(a =>
+        `<span class="allergen-badge">${icons[a] || "⚠️"} ${a}</span>`
+      ).join("");
+      warningEl.style.display = "block";
+    }
 
     if (recipe.imageUrl) {
       document.getElementById("recipeImageSection").innerHTML =
