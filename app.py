@@ -33,9 +33,9 @@ from routes.meal_plans          import meal_plans_bp
 from routes.shopping_lists      import shopping_lists_bp
 from routes.ingredients         import ingredients_bp
 from routes.units               import units_bp
-from routes.recipe_categories   import recipe_categories_bp, meal_types_bp
 from routes.admin               import admin_bp
 from routes.recipe_categories   import recipe_categories_bp, meal_types_bp, allergens_bp
+
 
 app.register_blueprint(recipes_bp,              url_prefix="/api/recipes")
 app.register_blueprint(meal_plans_bp,           url_prefix="/api/meal-plans")
@@ -81,6 +81,10 @@ def recipe_view():
 @app.route("/meal-plans.html")
 def meal_plans():
     return send_from_directory("templates", "meal-plans.html")
+
+@app.route("/meal-plan-form.html")
+def meal_plan_form():
+    return send_from_directory("templates", "meal-plan-form.html")
 
 @app.route("/shopping-lists.html")
 def shopping_lists():

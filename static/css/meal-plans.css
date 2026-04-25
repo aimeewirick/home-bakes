@@ -1,0 +1,222 @@
+/* ═══════════════════════════════════════════════════════
+   HomeBakes — Meal Plans Listing Page
+═══════════════════════════════════════════════════════ */
+
+body {
+  background-image: url('/static/images/yellow_tile.png');
+  background-repeat: repeat;
+  background-size: 300px;
+  min-height: 100vh;
+}
+
+.page-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.meal-plans-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meal-plans-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.meal-plans-header .search-bar { flex: 1; min-width: 200px; }
+
+/* ── New plan button ── */
+.new-plan-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.btn-new-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #35595F;
+  background: rgba(255,255,255,0.7);
+  border: none;
+  border-radius: 100px;
+  padding: 0.5rem 1.25rem 0.5rem 0.5rem;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+
+.btn-new-plan:hover { background: rgba(255,255,255,0.9); }
+
+.btn-new-plan-circle {
+  width: 36px;
+  height: 36px;
+  background: #98D0D6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-new-plan-circle svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+/* ── Meal plan cards grid ── */
+.meal-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.meal-plan-card-wrapper {
+  position: relative;
+}
+
+.meal-plan-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text-dark);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: block;
+}
+
+.meal-plan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.btn-delete-card {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #C0392B;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  z-index: 5;
+}
+
+.meal-plan-card-wrapper:hover .btn-delete-card {
+  opacity: 1;
+}
+
+.btn-delete-card:hover {
+  background: #FEE2E2;
+}
+
+/* Mini preview thumbnail */
+.meal-plan-card-preview {
+  background: #98D0D6;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.meal-plan-card-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+.meal-plan-preview-title {
+  font-family: 'Satisfy', cursive;
+  font-size: 0.7rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.meal-plan-preview-grid {
+  display: flex;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.preview-day {
+  flex: 1;
+  background: rgba(255,255,255,0.25);
+  border-radius: 3px;
+  padding: 0.25rem 0.1rem;
+}
+
+.preview-day-name {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #35595F;
+  text-align: center;
+  font-family: 'Lato', sans-serif;
+}
+
+.meal-plan-card-info {
+  padding: 0.75rem 1rem;
+}
+
+.meal-plan-card-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 0.2rem;
+}
+
+.meal-plan-card-meta {
+  font-size: 0.78rem;
+  color: var(--text-light);
+}
+
+/* ── Empty / loading states ── */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-light);
+}
+
+.empty-state h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--text-mid);
+  margin-bottom: 0.5rem;
+}
+
+.loading-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  font-style: italic;
+  color: var(--text-light);
+}

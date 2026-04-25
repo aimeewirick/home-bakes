@@ -5,18 +5,147 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeBakes — Meal Plans</title>
   <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/meal-plans.css" />
 </head>
 <body>
+
   <!-- Universal nav injected by nav.js -->
-  <div class="page-banner"><h1>Meal Plans</h1></div>
-  <div class="container" style="text-align:center; padding-top:4rem;">
-    <p style="color:var(--text-light); font-size:1.1rem;">Meal Plans coming in Week 4! 📅</p>
+
+  <div class="page-content">
+
+    <div class="meal-plans-header">
+      <h1>Meal Plans</h1>
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search meal plans..." />
+      </div>
+    </div>
+
+    <!-- New meal plan button -->
+    <div class="new-plan-btn-wrapper">
+      <a href="/meal-plan-form.html" class="btn-new-plan">
+        <span class="btn-new-plan-circle">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+        new meal plan
+      </a>
+    </div>
+
+    <!-- Meal plan cards grid -->
+    <div class="meal-plans-grid" id="mealPlansGrid">
+      <div class="loading-state">Loading your meal plans...</div>
+    </div>
+
   </div>
+
 <script type="module">
   import "/static/js/nav.js";
-  import { requireAuth, logout } from "/static/js/auth.js";
-  requireAuth();
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+  import { requireAuth } from "/static/js/auth.js";
+  import { getMealPlans, deleteMealPlan } from "/static/js/api.js";
+
+  let allPlans = [];
+  let deleteId  = null;
+
+  requireAuth(async () => {
+    try {
+      allPlans = await getMealPlans();
+      renderPlans(allPlans);
+    } catch (err) {
+      console.error("Failed to load meal plans:", err);
+      document.getElementById("mealPlansGrid").innerHTML =
+        `<div class="loading-state">Failed to load. Please refresh.</div>`;
+    }
+  });
+
+  function renderPlans(plans) {
+    const grid = document.getElementById("mealPlansGrid");
+    if (plans.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h3>No meal plans yet!</h3>
+          <p>Create your first meal plan to get started.</p>
+          <a href="/meal-plan-form.html" class="btn btn-primary">+ New Meal Plan</a>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = plans.map(plan => `
+      <div class="meal-plan-card-wrapper">
+        <a class="meal-plan-card" href="/meal-plan-form.html?id=${plan.id}">
+          <div class="meal-plan-card-preview">
+            <div class="meal-plan-preview-title">WEEKLY MEAL PLAN</div>
+            <div class="meal-plan-preview-grid">
+              ${(plan.days || []).slice(0, 5).map(d => `
+                <div class="preview-day">
+                  <div class="preview-day-name">${d.day_name?.slice(0,3) || "Day"}</div>
+                </div>`).join("")}
+            </div>
+          </div>
+          <div class="meal-plan-card-info">
+            <div class="meal-plan-card-title">${plan.title || "Untitled Plan"}</div>
+            <div class="meal-plan-card-meta">${plan.num_days || 0} days</div>
+          </div>
+        </a>
+        <button class="btn-delete-card" data-id="${plan.id}" data-title="${plan.title || 'Untitled Plan'}" title="Delete meal plan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </button>
+      </div>
+    `).join("");
+
+    // Wire delete buttons
+    grid.querySelectorAll(".btn-delete-card").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteId = btn.dataset.id;
+        document.getElementById("deleteTitle").textContent = btn.dataset.title;
+        document.getElementById("deleteModal").style.display = "flex";
+      });
+    });
+  }
+
+  document.getElementById("searchInput").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    renderPlans(allPlans.filter(p => p.title?.toLowerCase().includes(q)));
+  });
+
+  document.addEventListener("click", e => {
+    if (e.target.id === "cancelDelete" || e.target.closest("#cancelDelete")) {
+      document.getElementById("deleteModal").style.display = "none";
+    }
+    if (e.target.id === "confirmDelete" || e.target.closest("#confirmDelete")) {
+      deleteMealPlan(deleteId).then(() => {
+        allPlans = allPlans.filter(p => p.id !== deleteId);
+        document.getElementById("deleteModal").style.display = "none";
+        renderPlans(allPlans);
+      }).catch(() => alert("Failed to delete. Please try again."));
+    }
+  });
 </script>
+
+  <!-- Delete confirmation modal -->
+  <div id="deleteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; padding:2rem; max-width:380px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+      <h2 style="font-family:'Playfair Display',serif; margin-bottom:0.75rem;">Delete Meal Plan?</h2>
+      <p style="color:var(--text-mid); margin-bottom:0.5rem;" id="deleteTitle"></p>
+      <p style="color:var(--text-light); font-size:0.85rem; margin-bottom:1.5rem;">This cannot be undone.</p>
+      <div style="display:flex; gap:1rem; justify-content:center;">
+        <button id="cancelDelete" class="btn btn-outline">Cancel</button>
+        <button id="confirmDelete" style="background:#DC2626; color:white; border:none; border-radius:8px; padding:0.55rem 1.25rem; font-weight:700; cursor:pointer;">Delete</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

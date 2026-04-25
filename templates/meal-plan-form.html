@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — Meal Planner</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/meal-plan-form.css" />
+</head>
+<body>
+
+  <!-- Universal nav injected by nav.js -->
+
+  <div class="planner-outer">
+    <div class="planner-card">
+
+      <!-- Paper texture -->
+      <div class="planner-texture"></div>
+
+      <!-- ── HEADER ── -->
+      <div class="planner-header">
+
+        <!-- Top right actions -->
+        <div class="planner-actions-top">
+          <button class="planner-icon-btn" id="printBtn" title="Print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </button>
+          <button class="planner-icon-btn" id="downloadBtn" title="Download">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <!-- Edit button — view mode only -->
+          <button class="planner-icon-btn" id="editModeBtn" title="Edit meal plan" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+
+        <h1 class="planner-title">Weekly Meal Plan</h1>
+
+        <!-- View mode: plain text title -->
+        <div class="planner-name-view" id="planTitleView" style="display:none;"></div>
+        <!-- Edit mode: input -->
+        <input type="text" class="planner-name-input" id="planTitle"
+               placeholder="Meal Plan Name" maxlength="60" />
+      </div>
+
+      <!-- ── CALENDAR GRID ── -->
+      <div class="planner-grid-wrapper">
+        <div class="planner-days" id="plannerDays">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- ── FOOTER ── -->
+      <div class="planner-footer">
+
+        <!-- Day counter — edit mode only -->
+        <div class="planner-day-controls" id="dayControls">
+          <span class="day-controls-label">Number of Days</span>
+          <span class="day-ctrl-count" id="dayCount">5</span>
+          <button class="day-ctrl-btn" id="addDayBtn">+</button>
+        </div>
+
+        <!-- View mode day count -->
+        <div class="planner-day-view-count" id="dayViewCount" style="display:none;"></div>
+
+        <!-- Action buttons -->
+        <div class="planner-footer-actions">
+          <!-- Save — edit mode only -->
+          <button class="btn-save-plan" id="savePlanBtn" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Changes
+          </button>
+          <!-- Shopping list — always visible -->
+          <button class="btn-shopping-list" id="createShoppingListBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Create Shopping List
+          </button>
+        </div>
+
+        <!-- Delete — edit mode only -->
+        <button class="btn-delete-plan" id="deletePlanBtn" style="display:none;" title="Delete meal plan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </button>
+
+      </div><!-- end footer -->
+    </div><!-- end planner-card -->
+  </div><!-- end planner-outer -->
+
+  <!-- ══════════════════════════════════════════
+       RECIPE SEARCH MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="recipeModal" style="display:none;">
+    <div class="modal recipe-search-modal">
+      <div class="modal-header">
+        <h2>Add Recipe</h2>
+        <button class="modal-close" id="recipeModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Filters -->
+        <div class="recipe-search-filters">
+          <div class="search-bar" style="flex:1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="recipeSearchInput" placeholder="Search recipes..." />
+          </div>
+          <select id="mealTypeFilter" class="filter-select">
+            <option value="">All Meal Types</option>
+          </select>
+          <select id="categoryFilter" class="filter-select">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="recipe-search-results" id="recipeSearchResults">
+          <div class="loading-state">Loading recipes...</div>
+        </div>
+
+        <!-- Allergen exclusion -->
+        <div class="allergen-exclusion">
+          <span class="allergen-exclusion-label">🚫 Remove recipes containing:</span>
+          <div class="allergen-exclusion-chips" id="allergenExclusionChips">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add meal slot modal -->
+  <div class="modal-overlay" id="addMealModal" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Add Meal Slot</h2>
+        <button class="modal-close" id="addMealModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Meal Type</label>
+          <select id="newMealTypeSelect" class="filter-select" style="width:100%;">
+            <option value="">Select meal type...</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="addMealCancelBtn">Cancel</button>
+        <button class="btn-save-plan" id="addMealConfirmBtn">Add Slot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Delete Meal Plan?</h2>
+        <button class="modal-close" id="deleteModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-mid);">This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="deleteCancelBtn">Cancel</button>
+        <button class="btn-danger" id="deleteConfirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import "/static/js/nav.js";
+  import { requireAuth } from "/static/js/auth.js";
+  import {
+    getMealPlan, createMealPlan, updateMealPlan, deleteMealPlan,
+    getMyRecipes, getPublicRecipes, getMealTypes, getRecipeCategories, getAllergens
+  } from "/static/js/api.js";
+
+  const DAYS_OF_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  let editingId       = null;
+  let allRecipes      = [];
+  let mealTypes       = [];
+  let categories      = [];
+  let currentDays     = [];
+  let addingTo        = null;
+  let addingMealTo    = null;
+  let isEditMode      = false;
+  let excludedAllergens = new Set();
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  requireAuth(async () => {
+    const params = new URLSearchParams(window.location.search);
+    editingId = params.get("id");
+
+    try {
+      const [mine, pub, mt, cats, allergenList] = await Promise.all([
+        getMyRecipes(), getPublicRecipes(), getMealTypes(), getRecipeCategories(), getAllergens()
+      ]);
+      mealTypes  = mt;
+      categories = cats.filter(c => c.name !== "All");
+      populateAllergenChips(allergenList);
+
+      const seen = new Set();
+      allRecipes = [...mine, ...pub].filter(r => {
+        if (seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+      }).sort((a,b) => (a.title||"").localeCompare(b.title||""));
+
+      populateFilters();
+    } catch(e) { console.error("Failed to load data", e); }
+
+    if (editingId) {
+      try {
+        const plan = await getMealPlan(editingId);
+        document.getElementById("planTitle").value = plan.title || "";
+        document.getElementById("planTitleView").textContent = plan.title || "Untitled Plan";
+        currentDays = (plan.days || []).sort((a,b) => a.order - b.order).map(d => ({
+          day_name:  d.day_name,
+          meals:     d.meals || [
+            { type: "Breakfast", recipes: d.breakfast || [] },
+            { type: "Lunch",     recipes: d.lunch     || [] },
+            { type: "Dinner",    recipes: d.dinner    || [] },
+          ]
+        }));
+        setViewMode();
+      } catch(e) {
+        console.error("Failed to load plan", e);
+      }
+    } else {
+      // New plan — default 5 days, edit mode
+      currentDays = DAYS_OF_WEEK.slice(0, 5).map(d => ({
+        day_name: d,
+        meals: [
+          { type: "Breakfast", recipes: [] },
+          { type: "Lunch",     recipes: [] },
+          { type: "Dinner",    recipes: [] },
+        ]
+      }));
+      setEditMode();
+    }
+  });
+
+  // ── View / Edit modes ─────────────────────────────────────────────────────
+  function setViewMode() {
+    isEditMode = false;
+    document.getElementById("planTitle").style.display       = "none";
+    document.getElementById("planTitleView").style.display   = "block";
+    document.getElementById("editModeBtn").style.display     = "flex";
+    document.getElementById("savePlanBtn").style.display     = "none";
+    document.getElementById("deletePlanBtn").style.display   = "none";
+    document.getElementById("dayControls").style.display     = "none";
+    document.getElementById("dayViewCount").style.display    = "block";
+    document.getElementById("dayViewCount").textContent      = `${currentDays.length} day${currentDays.length !== 1 ? "s" : ""}`;
+    renderDays();
+  }
+
+  function setEditMode() {
+    isEditMode = true;
+    document.getElementById("planTitle").style.display       = "block";
+    document.getElementById("planTitleView").style.display   = "none";
+    document.getElementById("editModeBtn").style.display     = "none";
+    document.getElementById("savePlanBtn").style.display     = "flex";
+    if (editingId) document.getElementById("deletePlanBtn").style.display = "flex";
+    document.getElementById("dayControls").style.display     = "flex";
+    document.getElementById("dayViewCount").style.display    = "none";
+    renderDays();
+  }
+
+  document.getElementById("editModeBtn").addEventListener("click", setEditMode);
+
+  // ── Render day columns ────────────────────────────────────────────────────
+  function renderDays() {
+    const container = document.getElementById("plannerDays");
+    document.getElementById("dayCount").textContent = currentDays.length;
+
+    container.innerHTML = currentDays.map((day, i) => `
+      <div class="planner-day" data-day="${i}">
+
+        <!-- Day header -->
+        <div class="day-header">
+          ${isEditMode
+            ? `<select class="day-name-select" data-day="${i}">
+                ${DAYS_OF_WEEK.map(d =>
+                  `<option value="${d}" ${d === day.day_name ? "selected" : ""}>${d}</option>`
+                ).join("")}
+               </select>
+               <button class="btn-remove-day" data-day="${i}" title="Remove day">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                 </svg>
+               </button>`
+            : `<span class="day-name-label">${day.day_name}</span>`
+          }
+        </div>
+
+        <!-- Meal slots -->
+        <div class="day-meals">
+          ${day.meals.map((meal, mi) => `
+            <div class="meal-slot" data-day="${i}" data-meal="${mi}">
+              <div class="meal-slot-header">
+                <span class="meal-slot-label">${meal.type}</span>
+                ${isEditMode
+                  ? `<button class="btn-remove-meal-slot" data-day="${i}" data-meal="${mi}" title="Remove slot">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10">
+                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                       </svg>
+                     </button>`
+                  : ""
+                }
+              </div>
+              <div class="meal-recipes">
+                ${meal.recipes.map((r, ri) => isEditMode
+                  ? `<div class="meal-recipe-card">
+                       <span class="meal-recipe-name">${r.title}</span>
+                       <button class="btn-remove-recipe" data-day="${i}" data-meal="${mi}" data-recipe="${ri}" title="Remove">
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10">
+                           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                         </svg>
+                       </button>
+                     </div>`
+                  : `<a class="meal-recipe-card meal-recipe-link" href="/recipe-view.html?id=${r.id}">
+                       <span class="meal-recipe-name">${r.title}</span>
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10">
+                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                         <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                       </svg>
+                     </a>`
+                ).join("")}
+              </div>
+              ${isEditMode
+                ? `<button class="btn-add-meal" data-day="${i}" data-meal="${mi}">+ add</button>`
+                : ""
+              }
+            </div>
+          `).join("")}
+
+          ${isEditMode
+            ? `<button class="btn-add-meal-slot" data-day="${i}">+ add meal</button>`
+            : ""
+          }
+        </div>
+
+      </div>
+    `).join("");
+
+    wireEvents(container);
+  }
+
+  function wireEvents(container) {
+    // Day name selects
+    container.querySelectorAll(".day-name-select").forEach(sel => {
+      sel.addEventListener("change", () => {
+        currentDays[parseInt(sel.dataset.day)].day_name = sel.value;
+      });
+    });
+
+    // Remove day X button
+    container.querySelectorAll(".btn-remove-day").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentDays.splice(parseInt(btn.dataset.day), 1);
+        renderDays();
+      });
+    });
+
+    // Remove meal slot
+    container.querySelectorAll(".btn-remove-meal-slot").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const di = parseInt(btn.dataset.day);
+        const mi = parseInt(btn.dataset.meal);
+        currentDays[di].meals.splice(mi, 1);
+        renderDays();
+      });
+    });
+
+    // Add recipe to slot
+    container.querySelectorAll(".btn-add-meal").forEach(btn => {
+      btn.addEventListener("click", () => {
+        addingTo = { dayIndex: parseInt(btn.dataset.day), mealIndex: parseInt(btn.dataset.meal) };
+        openRecipeModal();
+      });
+    });
+
+    // Remove recipe
+    container.querySelectorAll(".btn-remove-recipe").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const di = parseInt(btn.dataset.day);
+        const mi = parseInt(btn.dataset.meal);
+        const ri = parseInt(btn.dataset.recipe);
+        currentDays[di].meals[mi].recipes.splice(ri, 1);
+        renderDays();
+      });
+    });
+
+    // Add meal slot button
+    container.querySelectorAll(".btn-add-meal-slot").forEach(btn => {
+      btn.addEventListener("click", () => {
+        addingMealTo = parseInt(btn.dataset.day);
+        document.getElementById("newMealTypeSelect").value = "";
+        document.getElementById("addMealModal").style.display = "flex";
+      });
+    });
+  }
+
+  // ── Add day ───────────────────────────────────────────────────────────────
+  document.getElementById("addDayBtn").addEventListener("click", () => {
+    if (currentDays.length >= 7) return;
+    const used    = currentDays.map(d => d.day_name);
+    const nextDay = DAYS_OF_WEEK.find(d => !used.includes(d)) || `Day ${currentDays.length + 1}`;
+    currentDays.push({
+      day_name: nextDay,
+      meals: [
+        { type: "Breakfast", recipes: [] },
+        { type: "Lunch",     recipes: [] },
+        { type: "Dinner",    recipes: [] },
+      ]
+    });
+    renderDays();
+  });
+
+  // ── Add meal slot modal ───────────────────────────────────────────────────
+  function populateNewMealSelect() {
+    const sel = document.getElementById("newMealTypeSelect");
+    sel.innerHTML = '<option value="">Select meal type...</option>';
+    mealTypes.forEach(mt => {
+      const opt = document.createElement("option");
+      opt.value = mt.name;
+      opt.textContent = mt.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById("addMealModalClose").addEventListener("click", () => {
+    document.getElementById("addMealModal").style.display = "none";
+  });
+  document.getElementById("addMealCancelBtn").addEventListener("click", () => {
+    document.getElementById("addMealModal").style.display = "none";
+  });
+  document.getElementById("addMealConfirmBtn").addEventListener("click", () => {
+    const type = document.getElementById("newMealTypeSelect").value;
+    if (!type || addingMealTo === null) return;
+    currentDays[addingMealTo].meals.push({ type, recipes: [] });
+    document.getElementById("addMealModal").style.display = "none";
+    renderDays();
+  });
+
+  // ── Filters ───────────────────────────────────────────────────────────────
+  function populateFilters() {
+    // Meal type filter in recipe search modal
+    const mtSel = document.getElementById("mealTypeFilter");
+    mealTypes.forEach(mt => {
+      const opt = document.createElement("option");
+      opt.value = mt.name;
+      opt.textContent = mt.name;
+      mtSel.appendChild(opt);
+    });
+
+    // Category filter in recipe search modal
+    const catSel = document.getElementById("categoryFilter");
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      catSel.appendChild(opt);
+    });
+
+    // New meal slot select
+    populateNewMealSelect();
+  }
+
+  // ── Allergen exclusion chips ──────────────────────────────────────────────
+  function populateAllergenChips(allergens) {
+    const container = document.getElementById("allergenExclusionChips");
+    container.innerHTML = allergens.map(a => `
+      <label class="allergen-exclusion-chip" data-allergen="${a.name}">
+        <input type="checkbox" value="${a.name}" />
+        ${a.icon} ${a.name}
+      </label>
+    `).join("");
+
+    container.querySelectorAll("input[type='checkbox']").forEach(cb => {
+      cb.addEventListener("change", () => {
+        if (cb.checked) {
+          excludedAllergens.add(cb.value);
+          cb.closest(".allergen-exclusion-chip").classList.add("excluded");
+        } else {
+          excludedAllergens.delete(cb.value);
+          cb.closest(".allergen-exclusion-chip").classList.remove("excluded");
+        }
+        renderRecipeResults(getFilteredRecipes());
+      });
+    });
+  }
+
+  // ── Recipe search modal ───────────────────────────────────────────────────
+  function openRecipeModal() {
+    document.getElementById("recipeModal").style.display = "flex";
+    document.getElementById("recipeSearchInput").value   = "";
+    document.getElementById("mealTypeFilter").value      = "";
+    document.getElementById("categoryFilter").value      = "";
+    // Reset allergen exclusions
+    excludedAllergens.clear();
+    document.querySelectorAll(".allergen-exclusion-chip input").forEach(cb => {
+      cb.checked = false;
+      cb.closest(".allergen-exclusion-chip").classList.remove("excluded");
+    });
+    renderRecipeResults(allRecipes);
+    document.getElementById("recipeSearchInput").focus();
+  }
+
+  function getFilteredRecipes() {
+    const q   = document.getElementById("recipeSearchInput").value.toLowerCase();
+    const mt  = document.getElementById("mealTypeFilter").value;
+    const cat = document.getElementById("categoryFilter").value;
+    return allRecipes.filter(r => {
+      if (q   && !r.title?.toLowerCase().includes(q))          return false;
+      if (mt  && r.meal_type !== mt)                            return false;
+      if (cat && r.recipe_category !== cat)                     return false;
+      // Exclude recipes containing any excluded allergen
+      if (excludedAllergens.size > 0) {
+        const recipeAllergens = r.allergens || [];
+        for (const excluded of excludedAllergens) {
+          if (recipeAllergens.includes(excluded)) return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  function renderRecipeResults(recipes) {
+    const container = document.getElementById("recipeSearchResults");
+    if (recipes.length === 0) {
+      container.innerHTML = `<div class="loading-state">No recipes found</div>`;
+      return;
+    }
+    container.innerHTML = recipes.map(r => `
+      <div class="recipe-search-item">
+        <div class="recipe-search-thumb">
+          ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}" />` : `<span>🍽️</span>`}
+        </div>
+        <div class="recipe-search-info">
+          <div class="recipe-search-title">${r.title}</div>
+          <div class="recipe-search-meta">${[r.meal_type, r.recipe_category].filter(Boolean).join(" · ") || ""}</div>
+        </div>
+        <button class="btn-add-to-plan" data-id="${r.id}" data-title="${r.title}">+ Add</button>
+      </div>
+    `).join("");
+
+    container.querySelectorAll(".btn-add-to-plan").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (!addingTo) return;
+        const { dayIndex, mealIndex } = addingTo;
+        currentDays[dayIndex].meals[mealIndex].recipes.push({
+          id: btn.dataset.id, title: btn.dataset.title
+        });
+        document.getElementById("recipeModal").style.display = "none";
+        renderDays();
+      });
+    });
+  }
+
+  ["recipeSearchInput","mealTypeFilter","categoryFilter"].forEach(id => {
+    document.getElementById(id).addEventListener("input", () => renderRecipeResults(getFilteredRecipes()));
+    document.getElementById(id).addEventListener("change", () => renderRecipeResults(getFilteredRecipes()));
+  });
+
+  document.getElementById("recipeModalClose").addEventListener("click", () => {
+    document.getElementById("recipeModal").style.display = "none";
+  });
+
+  // ── Save ──────────────────────────────────────────────────────────────────
+  document.getElementById("savePlanBtn").addEventListener("click", async () => {
+    const btn   = document.getElementById("savePlanBtn");
+    const title = document.getElementById("planTitle").value.trim() || "My Meal Plan";
+    btn.disabled = true;
+
+    // Convert meals structure to flat format for backend
+    const days = currentDays.map(day => ({
+      day_name:  day.day_name,
+      meals:     day.meals,
+      // Legacy flat fields for backward compat
+      breakfast: day.meals.find(m => m.type === "Breakfast")?.recipes || [],
+      lunch:     day.meals.find(m => m.type === "Lunch")?.recipes     || [],
+      dinner:    day.meals.find(m => m.type === "Dinner")?.recipes    || [],
+    }));
+
+    try {
+      if (editingId) {
+        await updateMealPlan(editingId, { title, days });
+      } else {
+        const result = await createMealPlan({ title, days });
+        editingId = result.id;
+        history.replaceState(null, "", `/meal-plan-form.html?id=${editingId}`);
+      }
+      document.getElementById("planTitleView").textContent = title;
+      setViewMode();
+    } catch(err) {
+      console.error("Save failed:", err);
+      alert("Failed to save. Please try again.");
+      btn.disabled = false;
+    }
+  });
+
+  // ── Shopping list ─────────────────────────────────────────────────────────
+  document.getElementById("createShoppingListBtn").addEventListener("click", () => {
+    if (!editingId) { alert("Please save your meal plan first!"); return; }
+    window.location.href = `/shopping-lists.html?meal_plan_id=${editingId}`;
+  });
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  const deleteModal = document.getElementById("deleteModal");
+  document.getElementById("deletePlanBtn").addEventListener("click", () => deleteModal.style.display = "flex");
+  document.getElementById("deleteModalClose").addEventListener("click", () => deleteModal.style.display = "none");
+  document.getElementById("deleteCancelBtn").addEventListener("click", () => deleteModal.style.display = "none");
+  document.getElementById("deleteConfirmBtn").addEventListener("click", async () => {
+    try {
+      await deleteMealPlan(editingId);
+      window.location.href = "/meal-plans.html";
+    } catch(err) { alert("Failed to delete. Please try again."); }
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("downloadBtn").addEventListener("click", () => window.print());
+
+</script>
+</body>
+</html>
