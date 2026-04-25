@@ -53,5 +53,14 @@ export const getUnits = () => apiFetch("/api/units/");
 export const getRecipeCategories = () => apiFetch("/api/recipe-categories/");
 export const getMealTypes        = () => apiFetch("/api/meal-types/");
 
-// -- Allergens -----------------------------------------------------------------
+// ── Admin ─────────────────────────────────────────────────────────────────────
+export const adminGetIngredients     = (cat="")  => apiFetch(`/api/admin/ingredients${cat ? "?category="+cat : ""}`);
+export const adminAddIngredient      = (data)    => apiFetch("/api/admin/ingredients",          { method: "POST",   body: JSON.stringify(data) });
+export const adminUpdateIngredient   = (id,data) => apiFetch(`/api/admin/ingredients/${id}`,    { method: "PUT",    body: JSON.stringify(data) });
+export const adminDeleteIngredient   = (id)      => apiFetch(`/api/admin/ingredients/${id}`,    { method: "DELETE" });
+export const adminGetPending         = ()        => apiFetch("/api/admin/pending-ingredients");
+export const adminApproveIngredient  = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/approve`, { method: "POST" });
+export const adminRejectIngredient   = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/reject`,  { method: "DELETE" });
+
+// -- Allergens ------------------------------------------------------------------
 export const getAllergens = () => apiFetch("/api/allergens/");

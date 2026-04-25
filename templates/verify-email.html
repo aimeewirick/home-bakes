@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — Verify Your Email</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/register.css" />
+</head>
+<body>
+
+  <header class="reg-header">
+    <span class="reg-header-title">HomeBakes</span>
+  </header>
+
+  <div class="reg-container">
+    <div class="reg-card">
+
+      <div class="reg-card-banner">
+        <h1>Verify Your Email 📬</h1>
+        <p>One more step before entering your kitchen!</p>
+      </div>
+
+      <div class="reg-form" style="text-align:center; padding: 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🏠</div>
+
+        <p style="color: var(--text-mid); margin-bottom: 0.5rem; font-size: 1rem;">
+          We sent a verification link to
+        </p>
+        <p style="color: var(--teal-dark); font-weight: 700; font-size: 1.1rem; margin-bottom: 1.5rem;">
+          <span id="userEmail">your email address</span>
+        </p>
+
+        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 2rem;">
+          Please check your inbox and click the verification link.<br>
+          Once verified, click the button below to enter HomeBakes!
+        </p>
+
+        <!-- Check verification status -->
+        <button class="btn-register" id="checkBtn">
+          I've Verified My Email →
+        </button>
+
+        <div class="error-msg" id="verifyError" style="margin-top: 1rem;"></div>
+        <div id="successMsg" style="display:none; color: #27ae60; margin-top: 1rem; font-size: 0.9rem;">
+          ✅ Email verified! Redirecting...
+        </div>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+          <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.75rem;">
+            Didn't receive the email? Check your spam folder or resend:
+          </p>
+          <button id="resendBtn" class="btn-cancel" style="cursor:pointer;">
+            Resend Verification Email
+          </button>
+          <div id="resendMsg" style="display:none; font-size:0.8rem; color: var(--teal-dark); margin-top:0.5rem;">
+            ✅ Verification email sent!
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <a href="/login.html" style="font-size: 0.85rem; color: var(--text-light);">
+            ← Back to Login
+          </a>
+          &nbsp;·&nbsp;
+          <button id="logoutBtn" style="background:none; border:none; font-size:0.85rem; color:var(--text-light); cursor:pointer; text-decoration:underline;">
+            Log out
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script type="module">
+  import { auth } from "/static/js/firebase-init.js";
+  import { onAuthStateChanged, reload } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { logout, resendVerificationEmail } from "/static/js/auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "/login.html";
+      return;
+    }
+    // Already verified — go home
+    if (user.emailVerified) {
+      window.location.href = "/index.html";
+      return;
+    }
+    // Show their email
+    document.getElementById("userEmail").textContent = user.email;
+  });
+
+  // Check if they've verified since page loaded
+  document.getElementById("checkBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("checkBtn");
+    const errorEl = document.getElementById("verifyError");
+    btn.textContent = "Checking...";
+    btn.disabled = true;
+    errorEl.classList.remove("visible");
+
+    try {
+      // Reload user to get fresh emailVerified status
+      await reload(auth.currentUser);
+      if (auth.currentUser.emailVerified) {
+        document.getElementById("successMsg").style.display = "block";
+        setTimeout(() => window.location.href = "/index.html", 1500);
+      } else {
+        errorEl.textContent = "Email not verified yet. Please check your inbox and click the link.";
+        errorEl.classList.add("visible");
+        btn.textContent = "I've Verified My Email →";
+        btn.disabled = false;
+      }
+    } catch (err) {
+      errorEl.textContent = "Something went wrong. Please try again.";
+      errorEl.classList.add("visible");
+      btn.textContent = "I've Verified My Email →";
+      btn.disabled = false;
+    }
+  });
+
+  // Resend verification email
+  document.getElementById("resendBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("resendBtn");
+    btn.disabled = true;
+    try {
+      await resendVerificationEmail();
+      document.getElementById("resendMsg").style.display = "block";
+      setTimeout(() => {
+        btn.disabled = false;
+        document.getElementById("resendMsg").style.display = "none";
+      }, 30000); // 30 second cooldown
+    } catch (err) {
+      btn.textContent = "Try again in a moment";
+      setTimeout(() => {
+        btn.textContent = "Resend Verification Email";
+        btn.disabled = false;
+      }, 5000);
+    }
+  });
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+</script>
+</body>
+</html>

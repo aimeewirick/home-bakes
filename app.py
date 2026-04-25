@@ -34,6 +34,7 @@ from routes.shopping_lists      import shopping_lists_bp
 from routes.ingredients         import ingredients_bp
 from routes.units               import units_bp
 from routes.recipe_categories   import recipe_categories_bp, meal_types_bp
+from routes.admin               import admin_bp
 from routes.recipe_categories   import recipe_categories_bp, meal_types_bp, allergens_bp
 
 app.register_blueprint(recipes_bp,              url_prefix="/api/recipes")
@@ -43,6 +44,7 @@ app.register_blueprint(ingredients_bp,          url_prefix="/api/ingredients")
 app.register_blueprint(units_bp,                url_prefix="/api/units")
 app.register_blueprint(recipe_categories_bp,    url_prefix="/api/recipe-categories")
 app.register_blueprint(meal_types_bp,           url_prefix="/api/meal-types")
+app.register_blueprint(admin_bp,                url_prefix="/api/admin")
 app.register_blueprint(allergens_bp,            url_prefix="/api/allergens")
 
 # ── Health check ──────────────────────────────────────────────────────────────
@@ -83,6 +85,14 @@ def meal_plans():
 @app.route("/shopping-lists.html")
 def shopping_lists():
     return send_from_directory("templates", "shopping-lists.html")
+
+@app.route("/verify-email.html")
+def verify_email():
+    return send_from_directory("templates", "verify-email.html")
+
+@app.route("/admin.html")
+def admin():
+    return send_from_directory("templates", "admin.html")
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":

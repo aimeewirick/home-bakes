@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeBakes — Admin</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+</head>
+<body>
+
+  <!-- Universal nav injected by nav.js -->
+
+  <div class="page-content">
+
+    <div class="admin-header">
+      <h1>🔧 Ingredient Management</h1>
+      <p class="admin-subtitle">Manage the global ingredient database</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="global">Global Ingredients</button>
+      <button class="admin-tab" data-tab="pending">
+        Pending Submissions
+        <span class="pending-badge" id="pendingBadge" style="display:none"></span>
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         GLOBAL INGREDIENTS TAB
+    ══════════════════════════════════════════ -->
+    <div class="tab-content active" id="tab-global">
+
+      <!-- Toolbar -->
+      <div class="admin-toolbar">
+        <div class="search-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="ingredientSearch" placeholder="Search ingredients..." />
+        </div>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+        <button class="btn-add-ingredient" id="addIngredientBtn">+ Add New Ingredient</button>
+      </div>
+
+      <!-- Ingredient count -->
+      <p class="ingredient-count" id="ingredientCount">Loading...</p>
+
+      <!-- Ingredient table -->
+      <div class="admin-table-wrapper">
+        <table class="admin-table" id="ingredientTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Allergens</th>
+              <th>Calories</th>
+              <th>Unit</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ingredientTableBody">
+            <tr><td colspan="6" class="loading-cell">Loading ingredients...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PENDING SUBMISSIONS TAB
+    ══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-pending">
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Submitted By</th>
+              <th>Allergens</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pendingTableBody">
+            <tr><td colspan="5" class="loading-cell">Loading submissions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end page-content -->
+
+  <!-- ══════════════════════════════════════════
+       ADD / EDIT INGREDIENT MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="ingredientModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Ingredient</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="modalName" placeholder="e.g. All-Purpose Flour" maxlength="100" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="modalCategory">
+            <option value="">Select category...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Allergens</label>
+          <div class="allergen-checkboxes" id="allergenCheckboxes">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Calories</label>
+            <input type="number" id="modalCalories" placeholder="e.g. 102" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Per Unit</label>
+            <select id="modalCalorieUnit">
+              <option value="">Select unit...</option>
+              <optgroup label="Volume">
+                <option value="tsp">tsp</option>
+                <option value="tbsp">tbsp</option>
+                <option value="fl oz">fl oz</option>
+                <option value="c">cup</option>
+                <option value="ml">ml</option>
+              </optgroup>
+              <optgroup label="Weight">
+                <option value="oz">oz</option>
+                <option value="lb">lb</option>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+              </optgroup>
+              <optgroup label="Count">
+                <option value="whole">whole</option>
+                <option value="piece">piece</option>
+                <option value="slice">slice</option>
+                <option value="clove">clove</option>
+                <option value="pinch">pinch</option>
+                <option value="dash">dash</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="error-msg" id="modalError"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" id="modalCancel">Cancel</button>
+        <button class="btn-save" id="modalSave">Save Ingredient</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Delete Ingredient?</h2>
+        <button class="modal-close" id="deleteModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteIngredientName"></strong>?</p>
+        <p style="color:var(--text-light); font-size:0.85rem; margin-top:0.5rem;">
+          This cannot be undone. Existing recipes using this ingredient won't be affected.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="deleteCancelBtn">Cancel</button>
+        <button class="btn-danger" id="deleteConfirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import "/static/js/nav.js";
+  import { requireAdmin } from "/static/js/auth.js";
+  import {
+    adminGetIngredients, adminAddIngredient, adminUpdateIngredient,
+    adminDeleteIngredient, adminGetPending, adminApproveIngredient,
+    adminRejectIngredient, getRecipeCategories, getAllergens
+  } from "/static/js/api.js";
+
+  let allIngredients  = [];
+  let allergenList    = [];
+  let editingId       = null;
+  let deleteId        = null;
+
+  requireAdmin(async () => {
+    try {
+      const [ingredients, categories, allergens] = await Promise.all([
+        adminGetIngredients(),
+        getRecipeCategories(),
+        getAllergens()
+      ]);
+
+      allIngredients = ingredients;
+      allergenList   = allergens;
+
+      populateCategoryFilter(categories);
+      populateModalCategory(categories);
+      populateAllergenCheckboxes(allergens);
+      renderIngredients(allIngredients);
+      loadPending();
+    } catch (err) {
+      console.error("Failed to load admin data:", err);
+    }
+  });
+
+  // ── Populate filters ──────────────────────────────────────────────────────
+  function populateCategoryFilter(categories) {
+    const sel = document.getElementById("categoryFilter");
+    categories.filter(c => c.name !== "All").forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function populateModalCategory(categories) {
+    const sel = document.getElementById("modalCategory");
+    categories.filter(c => c.name !== "All").forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function populateAllergenCheckboxes(allergens) {
+    const container = document.getElementById("allergenCheckboxes");
+    container.innerHTML = allergens.map(a => `
+      <label class="allergen-check">
+        <input type="checkbox" value="${a.name}" />
+        ${a.icon} ${a.name}
+      </label>
+    `).join("");
+  }
+
+  // ── Render ingredient table ───────────────────────────────────────────────
+  function renderIngredients(ingredients) {
+    const tbody = document.getElementById("ingredientTableBody");
+    const count = document.getElementById("ingredientCount");
+    count.textContent = `${ingredients.length} ingredients`;
+
+    if (ingredients.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No ingredients found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = ingredients.map(ing => `
+      <tr data-id="${ing.id}">
+        <td class="ing-name">${ing.name}</td>
+        <td>${ing.category || "—"}</td>
+        <td class="allergen-cell">
+          ${(ing.allergens || []).map(a => {
+            const found = allergenList.find(al => al.name === a);
+            return found ? `<span class="allergen-pill">${found.icon} ${a}</span>` : `<span class="allergen-pill">${a}</span>`;
+          }).join("") || "—"}
+        </td>
+        <td>${ing.calories ?? "—"}</td>
+        <td>${ing.calorie_unit || "—"}</td>
+        <td class="action-cell">
+          <button class="btn-edit" data-id="${ing.id}">✏️</button>
+          <button class="btn-delete" data-id="${ing.id}" data-name="${ing.name}">🗑️</button>
+        </td>
+      </tr>
+    `).join("");
+
+    // Edit buttons
+    tbody.querySelectorAll(".btn-edit").forEach(btn => {
+      btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+    });
+
+    // Delete buttons
+    tbody.querySelectorAll(".btn-delete").forEach(btn => {
+      btn.addEventListener("click", () => openDeleteModal(btn.dataset.id, btn.dataset.name));
+    });
+  }
+
+  // ── Search + filter ───────────────────────────────────────────────────────
+  function filterIngredients() {
+    const q   = document.getElementById("ingredientSearch").value.toLowerCase();
+    const cat = document.getElementById("categoryFilter").value;
+    let filtered = allIngredients;
+    if (q)   filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
+    if (cat) filtered = filtered.filter(i => i.category === cat);
+    renderIngredients(filtered);
+  }
+
+  document.getElementById("ingredientSearch").addEventListener("input", filterIngredients);
+  document.getElementById("categoryFilter").addEventListener("change", filterIngredients);
+
+  // ── Add/Edit Modal ────────────────────────────────────────────────────────
+  function openAddModal() {
+    editingId = null;
+    document.getElementById("modalTitle").textContent = "Add Ingredient";
+    document.getElementById("modalName").value = "";
+    document.getElementById("modalCategory").value = "";
+    document.getElementById("modalCalories").value = "";
+    document.getElementById("modalCalorieUnit").value = "";
+    document.getElementById("modalError").classList.remove("visible");
+    // Clear allergen checkboxes
+    document.querySelectorAll("#allergenCheckboxes input").forEach(cb => cb.checked = false);
+    document.getElementById("ingredientModal").style.display = "flex";
+    document.getElementById("modalName").focus();
+  }
+
+  function openEditModal(id) {
+    const ing = allIngredients.find(i => i.id === id);
+    if (!ing) return;
+    editingId = id;
+    document.getElementById("modalTitle").textContent = "Edit Ingredient";
+    document.getElementById("modalName").value = ing.name || "";
+    document.getElementById("modalCategory").value = ing.category || "";
+    document.getElementById("modalCalories").value = ing.calories ?? "";
+    document.getElementById("modalCalorieUnit").value = ing.calorie_unit || "";
+    document.getElementById("modalError").classList.remove("visible");
+    // Set allergen checkboxes
+    document.querySelectorAll("#allergenCheckboxes input").forEach(cb => {
+      cb.checked = (ing.allergens || []).includes(cb.value);
+    });
+    document.getElementById("ingredientModal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("ingredientModal").style.display = "none";
+    editingId = null;
+  }
+
+  document.getElementById("addIngredientBtn").addEventListener("click", openAddModal);
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  document.getElementById("modalCancel").addEventListener("click", closeModal);
+
+  // Save ingredient
+  document.getElementById("modalSave").addEventListener("click", async () => {
+    const name        = document.getElementById("modalName").value.trim();
+    const category    = document.getElementById("modalCategory").value;
+    const calories    = document.getElementById("modalCalories").value;
+    const calUnit     = document.getElementById("modalCalorieUnit").value;
+    const allergens   = [...document.querySelectorAll("#allergenCheckboxes input:checked")]
+                          .map(cb => cb.value);
+    const errorEl     = document.getElementById("modalError");
+
+    if (!name)     { errorEl.textContent = "Name is required"; errorEl.classList.add("visible"); return; }
+    if (!category) { errorEl.textContent = "Category is required"; errorEl.classList.add("visible"); return; }
+
+    const data = {
+      name, category, allergens,
+      calories:     calories ? Number(calories) : null,
+      calorie_unit: calUnit || null
+    };
+
+    try {
+      if (editingId) {
+        await adminUpdateIngredient(editingId, data);
+        // Update local array
+        const idx = allIngredients.findIndex(i => i.id === editingId);
+        if (idx > -1) allIngredients[idx] = { ...allIngredients[idx], ...data };
+      } else {
+        const result = await adminAddIngredient(data);
+        allIngredients.push({ id: result.id, ...data });
+        allIngredients.sort((a,b) => a.name.localeCompare(b.name));
+      }
+      closeModal();
+      filterIngredients();
+    } catch (err) {
+      errorEl.textContent = err.message || "Failed to save. Please try again.";
+      errorEl.classList.add("visible");
+    }
+  });
+
+  // ── Delete Modal ──────────────────────────────────────────────────────────
+  function openDeleteModal(id, name) {
+    deleteId = id;
+    document.getElementById("deleteIngredientName").textContent = name;
+    document.getElementById("deleteModal").style.display = "flex";
+  }
+
+  document.getElementById("deleteModalClose").addEventListener("click", () => {
+    document.getElementById("deleteModal").style.display = "none";
+  });
+  document.getElementById("deleteCancelBtn").addEventListener("click", () => {
+    document.getElementById("deleteModal").style.display = "none";
+  });
+  document.getElementById("deleteConfirmBtn").addEventListener("click", async () => {
+    try {
+      await adminDeleteIngredient(deleteId);
+      allIngredients = allIngredients.filter(i => i.id !== deleteId);
+      document.getElementById("deleteModal").style.display = "none";
+      filterIngredients();
+    } catch (err) {
+      alert("Failed to delete. Please try again.");
+    }
+  });
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  document.querySelectorAll(".admin-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+    });
+  });
+
+  // ── Pending submissions ───────────────────────────────────────────────────
+  async function loadPending() {
+    try {
+      const pending = await adminGetPending();
+      const badge = document.getElementById("pendingBadge");
+      if (pending.length > 0) {
+        badge.textContent = pending.length;
+        badge.style.display = "inline";
+      }
+      renderPending(pending);
+    } catch (err) {
+      console.error("Failed to load pending:", err);
+    }
+  }
+
+  function renderPending(pending) {
+    const tbody = document.getElementById("pendingTableBody");
+    if (pending.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">No pending submissions</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = pending.map(ing => `
+      <tr data-id="${ing.id}">
+        <td>${ing.name}</td>
+        <td>${ing.category || "—"}</td>
+        <td>${ing.submitted_by || "—"}</td>
+        <td>${(ing.allergens || []).join(", ") || "—"}</td>
+        <td class="action-cell">
+          <button class="btn-approve" data-id="${ing.id}">✅ Approve</button>
+          <button class="btn-reject"  data-id="${ing.id}">❌ Reject</button>
+        </td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll(".btn-approve").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        await adminApproveIngredient(btn.dataset.id);
+        loadPending();
+        // Refresh global list
+        allIngredients = await adminGetIngredients();
+        filterIngredients();
+      });
+    });
+
+    tbody.querySelectorAll(".btn-reject").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        await adminRejectIngredient(btn.dataset.id);
+        loadPending();
+      });
+    });
+  }
+</script>
+</body>
+</html>

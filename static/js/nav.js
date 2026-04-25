@@ -219,6 +219,25 @@ spacer.insertAdjacentElement("afterend", nav);
 // Wire logout button
 document.getElementById("navLogoutBtn").addEventListener("click", () => logout());
 
+// ── Show admin link if user has admin claim ───────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  try {
+    const token = await user.getIdTokenResult();
+    if (token.claims.admin) {
+      const adminLi = document.createElement("li");
+      adminLi.innerHTML = `
+        <a href="/admin.html"${path.includes("admin") ? ' class="active"' : ''}
+           style="color: #C0392B;">
+          ⚙️ Admin
+        </a>`;
+      nav.querySelector(".hb-nav-links").appendChild(adminLi);
+    }
+  } catch (err) {
+    console.error("Failed to check admin claim:", err);
+  }
+});
+
 // ── Home page only — show personalized welcome in nav ──────────────────────
 if (path === "/" || path === "/index.html") {
   const welcomeEl = document.createElement("span");
