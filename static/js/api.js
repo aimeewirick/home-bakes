@@ -29,7 +29,7 @@ export const deleteRecipe     = (id)      => apiFetch(`/api/recipes/${id}`, { me
 
 // ── Ingredients ───────────────────────────────────────────────────────────────
 export const getIngredients         = (cat="") => apiFetch(`/api/ingredients/${cat ? "?category="+cat : ""}`);
-export const getIngredientCategories= ()       => apiFetch("/api/ingredients/categories");
+export const getIngredientCategories = () => apiFetch("/api/ingredient-categories/");
 export const getPrivateIngredients  = ()       => apiFetch("/api/ingredients/private");
 
 // ── Meal Plans ────────────────────────────────────────────────────────────────
@@ -51,9 +51,10 @@ export const toggleHaveIt      = (lid,iid,val)=> apiFetch(`/api/shopping-lists/$
 export const getUnits = () => apiFetch("/api/units/");
 
 // ── Reference Collections ─────────────────────────────────────────────────────
-export const getRecipeCategories = () => apiFetch("/api/recipe-categories/");
-export const getMealTypes        = () => apiFetch("/api/meal-types/");
-export const getAllergens        = () => apiFetch("/api/allergens/");
+export const getRecipeCategories     = () => apiFetch("/api/recipe-categories/");
+export const getMealTypes            = () => apiFetch("/api/meal-types/");
+export const getAllergens             = () => apiFetch("/api/allergens/");
+
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 export const adminGetIngredients     = (cat="")  => apiFetch(`/api/admin/ingredients${cat ? "?category="+cat : ""}`);

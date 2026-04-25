@@ -133,28 +133,7 @@
           <div class="form-group">
             <label>Per Unit</label>
             <select id="modalCalorieUnit">
-              <option value="">Select unit...</option>
-              <optgroup label="Volume">
-                <option value="tsp">tsp</option>
-                <option value="tbsp">tbsp</option>
-                <option value="fl oz">fl oz</option>
-                <option value="c">cup</option>
-                <option value="ml">ml</option>
-              </optgroup>
-              <optgroup label="Weight">
-                <option value="oz">oz</option>
-                <option value="lb">lb</option>
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-              </optgroup>
-              <optgroup label="Count">
-                <option value="whole">whole</option>
-                <option value="piece">piece</option>
-                <option value="slice">slice</option>
-                <option value="clove">clove</option>
-                <option value="pinch">pinch</option>
-                <option value="dash">dash</option>
-              </optgroup>
+              <option value="">Loading...</option>
             </select>
           </div>
         </div>
@@ -195,7 +174,7 @@
   import {
     adminGetIngredients, adminAddIngredient, adminUpdateIngredient,
     adminDeleteIngredient, adminGetPending, adminApproveIngredient,
-    adminRejectIngredient, getRecipeCategories, getAllergens
+    adminRejectIngredient, getIngredientCategories, getAllergens, getUnits
   } from "/static/js/api.js";
 
   let allIngredients  = [];
@@ -205,11 +184,13 @@
 
   requireAdmin(async () => {
     try {
-      const [ingredients, categories, allergens] = await Promise.all([
+      const [ingredients, categories, allergens, units] = await Promise.all([
         adminGetIngredients(),
-        getRecipeCategories(),
-        getAllergens()
+        getIngredientCategories(),
+        getAllergens(),
+        getUnits()
       ]);
+      populateUnitSelect(units);
 
       allIngredients = ingredients;
       allergenList   = allergens;
@@ -253,6 +234,26 @@
         ${a.icon} ${a.name}
       </label>
     `).join("");
+  }
+
+  // ── Populate unit select from Firestore ──────────────────────────────────
+  function populateUnitSelect(units) {
+    const sel = document.getElementById("modalCalorieUnit");
+    sel.innerHTML = '<option value="">Select unit...</option>';
+    const groups = { volume: "Volume", weight: "Weight", count: "Count", other: "Other" };
+    Object.entries(groups).forEach(([type, label]) => {
+      const groupUnits = units.filter(u => u.type === type);
+      if (!groupUnits.length) return;
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = label;
+      groupUnits.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.abbreviation;
+        opt.textContent = `${u.abbreviation} (${u.name})`;
+        optgroup.appendChild(opt);
+      });
+      sel.appendChild(optgroup);
+    });
   }
 
   // ── Render ingredient table ───────────────────────────────────────────────

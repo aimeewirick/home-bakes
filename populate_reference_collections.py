@@ -72,6 +72,29 @@ allergens = [
     {"name": "Wheat",     "icon": "🌾", "order": 8},
 ]
 
+# ── Ingredient Categories ────────────────────────────────────────────────────
+ingredient_categories = [
+    {"name": "Acids & Liquids",    "order": 0},
+    {"name": "Baking",             "order": 1},
+    {"name": "Breads & Doughs",    "order": 2},
+    {"name": "Candy & Chocolate",  "order": 3},
+    {"name": "Condiments",         "order": 4},
+    {"name": "Dairy",              "order": 5},
+    {"name": "Drinks & Extracts",  "order": 6},
+    {"name": "Eggs",               "order": 7},
+    {"name": "Fish & Seafood",     "order": 8},
+    {"name": "Fruits",             "order": 9},
+    {"name": "Grains",             "order": 10},
+    {"name": "Herbs & Spices",     "order": 11},
+    {"name": "Legumes",            "order": 12},
+    {"name": "Meat",               "order": 13},
+    {"name": "Pantry",             "order": 14},
+    {"name": "Poultry",            "order": 15},
+    {"name": "Tree Nuts",          "order": 16},
+    {"name": "Vegetables",         "order": 17},
+    {"name": "Other",              "order": 18},
+]
+
 def seed_collection(collection_name, data):
     """Add items that don't already exist — safe to run multiple times."""
     print(f"\nSeeding {collection_name}...")
@@ -97,5 +120,6 @@ def seed_collection(collection_name, data):
 seed_collection("recipe_categories", recipe_categories)
 seed_collection("meal_types", meal_types)
 seed_collection("allergens", allergens)
+seed_collection("ingredient_categories", ingredient_categories)
 
 print("\n✅ All reference collections seeded!")

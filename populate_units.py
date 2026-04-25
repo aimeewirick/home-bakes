@@ -38,6 +38,7 @@ UNITS = [
     ("kilogram",    "kg",      "weight"),
 
     # Count / descriptive
+    ("each",        "ea",      "count"),
     ("whole",       "whole",   "count"),
     ("piece",       "piece",   "count"),
     ("slice",       "slice",   "count"),
