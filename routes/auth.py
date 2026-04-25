@@ -12,7 +12,8 @@ def require_auth(f):
         token = auth_header.replace("Bearer ", "").strip()
         try:
             decoded = auth.verify_id_token(token)
-            g.uid = decoded["uid"]
+            g.uid   = decoded["uid"]
+            g.token = decoded
         except auth.ExpiredIdTokenError:
             return jsonify({"error": "Token has expired"}), 401
         except auth.InvalidIdTokenError:
@@ -21,6 +22,7 @@ def require_auth(f):
             return jsonify({"error": "Authentication failed"}), 401
         return f(*args, **kwargs)
     return decorated
+
 
 def require_admin(f):
     @wraps(f)

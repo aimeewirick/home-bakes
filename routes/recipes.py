@@ -56,7 +56,8 @@ def create_recipe():
 @require_auth
 def update_recipe(recipe_id):
     doc = db.collection("recipes").document(recipe_id).get()
-    if not doc.exists or doc.to_dict()["uid"] != g.uid:
+    is_admin = g.token.get("admin", False) if hasattr(g, "token") else False
+    if not doc.exists or (doc.to_dict()["uid"] != g.uid and not is_admin):
         return jsonify({"error": "Not found or unauthorized"}), 403
     body = request.json
     ingredients = body.pop("ingredients", None)
@@ -75,7 +76,8 @@ def update_recipe(recipe_id):
 @require_auth
 def delete_recipe(recipe_id):
     doc = db.collection("recipes").document(recipe_id).get()
-    if not doc.exists or doc.to_dict()["uid"] != g.uid:
+    is_admin = g.token.get("admin", False) if hasattr(g, "token") else False
+    if not doc.exists or (doc.to_dict()["uid"] != g.uid and not is_admin):
         return jsonify({"error": "Not found or unauthorized"}), 403
     ingredients = db.collection("recipes").document(recipe_id).collection("recipe_ingredients").stream()
     for i in ingredients:
