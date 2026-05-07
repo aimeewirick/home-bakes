@@ -10,29 +10,30 @@
 <body>
 
   <!-- Universal nav injected by nav.js -->
-
+  <div class="page-banner" >
+        <div><h1 >Recipes</h1></div>
+        <div class="search-wrapper">
+          <div class="search-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search recipes..." />
+            <img class="recipe-box-img"
+              src="/static/images/recipe_box1.png"
+              alt="My Recipe Box"
+              style="width: 30%; height: auto;"
+              onerror="this.style.display='none'" />
+          </div>
+      </div>
+  </div>
   <div class="page-content">
 
-    <!-- Recipe Box tin hero image -->
-    <div class="recipe-box-hero">
-      <img class="recipe-box-img"
-           src="/static/images/recipe_box1.png"
-           alt="My Recipe Box"
-           onerror="this.style.display='none'" />
-    </div>
-
     <!-- Search bar -->
-    <div class="search-wrapper">
-      <div class="search-bar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="searchInput" placeholder="Search recipes..." />
-      </div>
 
-      <!-- Add recipe button -->
+
+          <!-- Add recipe button -->
       <a href="/recipe-form.html" class="btn-add-new">
         <span class="btn-add-new-circle">
           <svg viewBox="0 0 24 24" fill="none">
@@ -42,7 +43,7 @@
         </span>
         <span class="btn-add-new-oval">add recipe</span>
       </a>
-    </div>
+
 
     <!-- Main layout: recipe grid + vertical tabs -->
     <div class="recipes-layout">
