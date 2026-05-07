@@ -65,10 +65,22 @@ def delete_ingredient(ingredient_id):
 @admin_bp.route("/pending-ingredients", methods=["GET"])
 @require_admin
 def get_pending_ingredients():
-    docs = db.collection("pending_ingredients")\
-             .where("approved", "==", False)\
-             .stream()
-    return jsonify([{**d.to_dict(), "id": d.id} for d in docs])
+    db      = firestore.client()
+    docs    = db.collection("pending_ingredients")               .where("approved", "==", False)               .stream()
+    results = []
+    for d in docs:
+        data = {**d.to_dict(), "id": d.id}
+        uid  = data.get("submitted_by")
+        if uid:
+            try:
+                user_doc = db.collection("users").document(uid).get()
+                if user_doc.exists:
+                    u = user_doc.to_dict()
+                    data["submitted_by"] = u.get("displayName") or u.get("email", uid)
+            except:
+                pass
+        results.append(data)
+    return jsonify(results)
 
 # ── Approve pending ingredient → promote to global ────────────────────────────
 @admin_bp.route("/pending-ingredients/<pending_id>/approve", methods=["POST"])

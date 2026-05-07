@@ -433,6 +433,7 @@ async function loadRecipeForEdit(id) {
     document.getElementById("mealType").value       = recipe.meal_type || "";
     document.getElementById("recipeCategory").value = recipe.recipe_category || "";
     document.getElementById("isPublic").checked     = recipe.isPublic || false;
+    document.getElementById("recipeNotes").value    = recipe.notes || "";
 
     // Load existing image
     if (recipe.imageUrl) {
@@ -463,6 +464,7 @@ function collectFormData() {
   const mealType = document.getElementById("mealType").value;
   const category = document.getElementById("recipeCategory").value;
   const isPublic = document.getElementById("isPublic").checked;
+  const notes    = document.getElementById("recipeNotes").value.trim();
 
   if (!title) { alert("Please enter a recipe name."); return null; }
 
@@ -504,7 +506,7 @@ function collectFormData() {
   ingredients.forEach(ing => (ing.allergens || []).forEach(a => allergenSet.add(a)));
   const allergens = [...allergenSet].sort();
 
-  return { title, meal_type: mealType, recipe_category: category, isPublic, ingredients, directions, allergens };
+  return { title, meal_type: mealType, recipe_category: category, isPublic, ingredients, directions, allergens, notes };
 }
 
 // ── Save recipe ───────────────────────────────────────────────────────────────
@@ -533,7 +535,12 @@ saveBtn.addEventListener("click", async () => {
       }
     }
 
-    window.location.href = `/recipe-view.html?id=${recipeId}`;
+    // If inside iframe (meal planner), notify parent instead of navigating
+    if (window.parent !== window) {
+      window.parent.postMessage("recipe-saved", "*");
+    } else {
+      window.location.href = `/recipe-view.html?id=${recipeId}`;
+    }
 
   } catch (err) {
     console.error("Save failed:", err);
@@ -621,7 +628,7 @@ createIngModal.innerHTML = `
 
     <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
       <label class="toggle-switch" style="flex-shrink:0;">
-        <input type="checkbox" id="createIngSuggest" checked />
+        <input type="checkbox" id="createIngSuggest" />
         <span class="toggle-slider"></span>
       </label>
       <span style="font-family:'Lato',sans-serif; font-size:0.85rem; color:#6B5B4E;">
@@ -708,7 +715,7 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
 
   document.getElementById("createIngName").value     = query;
   document.getElementById("createIngCalories").value = "";
-  document.getElementById("createIngSuggest").checked = true;
+  document.getElementById("createIngSuggest").checked = false;
   createIngModal.style.display = "flex";
   document.getElementById("createIngName").focus();
 

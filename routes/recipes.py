@@ -79,8 +79,12 @@ def delete_recipe(recipe_id):
     is_admin = g.token.get("admin", False) if hasattr(g, "token") else False
     if not doc.exists or (doc.to_dict()["uid"] != g.uid and not is_admin):
         return jsonify({"error": "Not found or unauthorized"}), 403
-    ingredients = db.collection("recipes").document(recipe_id).collection("recipe_ingredients").stream()
-    for i in ingredients:
+    recipe_ref = db.collection("recipes").document(recipe_id)
+    # Delete recipe_ingredients subcollection
+    for i in recipe_ref.collection("recipe_ingredients").stream():
         i.reference.delete()
-    db.collection("recipes").document(recipe_id).delete()
+    # Delete directions subcollection
+    for d in recipe_ref.collection("directions").stream():
+        d.reference.delete()
+    recipe_ref.delete()
     return jsonify({"success": True})

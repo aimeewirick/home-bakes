@@ -352,3 +352,23 @@ body {
   transition: background 0.15s;
 }
 .typeahead-create-btn:hover { background: #EEE8DF; }
+
+/* ── Notes textarea ── */
+.notes-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(53,89,95,0.2);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #35595F;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+  line-height: 1.6;
+}
+.notes-textarea::placeholder { color: rgba(53,89,95,0.45); font-style: italic; }
+.notes-textarea:focus { background: rgba(255,255,255,0.4); border-color: rgba(53,89,95,0.4); }

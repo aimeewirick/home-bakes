@@ -83,6 +83,7 @@
               <th>Category</th>
               <th>Submitted By</th>
               <th>Allergens</th>
+              <th>Calories</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -441,15 +442,23 @@
   function renderPending(pending) {
     const tbody = document.getElementById("pendingTableBody");
     if (pending.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">No pending submissions</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No pending submissions</td></tr>`;
       return;
     }
     tbody.innerHTML = pending.map(ing => `
       <tr data-id="${ing.id}">
-        <td>${ing.name}</td>
+        <td class="ing-name">${ing.name}</td>
         <td>${ing.category || "—"}</td>
-        <td>${ing.submitted_by || "—"}</td>
-        <td>${(ing.allergens || []).join(", ") || "—"}</td>
+        <td style="font-size:0.78rem; color:var(--text-light);">${ing.submitted_by || "—"}</td>
+        <td class="allergen-cell">
+          ${(ing.allergens || []).map(a => {
+            const found = allergenList.find(al => al.name === a);
+            return found
+              ? `<span class="allergen-pill">${found.icon} ${a}</span>`
+              : `<span class="allergen-pill">${a}</span>`;
+          }).join("") || "—"}
+        </td>
+        <td>${ing.calories ? `${ing.calories} / ${ing.calorie_unit || "?"}` : "—"}</td>
         <td class="action-cell">
           <button class="btn-approve" data-id="${ing.id}">✅ Approve</button>
           <button class="btn-reject"  data-id="${ing.id}">❌ Reject</button>
