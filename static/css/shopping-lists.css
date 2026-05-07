@@ -1,0 +1,663 @@
+/* ═══════════════════════════════════════════════════════
+   HomeBakes — Shopping Lists
+   Notepad style matching wireframe
+═══════════════════════════════════════════════════════ */
+
+body {
+  background-image: url('/static/images/yellow_tile.png');
+  background-repeat: repeat;
+  background-size: 300px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   TWO-PANEL LAYOUT
+══════════════════════════════════════════════════════ */
+.shopping-layout {
+  display: flex;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 4rem;
+  align-items: flex-start;
+}
+
+/* ══════════════════════════════════════════════════════
+   LEFT SIDEBAR
+══════════════════════════════════════════════════════ */
+.shopping-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.7);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-header {
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  margin-bottom: 0.6rem;
+}
+
+.btn-new-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+.btn-new-list:hover { opacity: 0.7; }
+
+.sidebar-search {
+  margin: 0.6rem 0.75rem;
+}
+
+.sidebar-lists {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.sidebar-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #F0EBE3;
+}
+.sidebar-list-item:hover { background: #F8F5EE; }
+.sidebar-list-item.active { background: rgba(152,208,214,0.15); border-left: 3px solid var(--teal); }
+
+.sidebar-list-info { flex: 1; min-width: 0; }
+.sidebar-list-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-list-meta { font-size: 0.75rem; color: var(--text-light); }
+
+.sidebar-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════
+   RIGHT PANEL
+══════════════════════════════════════════════════════ */
+.shopping-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.shopping-empty-state {
+  display: block;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-light);
+  width: 100%;
+}
+
+.shopping-empty-state h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text-mid);
+  margin-bottom: 1.25rem;
+}
+
+.btn-create-first {
+  background: var(--teal);
+  border: none;
+  border-radius: 100px;
+  padding: 0.6rem 1.5rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #35595F;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-create-first:hover { background: #7EC4CA; }
+
+/* ══════════════════════════════════════════════════════
+   NOTEPAD CARD
+   Teal, rounded, paper texture — like recipe cards
+   With a ring at the top like a real notepad
+══════════════════════════════════════════════════════ */
+.notepad-card {
+  width: 100%;
+  max-width: 480px;
+  background: #98D0D6;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow:
+    4px 6px 12px rgba(0,0,0,0.2),
+    -2px 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* Paper texture */
+.notepad-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Inner edge glow */
+.notepad-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow:
+    inset 3px 3px 8px rgba(255,255,255,0.35),
+    inset -2px -2px 6px rgba(0,0,0,0.08);
+}
+
+.notepad-card > * { position: relative; z-index: 2; }
+
+/* ── Ring ── */
+.notepad-ring-row {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0 0;
+}
+
+.notepad-ring {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #E8E8E8, #A0A0A0 50%, #606060);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.4),
+    inset 0 1px 2px rgba(255,255,255,0.5);
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+/* ── Header ── */
+.notepad-header {
+  padding: 0.5rem 1.25rem 0.75rem;
+  text-align: center;
+  position: relative;
+}
+
+.notepad-icon-btn {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.75rem;
+  background: rgba(255,255,255,0.3);
+  border: 1px solid rgba(53,89,95,0.3);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #35595F;
+  transition: background 0.2s;
+}
+.notepad-icon-btn:hover { background: rgba(255,255,255,0.55); }
+
+.notepad-subtitle {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(53,89,95,0.7);
+  margin-bottom: 0.25rem;
+  font-style: italic;
+}
+
+.notepad-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #35595F;
+  letter-spacing: 0.12em;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(255,255,255,0.3);
+}
+
+/* ── List name input ── */
+.notepad-name-row {
+  padding: 0 1.25rem 0.75rem;
+}
+
+.notepad-name-input {
+  width: 100%;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 100px;
+  padding: 0.4rem 1rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.88rem;
+  color: #35595F;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  transition: background 0.2s;
+}
+.notepad-name-input::placeholder { color: rgba(53,89,95,0.55); }
+.notepad-name-input:focus { background: rgba(255,255,255,0.6); }
+
+/* ── Items section ── */
+.notepad-items-section {
+  padding: 0 1.25rem;
+  flex: 1;
+}
+
+.notepad-section-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: rgba(53,89,95,0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.notepad-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-height: 80px;
+}
+
+.items-empty {
+  font-style: italic;
+  color: rgba(53,89,95,0.5);
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+/* ── Individual item ── */
+.notepad-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.2);
+  transition: background 0.15s;
+}
+
+.notepad-item.checked {
+  background: rgba(255,255,255,0.08);
+  opacity: 0.7;
+}
+
+/* Checkbox */
+.item-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(53,89,95,0.5);
+  background: rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  color: #35595F;
+}
+
+.item-checkbox.is-checked {
+  background: rgba(53,89,95,0.25);
+  border-color: rgba(53,89,95,0.6);
+}
+
+/* Item main — name + note stacked */
+.item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Item name */
+.item-name {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.88rem;
+  color: #35595F;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-name.strikethrough {
+  text-decoration: line-through;
+  color: rgba(53,89,95,0.5);
+}
+
+/* Item note */
+.item-note-input {
+  background: none;
+  border: none;
+  border-bottom: 1px dashed rgba(53,89,95,0.25);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(53,89,95,0.6);
+  font-style: italic;
+  outline: none;
+  padding: 0;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.item-note-input::placeholder { color: rgba(53,89,95,0.3); }
+.item-note-input:focus {
+  border-bottom-color: rgba(53,89,95,0.5);
+  color: #35595F;
+}
+
+/* Qty controls */
+.item-qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.qty-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(53,89,95,0.35);
+  background: rgba(255,255,255,0.3);
+  color: #35595F;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s;
+  padding: 0;
+}
+.qty-btn:hover { background: rgba(255,255,255,0.6); }
+
+.item-qty {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(53,89,95,0.8);
+  min-width: 40px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ── Add item row ── */
+.notepad-add-row {
+  padding: 0.75rem 1.25rem;
+}
+
+.btn-add-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(53,89,95,0.75);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+.btn-add-item:hover { color: #35595F; }
+
+.add-item-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.add-item-typeahead-wrapper {
+  flex: 1;
+  position: relative;
+  min-width: 150px;
+}
+
+.add-item-input {
+  width: 100%;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(53,89,95,0.3);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  color: #35595F;
+  outline: none;
+  box-sizing: border-box;
+}
+.add-item-input:focus { background: rgba(255,255,255,0.7); border-color: var(--teal); }
+
+.add-item-qty {
+  width: 60px;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(53,89,95,0.3);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  color: #35595F;
+  outline: none;
+}
+
+.btn-confirm-add {
+  background: #35595F;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-confirm-add:hover { background: #2A4A4F; }
+
+.btn-cancel-add {
+  background: none;
+  border: none;
+  color: rgba(53,89,95,0.5);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.2rem;
+  transition: color 0.2s;
+}
+.btn-cancel-add:hover { color: #C0392B; }
+
+/* Typeahead dropdown */
+.typeahead-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.typeahead-item {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: 'Lato', sans-serif;
+}
+.typeahead-item:hover { background: #F8F5EE; }
+
+/* ── Footer ── */
+.notepad-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  margin-top: 0.5rem;
+}
+
+.btn-update-list {
+  background: rgba(255,255,255,0.4);
+  border: 1.5px solid rgba(53,89,95,0.4);
+  border-radius: 100px;
+  padding: 0.45rem 1.25rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #35595F;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-update-list:hover { background: rgba(255,255,255,0.65); }
+.btn-update-list:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-delete-list {
+  background: none;
+  border: 1.5px solid rgba(192,57,43,0.35);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #C0392B;
+  transition: background 0.2s;
+}
+.btn-delete-list:hover { background: rgba(192,57,43,0.1); }
+
+/* ══════════════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-sm { max-width: 360px; }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+.modal-close:hover { background: #F0EBE3; }
+
+.modal-body { padding: 1.25rem 1.5rem; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-danger {
+  background: #DC2626;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.1rem;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-danger:hover { background: #B91C1C; }
+
+/* ── Print ── */
+@media print {
+  nav, .shopping-sidebar, .notepad-footer,
+  .notepad-add-row, .item-qty-controls,
+  .item-checkbox { display: none !important; }
+  body { background: white !important; }
+  .shopping-layout { padding: 0; }
+  .notepad-card { box-shadow: none; max-width: 100%; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .shopping-layout { flex-direction: column; padding: 1rem; }
+  .shopping-sidebar { width: 100%; }
+  .notepad-card { max-width: 100%; }
+}

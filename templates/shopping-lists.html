@@ -5,18 +5,485 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeBakes — Shopping Lists</title>
   <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/shopping-lists.css" />
 </head>
 <body>
+
   <!-- Universal nav injected by nav.js -->
-  <div class="page-banner"><h1>Shopping Lists</h1></div>
-  <div class="container" style="text-align:center; padding-top:4rem;">
-    <p style="color:var(--text-light); font-size:1.1rem;">Shopping Lists coming in Week 7! 🛒</p>
+
+  <div class="shopping-layout">
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="shopping-sidebar">
+      <div class="sidebar-header">
+        <h2>Shopping Lists</h2>
+        <button class="btn-new-list" id="newListBtn">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+            <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="1.8"/>
+            <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+          new shopping list
+        </button>
+      </div>
+      <div class="search-bar sidebar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="sidebarSearch" placeholder="Search..." />
+      </div>
+      <div class="sidebar-lists" id="sidebarLists">
+        <div class="sidebar-loading">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="shopping-main" id="shoppingMain">
+
+      <!-- Empty state -->
+      <div class="shopping-empty-state" id="emptyState">
+        <div style="font-size:3rem; margin-bottom:1rem;">🛒</div>
+        <h3>Select a list or create a new one</h3>
+        <button class="btn-create-first" id="createFirstBtn">+ New Shopping List</button>
+      </div>
+
+      <!-- Notepad card -->
+      <div class="notepad-card" id="notepadCard" style="display:none;">
+
+        <!-- Ring -->
+        <div class="notepad-ring-row">
+          <div class="notepad-ring"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="notepad-header">
+          <button class="notepad-icon-btn" id="printBtn" title="Print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="17" height="17">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </button>
+          <div class="notepad-subtitle" id="listSubtitle">Shopping List</div>
+          <h1 class="notepad-title">SHOPPING LIST</h1>
+        </div>
+
+        <!-- List name -->
+        <div class="notepad-name-row">
+          <input type="text" id="listTitle" class="notepad-name-input" placeholder="List name..." maxlength="60" />
+        </div>
+
+        <!-- Items -->
+        <div class="notepad-items-section">
+          <div class="notepad-section-label">I HAVE THIS</div>
+          <div class="notepad-items" id="notepadItems"></div>
+        </div>
+
+        <!-- Add item -->
+        <div class="notepad-add-row">
+          <button class="btn-add-item" id="addItemBtn">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+              <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="1.8"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            add to list
+          </button>
+          <div class="add-item-form" id="addItemForm" style="display:none;">
+            <div class="add-item-typeahead-wrapper">
+              <input type="text" id="addItemInput" class="add-item-input" placeholder="Item name..." autocomplete="off" />
+              <div class="typeahead-dropdown" id="typeaheadDropdown" style="display:none;"></div>
+            </div>
+            <input type="number" id="addItemQty" class="add-item-qty" placeholder="Qty" min="0" step="0.25" />
+            <button class="btn-confirm-add" id="confirmAddBtn">Add</button>
+            <button class="btn-cancel-add" id="cancelAddBtn">✕</button>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="notepad-footer">
+          <button class="btn-update-list" id="updateListBtn">Update List</button>
+          <button class="btn-delete-list" id="deleteListBtn" title="Delete list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="17" height="17">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
+        </div>
+
+      </div><!-- end notepad-card -->
+    </div>
   </div>
+
+  <!-- Delete modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Delete Shopping List?</h2>
+        <button class="modal-close" id="deleteModalClose">✕</button>
+      </div>
+      <div class="modal-body"><p style="color:var(--text-mid);">This cannot be undone.</p></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="deleteCancelBtn">Cancel</button>
+        <button class="btn-danger" id="deleteConfirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
 <script type="module">
   import "/static/js/nav.js";
-  import { requireAuth, logout } from "/static/js/auth.js";
-  requireAuth();
-  document.getElementById("logoutBtn").addEventListener("click", () => logout());
+  import { requireAuth } from "/static/js/auth.js";
+  import {
+    getShoppingLists, getShoppingList, createShoppingList, deleteShoppingList,
+    getMealPlan, getRecipe, getIngredients, getPrivateIngredients, getUnits
+  } from "/static/js/api.js";
+
+  let allLists       = [];
+  let currentListId  = null;
+  let currentItems   = [];
+  let allIngredients = [];
+  let allUnits       = [];
+
+  requireAuth(async () => {
+    try {
+      const [lists, globalIngs, privateIngs, units] = await Promise.all([
+        getShoppingLists(),
+        getIngredients(),
+        getPrivateIngredients().catch(() => []),
+        getUnits()
+      ]);
+      allLists = lists;
+      allUnits = units;
+      const seen = new Set();
+      allIngredients = [...globalIngs, ...privateIngs].filter(i => {
+        if (seen.has(i.name.toLowerCase())) return false;
+        seen.add(i.name.toLowerCase());
+        return true;
+      }).sort((a,b) => a.name.localeCompare(b.name));
+
+      renderSidebar(allLists);
+
+      const params     = new URLSearchParams(window.location.search);
+      const mealPlanId = params.get("meal_plan_id");
+      if (mealPlanId) generateFromMealPlan(mealPlanId);
+    } catch(err) { console.error("Init failed:", err); }
+  });
+
+  // ── Sidebar ───────────────────────────────────────────────────────────────
+  function renderSidebar(lists) {
+    const container = document.getElementById("sidebarLists");
+    if (lists.length === 0) {
+      container.innerHTML = `<div class="sidebar-loading">No lists yet</div>`;
+      return;
+    }
+    container.innerHTML = lists.map(l => `
+      <div class="sidebar-list-item ${l.id === currentListId ? "active" : ""}" data-id="${l.id}">
+        <div class="sidebar-list-icon">
+          <svg viewBox="0 0 40 52" fill="none" width="32" height="42">
+            <rect x="1" y="1" width="38" height="50" rx="3" fill="#98D0D6" stroke="#35595F" stroke-width="1.5"/>
+            <line x1="8" y1="16" x2="32" y2="16" stroke="#35595F" stroke-width="1.2"/>
+            <line x1="8" y1="22" x2="32" y2="22" stroke="#35595F" stroke-width="1.2"/>
+            <line x1="8" y1="28" x2="24" y2="28" stroke="#35595F" stroke-width="1.2"/>
+            <line x1="8" y1="34" x2="28" y2="34" stroke="#35595F" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <div class="sidebar-list-info">
+          <div class="sidebar-list-title">${l.title || "Untitled List"}</div>
+          <div class="sidebar-list-meta">${l.item_count || 0} items</div>
+        </div>
+      </div>
+    `).join("");
+    container.querySelectorAll(".sidebar-list-item").forEach(item => {
+      item.addEventListener("click", () => loadList(item.dataset.id));
+    });
+  }
+
+  document.getElementById("sidebarSearch").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    renderSidebar(allLists.filter(l => l.title?.toLowerCase().includes(q)));
+  });
+
+  // ── Load list ─────────────────────────────────────────────────────────────
+  async function loadList(id) {
+    currentListId = id;
+    try {
+      const list = await getShoppingList(id);
+      document.getElementById("listTitle").value = list.title || "";
+      document.getElementById("listSubtitle").textContent =
+        list.meal_plan_title ? `Shopping List for: ${list.meal_plan_title}` : "Shopping List";
+      currentItems = (list.items || []).map(i => ({
+        id: i.id, name: i.name,
+        qty: i.qty ?? null, unit: i.unit ?? "", unitType: i.unitType ?? "count",
+        have_it: i.have_it ?? false, note: i.note ?? "",
+      }));
+      showNotepad();
+      renderItems();
+      renderSidebar(allLists);
+    } catch(err) { console.error("Load failed:", err); }
+  }
+
+  function showNotepad() {
+    document.getElementById("emptyState").style.display  = "none";
+    document.getElementById("notepadCard").style.display = "flex";
+  }
+
+  // ── Render items ──────────────────────────────────────────────────────────
+  function renderItems() {
+    const container = document.getElementById("notepadItems");
+    const sorted    = [...currentItems].sort((a,b) => a.have_it - b.have_it);
+
+    if (sorted.length === 0) {
+      container.innerHTML = `<div class="items-empty">No items yet — add some below!</div>`;
+      return;
+    }
+
+    container.innerHTML = sorted.map(item => {
+      const origIdx  = currentItems.indexOf(item);
+      const isVolume = item.unitType === "volume";
+      const showQty  = !isVolume && item.qty !== null;
+      return `
+        <div class="notepad-item ${item.have_it ? "checked" : ""}">
+          <button class="item-checkbox ${item.have_it ? "is-checked" : ""}" data-idx="${origIdx}">
+            ${item.have_it
+              ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
+                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                 </svg>`
+              : ""}
+          </button>
+          <div class="item-main">
+            <span class="item-name ${item.have_it ? "strikethrough" : ""}">${item.name}</span>
+            <input type="text"
+                   class="item-note-input"
+                   data-idx="${origIdx}"
+                   placeholder="note..."
+                   value="${item.note || ""}" />
+          </div>
+          <div class="item-qty-controls">
+            <button class="qty-btn" data-idx="${origIdx}" data-action="minus">−</button>
+            <span class="item-qty">${showQty ? `${item.qty} ${item.unit}`.trim() : ""}</span>
+            <button class="qty-btn" data-idx="${origIdx}" data-action="plus">+</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    container.querySelectorAll(".item-checkbox").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentItems[parseInt(btn.dataset.idx)].have_it = !currentItems[parseInt(btn.dataset.idx)].have_it;
+        renderItems();
+      });
+    });
+
+    // Wire note inputs
+    container.querySelectorAll(".item-note-input").forEach(input => {
+      input.addEventListener("input", e => {
+        currentItems[parseInt(input.dataset.idx)].note = e.target.value;
+      });
+      // Prevent checkbox click when typing in note
+      input.addEventListener("click", e => e.stopPropagation());
+    });
+
+    container.querySelectorAll(".qty-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx  = parseInt(btn.dataset.idx);
+        const item = currentItems[idx];
+        if (item.qty === null) item.qty = 1;
+        if (btn.dataset.action === "plus") {
+          item.qty = Math.round((item.qty + 1) * 4) / 4;
+        } else {
+          item.qty = Math.round((item.qty - 1) * 4) / 4;
+          if (item.qty <= 0) { currentItems.splice(idx, 1); }
+        }
+        renderItems();
+      });
+    });
+  }
+
+  // ── Generate from meal plan ───────────────────────────────────────────────
+  async function generateFromMealPlan(planId) {
+    try {
+      const plan          = await getMealPlan(planId);
+      const ingredientMap = {};
+
+      for (const day of (plan.days || [])) {
+        const meals = day.meals?.length
+          ? day.meals
+          : [{ recipes: day.breakfast||[] }, { recipes: day.lunch||[] }, { recipes: day.dinner||[] }];
+
+        for (const meal of meals) {
+          for (const recipeRef of (meal.recipes || [])) {
+            try {
+              const recipe = await getRecipe(recipeRef.id);
+              for (const ing of (recipe.ingredients || [])) {
+                // Check ingredient's own base unit type first (most reliable)
+                const ingData     = allIngredients.find(i => i.name.toLowerCase() === ing.ingredientName?.toLowerCase());
+                const calorieUnit = allUnits.find(u => u.abbreviation === ingData?.calorie_unit);
+                // Also check the recipe's selected unit
+                const recipeUnit  = allUnits.find(u => u.abbreviation === ing.unitName || u.name?.toLowerCase() === ing.unitName?.toLowerCase());
+                // Volume if EITHER the ingredient's base unit OR recipe unit is volume
+                const isVolume    = calorieUnit?.type === "volume" || recipeUnit?.type === "volume";
+                const unitType    = isVolume ? "volume" : (recipeUnit?.type || calorieUnit?.type || "count");
+                const key      = `${ing.ingredientName.toLowerCase()}|${isVolume ? "volume" : (ing.unitName||"")}`;
+
+                if (ingredientMap[key]) {
+                  if (!isVolume) ingredientMap[key].qty = (ingredientMap[key].qty||0) + (parseFloat(ing.amount)||0);
+                } else {
+                  ingredientMap[key] = {
+                    name: ing.ingredientName,
+                    qty:  isVolume ? null : (parseFloat(ing.amount)||null),
+                    unit: isVolume ? "" : (ing.unitName||""),
+                    unitType, have_it: false, note: "",
+                  };
+                }
+              }
+            } catch(e) { console.warn("Recipe load failed:", recipeRef.id); }
+          }
+        }
+      }
+
+      currentItems = Object.values(ingredientMap).sort((a,b) => a.name.localeCompare(b.name));
+
+      const title  = `${plan.title || "Meal Plan"} Shopping List`;
+      const result = await createShoppingList({
+        title, meal_plan_id: planId, meal_plan_title: plan.title || "",
+        item_count: currentItems.length, items: currentItems,
+      });
+      currentListId = result.id;
+      allLists      = await getShoppingLists();
+
+      document.getElementById("listTitle").value          = title;
+      document.getElementById("listSubtitle").textContent = `Shopping List for: ${plan.title}`;
+      showNotepad();
+      renderItems();
+      renderSidebar(allLists);
+      history.replaceState(null, "", "/shopping-lists.html");
+    } catch(err) { console.error("Generate failed:", err); }
+  }
+
+  // ── Add item ──────────────────────────────────────────────────────────────
+  document.getElementById("addItemBtn").addEventListener("click", () => {
+    document.getElementById("addItemForm").style.display = "flex";
+    document.getElementById("addItemBtn").style.display  = "none";
+    document.getElementById("addItemInput").focus();
+  });
+
+  document.getElementById("cancelAddBtn").addEventListener("click", resetAddForm);
+
+  function resetAddForm() {
+    document.getElementById("addItemForm").style.display = "none";
+    document.getElementById("addItemBtn").style.display  = "flex";
+    document.getElementById("addItemInput").value        = "";
+    document.getElementById("addItemQty").value          = "";
+    document.getElementById("typeaheadDropdown").style.display = "none";
+  }
+
+  document.getElementById("addItemInput").addEventListener("input", e => {
+    const q  = e.target.value.toLowerCase().trim();
+    const dd = document.getElementById("typeaheadDropdown");
+    if (!q) { dd.style.display = "none"; return; }
+    const matches = allIngredients.filter(i => i.name.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) { dd.style.display = "none"; return; }
+    dd.innerHTML = matches.map(i =>
+      `<div class="typeahead-item" data-name="${i.name}" data-unit-type="${i.unitType||'count'}">${i.name}</div>`
+    ).join("");
+    dd.style.display = "block";
+    dd.querySelectorAll(".typeahead-item").forEach(item => {
+      item.addEventListener("click", () => {
+        document.getElementById("addItemInput").value = item.dataset.name;
+        dd.style.display = "none";
+        document.getElementById("addItemQty").focus();
+      });
+    });
+  });
+
+  document.getElementById("confirmAddBtn").addEventListener("click", addItem);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && document.getElementById("addItemForm").style.display !== "none") addItem();
+    if (e.key === "Escape") document.getElementById("typeaheadDropdown").style.display = "none";
+  });
+
+  function addItem() {
+    const name = document.getElementById("addItemInput").value.trim();
+    const qty  = parseFloat(document.getElementById("addItemQty").value) || null;
+    if (!name) return;
+    const match    = allIngredients.find(i => i.name.toLowerCase() === name.toLowerCase());
+    const unitType = match?.unitType || "count";
+    currentItems.push({ name, qty, unit: "", unitType, have_it: false, note: "" });
+    document.getElementById("addItemInput").value = "";
+    document.getElementById("addItemQty").value   = "";
+    document.getElementById("typeaheadDropdown").style.display = "none";
+    renderItems();
+  }
+
+  // ── New list ──────────────────────────────────────────────────────────────
+  function createNewList() {
+    currentItems  = [];
+    currentListId = null;
+    document.getElementById("listTitle").value          = "";
+    document.getElementById("listSubtitle").textContent = "Shopping List";
+    showNotepad();
+    renderItems();
+  }
+  document.getElementById("newListBtn").addEventListener("click", createNewList);
+  document.getElementById("createFirstBtn").addEventListener("click", createNewList);
+
+  // ── Save ──────────────────────────────────────────────────────────────────
+  document.getElementById("updateListBtn").addEventListener("click", async () => {
+    const btn   = document.getElementById("updateListBtn");
+    const title = document.getElementById("listTitle").value.trim() || "My Shopping List";
+    btn.disabled = true; btn.textContent = "Saving...";
+    try {
+      const data = {
+        title, item_count: currentItems.length,
+        items: currentItems.map(i => ({ name: i.name, qty: i.qty, unit: i.unit, unitType: i.unitType, have_it: i.have_it, note: i.note || "" }))
+      };
+      if (currentListId) await deleteShoppingList(currentListId);
+      const result  = await createShoppingList(data);
+      currentListId = result.id;
+      allLists      = await getShoppingLists();
+      renderSidebar(allLists);
+      btn.textContent = "✅ Saved!";
+      setTimeout(() => { btn.textContent = "Update List"; btn.disabled = false; }, 2000);
+    } catch(err) {
+      console.error(err);
+      btn.textContent = "Update List"; btn.disabled = false;
+      alert("Failed to save.");
+    }
+  });
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  const deleteModal = document.getElementById("deleteModal");
+  document.getElementById("deleteListBtn").addEventListener("click", () => {
+    if (!currentListId) {
+      // No saved list — just close the form
+      currentItems  = [];
+      document.getElementById("notepadCard").style.display = "none";
+      document.getElementById("emptyState").style.display  = "block";
+      return;
+    }
+    deleteModal.style.display = "flex";
+  });
+  document.getElementById("deleteModalClose").addEventListener("click", () => deleteModal.style.display = "none");
+  document.getElementById("deleteCancelBtn").addEventListener("click", () => deleteModal.style.display = "none");
+  document.getElementById("deleteConfirmBtn").addEventListener("click", async () => {
+    try {
+      await deleteShoppingList(currentListId);
+      allLists = allLists.filter(l => l.id !== currentListId);
+      currentListId = null; currentItems = [];
+      deleteModal.style.display = "none";
+      document.getElementById("notepadCard").style.display = "none";
+      document.getElementById("emptyState").style.display  = "block";
+      renderSidebar(allLists);
+    } catch(err) { alert("Failed to delete."); }
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".add-item-typeahead-wrapper"))
+      document.getElementById("typeaheadDropdown").style.display = "none";
+  });
 </script>
 </body>
 </html>
