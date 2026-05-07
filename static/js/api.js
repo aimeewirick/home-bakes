@@ -31,6 +31,8 @@ export const deleteRecipe     = (id)      => apiFetch(`/api/recipes/${id}`, { me
 export const getIngredients         = (cat="") => apiFetch(`/api/ingredients/${cat ? "?category="+cat : ""}`);
 export const getIngredientCategories = () => apiFetch("/api/ingredient-categories/");
 export const getPrivateIngredients  = ()       => apiFetch("/api/ingredients/private");
+export const addPrivateIngredient   = (data)   => apiFetch("/api/ingredients/private", { method: "POST", body: JSON.stringify(data) });
+export const addPendingIngredient   = (data)   => apiFetch("/api/ingredients/pending", { method: "POST", body: JSON.stringify(data) });
 
 // ── Meal Plans ────────────────────────────────────────────────────────────────
 export const getMealPlans   = ()        => apiFetch("/api/meal-plans/");

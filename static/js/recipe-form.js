@@ -15,17 +15,21 @@ import {
   getRecipe,
   getIngredients,
   getPrivateIngredients,
-  getUnits
+  addPrivateIngredient,
+  addPendingIngredient,
+  getUnits,
+  getIngredientCategories
 } from "/static/js/api.js";
 
 const storage = getStorage();
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let allIngredients  = [];
-let allUnits        = [];
-let ingredientRows  = [];
-let editingId       = null;
-let pendingImageFile = null;   // holds selected image file until save
+let allIngredients   = [];
+let allUnits         = [];
+let allIngCategories = [];
+let ingredientRows   = [];
+let editingId        = null;
+let pendingImageFile = null;
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const ingredientsBody = document.getElementById("ingredientsBody");
@@ -49,11 +53,13 @@ requireAuth(async () => {
   }
 
   try {
-    const [globalIngredients, privateIngredients, units] = await Promise.all([
+    const [globalIngredients, privateIngredients, units, ingCategories] = await Promise.all([
       getIngredients(),
-      getPrivateIngredients().catch(() => []),  // fail gracefully if none exist
-      getUnits()
+      getPrivateIngredients().catch(() => []),
+      getUnits(),
+      getIngredientCategories()
     ]);
+    allIngCategories = ingCategories;
 
     // Merge global + private, deduplicate by name, sort alphabetically
     const seen = new Set();
@@ -161,7 +167,19 @@ function createTypeahead(rowIndex) {
     ).slice(0, 12);
 
     if (matches.length === 0) {
-      dropdown.innerHTML = `<div class="typeahead-empty">No ingredients found for "${query}"</div>`;
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "typeahead-empty";
+      emptyDiv.textContent = `No ingredients found for "${query}"`;
+      dropdown.appendChild(emptyDiv);
+
+      const createBtn = document.createElement("div");
+      createBtn.className = "typeahead-create-btn";
+      createBtn.innerHTML = `<strong>+ Create private ingredient:</strong> "${query}"`;
+      createBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        openCreateIngredientModal(query, rowIndex, input, dropdown);
+      });
+      dropdown.appendChild(createBtn);
       dropdown.classList.add("open");
       return;
     }
@@ -179,6 +197,16 @@ function createTypeahead(rowIndex) {
       dropdown.appendChild(item);
     });
 
+    // Always show create option at bottom
+    const createBtn = document.createElement("div");
+    createBtn.className = "typeahead-create-btn";
+    createBtn.innerHTML = `+ Create private ingredient`;
+    createBtn.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      openCreateIngredientModal(input.value, rowIndex, input, dropdown);
+    });
+    dropdown.appendChild(createBtn);
+
     dropdown.classList.add("open");
   }
 
@@ -193,6 +221,10 @@ function createTypeahead(rowIndex) {
   function selectIngredient(ingredient) {
     input.value = ingredient.name;
     // Snapshot full ingredient data including allergens + calories
+    // Look up unit type from ingredient's calorie_unit
+    const calorieUnitData = allUnits.find(u => u.abbreviation === ingredient.calorie_unit);
+    const unitType = calorieUnitData?.type || "count";
+
     ingredientRows[rowIndex] = {
       id:           ingredient.id,
       name:         ingredient.name,
@@ -200,6 +232,7 @@ function createTypeahead(rowIndex) {
       allergens:    ingredient.allergens || [],
       calories:     ingredient.calories  || null,
       calorie_unit: ingredient.calorie_unit || null,
+      unitType:     unitType,
     };
     dropdown.classList.remove("open");
   }
@@ -447,6 +480,7 @@ function collectFormData() {
       allergens:      ingredient.allergens    || [],
       calories:       ingredient.calories     || null,
       calorie_unit:   ingredient.calorie_unit || null,
+      unitType:       ingredient.unitType     || "count",
     });
   });
 
@@ -503,4 +537,143 @@ saveBtn.addEventListener("click", async () => {
     saveBtn.disabled = false;
     savingMsg.classList.remove("visible");
   }
+});
+
+
+// ── Create private ingredient modal ──────────────────────────────────────────
+// Inject modal HTML once
+const createIngModal = document.createElement("div");
+createIngModal.id = "createIngModal";
+createIngModal.style.cssText = `
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.5); z-index:300;
+  align-items:center; justify-content:center;
+`;
+createIngModal.innerHTML = `
+  <div style="background:white; border-radius:16px; padding:1.75rem;
+              max-width:400px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+    <h3 style="font-family:'Playfair Display',serif; color:#2D3748;
+               margin-bottom:1.25rem; font-size:1.1rem;">
+      Create Private Ingredient
+    </h3>
+
+    <div style="margin-bottom:1rem;">
+      <label style="display:block; font-size:0.78rem; font-weight:700;
+                    color:#6B5B4E; text-transform:uppercase;
+                    letter-spacing:0.06em; margin-bottom:0.4rem;">Name</label>
+      <input type="text" id="createIngName"
+             style="width:100%; padding:0.5rem 0.75rem; border:1.5px solid #E8E0D5;
+                    border-radius:8px; font-family:'Lato',sans-serif;
+                    font-size:0.9rem; box-sizing:border-box; outline:none;"
+             maxlength="100" />
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block; font-size:0.78rem; font-weight:700;
+                    color:#6B5B4E; text-transform:uppercase;
+                    letter-spacing:0.06em; margin-bottom:0.4rem;">Category</label>
+      <select id="createIngCategory"
+              style="width:100%; padding:0.5rem 0.75rem; border:1.5px solid #E8E0D5;
+                     border-radius:8px; font-family:'Lato',sans-serif;
+                     font-size:0.9rem; box-sizing:border-box; outline:none;
+                     background:white; cursor:pointer;">
+        <option value="">Select category...</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
+      <label class="toggle-switch" style="flex-shrink:0;">
+        <input type="checkbox" id="createIngSuggest" checked />
+        <span class="toggle-slider"></span>
+      </label>
+      <span style="font-family:'Lato',sans-serif; font-size:0.85rem; color:#6B5B4E;">
+        Request this be added to the ingredients list
+      </span>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+      <button id="createIngCancelBtn"
+              style="background:#F8F5EE; border:1.5px solid #E8E0D5;
+                     border-radius:8px; padding:0.5rem 1.1rem;
+                     font-family:'Lato',sans-serif; font-weight:700;
+                     font-size:0.85rem; cursor:pointer; color:#6B5B4E;">
+        Cancel
+      </button>
+      <button id="createIngSaveBtn"
+              style="background:#98D0D6; border:none; border-radius:8px;
+                     padding:0.5rem 1.25rem; font-family:'Lato',sans-serif;
+                     font-weight:700; font-size:0.85rem; cursor:pointer;
+                     color:#35595F;">
+        Add Ingredient
+      </button>
+    </div>
+  </div>
+`;
+document.body.appendChild(createIngModal);
+
+let _createIngCallback = null;
+
+function openCreateIngredientModal(query, rowIndex, input, dropdown) {
+  // Populate category dropdown
+  const catSel = document.getElementById("createIngCategory");
+  catSel.innerHTML = '<option value="">Select category...</option>';
+  allIngCategories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat.name;
+    opt.textContent = cat.name;
+    catSel.appendChild(opt);
+  });
+
+  document.getElementById("createIngName").value = query;
+  document.getElementById("createIngSuggest").checked = true;
+  createIngModal.style.display = "flex";
+  document.getElementById("createIngName").focus();
+
+  _createIngCallback = async () => {
+    const name     = document.getElementById("createIngName").value.trim();
+    const category = document.getElementById("createIngCategory").value;
+    const suggest  = document.getElementById("createIngSuggest").checked;
+
+    if (!name)     { alert("Please enter a name."); return; }
+    if (!category) { alert("Please select a category."); return; }
+
+    const ingData = { name, category, allergens: [], calories: null, calorie_unit: null };
+
+    try {
+      // Always save to private ingredients
+      await addPrivateIngredient(ingData);
+
+      // If suggest toggle is on → also add to pending_ingredients
+      if (suggest) {
+        await addPendingIngredient({ ...ingData, submitted_by: "user" });
+      }
+
+      // Add to local allIngredients and select it
+      allIngredients.push({ ...ingData, id: name, unitType: "count" });
+      allIngredients.sort((a,b) => a.name.localeCompare(b.name));
+
+      input.value = name;
+      dropdown.classList.remove("open");
+
+      // Snapshot onto row
+      ingredientRows[rowIndex] = { ...ingData, id: name, unitType: "count" };
+
+      createIngModal.style.display = "none";
+    } catch(err) {
+      console.error("Failed to create ingredient:", err);
+      alert("Failed to create ingredient. Please try again.");
+    }
+  };
+}
+
+document.getElementById("createIngCancelBtn").addEventListener("click", () => {
+  createIngModal.style.display = "none";
+});
+
+document.getElementById("createIngSaveBtn").addEventListener("click", () => {
+  if (_createIngCallback) _createIngCallback();
+});
+
+document.getElementById("createIngName").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("createIngSaveBtn").click();
 });

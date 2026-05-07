@@ -339,3 +339,16 @@ body {
   .ingredients-table th:nth-child(4), .ingredient-row td:nth-child(4) { display: none; }
   .image-upload-area { min-height: 160px; }
 }
+
+/* ── Typeahead create button ── */
+.typeahead-create-btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: #35595F;
+  cursor: pointer;
+  border-top: 1px dashed #E8E0D5;
+  background: #F8F5EE;
+  font-family: 'Lato', sans-serif;
+  transition: background 0.15s;
+}
+.typeahead-create-btn:hover { background: #EEE8DF; }

@@ -364,6 +364,14 @@ nav.innerHTML = `
 
   <!-- Icons -->
   <div class="hb-nav-icons" style="position:relative;">
+    <button class="hb-nav-icon-btn" id="navLogoutBtnQuick" title="Log out">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.8">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
     <button class="hb-profile-btn" id="navProfileBtn" title="Your profile">
       ?
     </button>
@@ -462,8 +470,9 @@ document.body.insertAdjacentElement("afterbegin", spacer);
 // Insert nav after spacer
 spacer.insertAdjacentElement("afterend", nav);
 
-// Wire logout button
+// Wire logout buttons
 document.getElementById("navLogoutBtn").addEventListener("click", () => logout());
+document.getElementById("navLogoutBtnQuick").addEventListener("click", () => logout());
 
 // ── Profile popup ─────────────────────────────────────────────────────────────
 
