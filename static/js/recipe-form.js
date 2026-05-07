@@ -18,7 +18,8 @@ import {
   addPrivateIngredient,
   addPendingIngredient,
   getUnits,
-  getIngredientCategories
+  getIngredientCategories,
+  getAllergens
 } from "/static/js/api.js";
 
 const storage = getStorage();
@@ -27,6 +28,7 @@ const storage = getStorage();
 let allIngredients   = [];
 let allUnits         = [];
 let allIngCategories = [];
+let allAllergens     = [];
 let ingredientRows   = [];
 let editingId        = null;
 let pendingImageFile = null;
@@ -53,13 +55,15 @@ requireAuth(async () => {
   }
 
   try {
-    const [globalIngredients, privateIngredients, units, ingCategories] = await Promise.all([
+    const [globalIngredients, privateIngredients, units, ingCategories, allergenList] = await Promise.all([
       getIngredients(),
       getPrivateIngredients().catch(() => []),
       getUnits(),
-      getIngredientCategories()
+      getIngredientCategories(),
+      getAllergens()
     ]);
     allIngCategories = ingCategories;
+    allAllergens     = allergenList;
 
     // Merge global + private, deduplicate by name, sort alphabetically
     const seen = new Set();
@@ -568,7 +572,7 @@ createIngModal.innerHTML = `
              maxlength="100" />
     </div>
 
-    <div style="margin-bottom:1.5rem;">
+    <div style="margin-bottom:1rem;">
       <label style="display:block; font-size:0.78rem; font-weight:700;
                     color:#6B5B4E; text-transform:uppercase;
                     letter-spacing:0.06em; margin-bottom:0.4rem;">Category</label>
@@ -579,6 +583,40 @@ createIngModal.innerHTML = `
                      background:white; cursor:pointer;">
         <option value="">Select category...</option>
       </select>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label style="display:block; font-size:0.78rem; font-weight:700;
+                    color:#6B5B4E; text-transform:uppercase;
+                    letter-spacing:0.06em; margin-bottom:0.5rem;">Allergens</label>
+      <div id="createIngAllergens" style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.5rem; display:flex; gap:0.75rem; align-items:flex-end;">
+      <div style="flex:1;">
+        <label style="display:block; font-size:0.78rem; font-weight:700;
+                      color:#6B5B4E; text-transform:uppercase;
+                      letter-spacing:0.06em; margin-bottom:0.4rem;">Calories</label>
+        <input type="number" id="createIngCalories" min="0"
+               style="width:100%; padding:0.5rem 0.75rem; border:1.5px solid #E8E0D5;
+                      border-radius:8px; font-family:'Lato',sans-serif;
+                      font-size:0.9rem; box-sizing:border-box; outline:none;"
+               placeholder="e.g. 102" />
+      </div>
+      <div style="flex:1;">
+        <label style="display:block; font-size:0.78rem; font-weight:700;
+                      color:#6B5B4E; text-transform:uppercase;
+                      letter-spacing:0.06em; margin-bottom:0.4rem;">Per Unit</label>
+        <select id="createIngCalorieUnit"
+                style="width:100%; padding:0.5rem 0.75rem; border:1.5px solid #E8E0D5;
+                       border-radius:8px; font-family:'Lato',sans-serif;
+                       font-size:0.9rem; box-sizing:border-box; outline:none;
+                       background:white; cursor:pointer;">
+          <option value="">unit...</option>
+        </select>
+      </div>
     </div>
 
     <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
@@ -624,7 +662,52 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
     catSel.appendChild(opt);
   });
 
-  document.getElementById("createIngName").value = query;
+  // Populate allergen checkboxes
+  const allergenContainer = document.getElementById("createIngAllergens");
+  allergenContainer.innerHTML = allAllergens.map(a => `
+    <label style="display:inline-flex; align-items:center; gap:0.3rem;
+                  background:#F8F5EE; border:1.5px solid #E8E0D5;
+                  border-radius:100px; padding:0.2rem 0.6rem;
+                  font-size:0.78rem; font-family:'Lato',sans-serif;
+                  cursor:pointer; user-select:none; transition:all 0.15s;"
+           class="ing-allergen-chip">
+      <input type="checkbox" value="${a.name}"
+             style="accent-color:#DC2626; cursor:pointer;" />
+      ${a.icon} ${a.name}
+    </label>
+  `).join("");
+
+  // Style checked allergens red
+  allergenContainer.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const chip = cb.closest(".ing-allergen-chip");
+      chip.style.background    = cb.checked ? "rgba(220,38,38,0.08)" : "#F8F5EE";
+      chip.style.borderColor   = cb.checked ? "rgba(220,38,38,0.4)"  : "#E8E0D5";
+      chip.style.color         = cb.checked ? "#DC2626" : "";
+      chip.style.fontWeight    = cb.checked ? "700" : "";
+    });
+  });
+
+  // Populate calorie unit dropdown
+  const unitSel = document.getElementById("createIngCalorieUnit");
+  unitSel.innerHTML = '<option value="">unit...</option>';
+  const groups = { volume: "Volume", weight: "Weight", count: "Count" };
+  Object.entries(groups).forEach(([type, label]) => {
+    const groupUnits = allUnits.filter(u => u.type === type);
+    if (!groupUnits.length) return;
+    const og = document.createElement("optgroup");
+    og.label = label;
+    groupUnits.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.abbreviation;
+      opt.textContent = `${u.abbreviation} (${u.name})`;
+      og.appendChild(opt);
+    });
+    unitSel.appendChild(og);
+  });
+
+  document.getElementById("createIngName").value     = query;
+  document.getElementById("createIngCalories").value = "";
   document.getElementById("createIngSuggest").checked = true;
   createIngModal.style.display = "flex";
   document.getElementById("createIngName").focus();
@@ -637,7 +720,12 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
     if (!name)     { alert("Please enter a name."); return; }
     if (!category) { alert("Please select a category."); return; }
 
-    const ingData = { name, category, allergens: [], calories: null, calorie_unit: null };
+    const allergens = [...document.querySelectorAll("#createIngAllergens input:checked")]
+                        .map(cb => cb.value);
+    const calories    = parseFloat(document.getElementById("createIngCalories").value) || null;
+    const calUnit     = document.getElementById("createIngCalorieUnit").value || null;
+
+    const ingData = { name, category, allergens, calories, calorie_unit: calUnit };
 
     try {
       // Always save to private ingredients
@@ -648,15 +736,19 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
         await addPendingIngredient({ ...ingData, submitted_by: "user" });
       }
 
+      // Determine unitType from calorie unit
+      const calUnitData = allUnits.find(u => u.abbreviation === ingData.calorie_unit);
+      const unitType    = calUnitData?.type || "count";
+
       // Add to local allIngredients and select it
-      allIngredients.push({ ...ingData, id: name, unitType: "count" });
+      allIngredients.push({ ...ingData, id: name, unitType });
       allIngredients.sort((a,b) => a.name.localeCompare(b.name));
 
       input.value = name;
       dropdown.classList.remove("open");
 
       // Snapshot onto row
-      ingredientRows[rowIndex] = { ...ingData, id: name, unitType: "count" };
+      ingredientRows[rowIndex] = { ...ingData, id: name, unitType };
 
       createIngModal.style.display = "none";
     } catch(err) {

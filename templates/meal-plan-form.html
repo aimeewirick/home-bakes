@@ -284,7 +284,8 @@
     document.getElementById("planTitleView").style.display   = "none";
     document.getElementById("editModeBtn").style.display     = "none";
     document.getElementById("savePlanBtn").style.display     = "flex";
-    if (editingId) document.getElementById("deletePlanBtn").style.display = "flex";
+    document.getElementById("deletePlanBtn").style.display   = "flex";
+    document.getElementById("deletePlanBtn").title           = editingId ? "Delete meal plan" : "Cancel — go back";
     document.getElementById("dayControls").style.display     = "flex";
     document.getElementById("dayViewCount").style.display    = "none";
     renderDays();
@@ -616,6 +617,7 @@
         history.replaceState(null, "", `/meal-plan-form.html?id=${editingId}`);
       }
       document.getElementById("planTitleView").textContent = title;
+      document.getElementById("deletePlanBtn").title = "Delete meal plan";
       setViewMode();
     } catch(err) {
       console.error("Save failed:", err);
@@ -632,7 +634,14 @@
 
   // ── Delete ────────────────────────────────────────────────────────────────
   const deleteModal = document.getElementById("deleteModal");
-  document.getElementById("deletePlanBtn").addEventListener("click", () => deleteModal.style.display = "flex");
+  document.getElementById("deletePlanBtn").addEventListener("click", () => {
+    if (!editingId) {
+      // New unsaved plan — just go back to listing
+      window.location.href = "/meal-plans.html";
+      return;
+    }
+    deleteModal.style.display = "flex";
+  });
   document.getElementById("deleteModalClose").addEventListener("click", () => deleteModal.style.display = "none");
   document.getElementById("deleteCancelBtn").addEventListener("click", () => deleteModal.style.display = "none");
   document.getElementById("deleteConfirmBtn").addEventListener("click", async () => {
