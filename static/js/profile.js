@@ -61,6 +61,7 @@ onAuthStateChanged(auth, async (user) => {
       if (data.framePhotoURL) {
         framePhoto.src   = data.framePhotoURL;
         hasCustomPhoto   = true;   // ← user has a photo — suppress teasers
+        updateDeleteBtn();
       }
 
       // Load saved caption
@@ -128,6 +129,7 @@ fileInput.addEventListener("change", async (e) => {
   const localURL = URL.createObjectURL(file);
   framePhoto.src = localURL;
   hasCustomPhoto = true;   // ← suppress teasers now
+  updateDeleteBtn();
 
   try {
     const storageRef  = ref(storage, `frame-photos/${currentUID}`);
@@ -142,6 +144,83 @@ fileInput.addEventListener("change", async (e) => {
   } catch (err) {
     console.error("Upload failed:", err);
     // Keep local preview even if upload fails
+  }
+});
+
+// ── Delete photo button ──────────────────────────────────────────────────────
+// Creates a small trash button below the frame, only visible when hasCustomPhoto
+const deletePhotoBtn = document.createElement("button");
+deletePhotoBtn.id        = "deletePhotoBtn";
+deletePhotoBtn.title     = "Remove photo";
+deletePhotoBtn.innerHTML = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+    <path d="M10 11v6M14 11v6"/>
+    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+  </svg>`;
+deletePhotoBtn.style.cssText = `
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(192,57,43,0.4);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  color: #C0392B;
+  cursor: pointer;
+  z-index: 20;
+  transition: background 0.2s;
+  padding: 0;
+`;
+
+// Insert inside fridge-frame so it overlays the image
+const fridgeFrame = document.querySelector(".fridge-frame");
+fridgeFrame.style.position = "relative";
+fridgeFrame.appendChild(deletePhotoBtn);
+
+function updateDeleteBtn() {
+  // Only show on hover — managed by mouseenter/mouseleave on fridge-frame
+  if (!hasCustomPhoto) {
+    deletePhotoBtn.style.display = "none";
+  }
+}
+
+// Show/hide delete btn on frame hover
+fridgeFrame.addEventListener("mouseenter", () => {
+  if (hasCustomPhoto) deletePhotoBtn.style.display = "flex";
+});
+fridgeFrame.addEventListener("mouseleave", () => {
+  deletePhotoBtn.style.display = "none";
+});
+
+deletePhotoBtn.addEventListener("mouseenter", () => {
+  deletePhotoBtn.style.background = "rgba(192,57,43,0.18)";
+});
+deletePhotoBtn.addEventListener("mouseleave", () => {
+  deletePhotoBtn.style.background = "rgba(192,57,43,0.08)";
+});
+
+deletePhotoBtn.addEventListener("click", async (e) => {
+  e.stopPropagation();
+  if (!currentUID) return;
+  try {
+    // Reset to flower
+    framePhoto.src = "/static/images/flower.png";
+    hasCustomPhoto = false;
+    updateDeleteBtn();
+
+    // Clear in Firestore
+    await updateDoc(doc(db, "users", currentUID), {
+      framePhotoURL: ""
+    });
+    console.log("Photo removed!");
+  } catch(err) {
+    console.error("Remove photo failed:", err);
   }
 });
 

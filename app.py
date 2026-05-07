@@ -35,6 +35,7 @@ from routes.ingredients         import ingredients_bp
 from routes.units               import units_bp
 from routes.recipe_categories   import recipe_categories_bp, meal_types_bp, allergens_bp, ingredient_categories_bp
 from routes.admin               import admin_bp
+from routes.user                import user_bp
 
 app.register_blueprint(recipes_bp,              url_prefix="/api/recipes")
 app.register_blueprint(meal_plans_bp,           url_prefix="/api/meal-plans")
@@ -46,6 +47,7 @@ app.register_blueprint(meal_types_bp,               url_prefix="/api/meal-types"
 app.register_blueprint(allergens_bp,                url_prefix="/api/allergens")
 app.register_blueprint(ingredient_categories_bp,    url_prefix="/api/ingredient-categories")
 app.register_blueprint(admin_bp,                url_prefix="/api/admin")
+app.register_blueprint(user_bp,                 url_prefix="/api/user")
 
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.route("/api/health")
