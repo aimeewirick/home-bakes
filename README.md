@@ -39,8 +39,8 @@ HomeBakes is a full-stack web application that brings the warmth of a vintage ki
 | Database | Google Firestore (NoSQL) |
 | Auth | Firebase Authentication |
 | Storage | Firebase Storage |
-| Hosting | Render (free tier) |
-| Deployment | GitHub → GitHub Actions → Render auto-deploy |
+| Hosting | Railway |
+| Deployment | GitHub → Railway auto-deploy |
 
 ---
 
@@ -63,7 +63,6 @@ HomeBakes uses a retro 1950s kitchen aesthetic throughout:
 home-bakes/
 ├── app.py                    ← Flask entry point
 ├── requirements.txt
-├── render.yaml               ← Render deployment config
 ├── routes/
 │   ├── auth.py               ← Auth decorator
 │   ├── recipes.py            ← Recipe CRUD
@@ -113,7 +112,7 @@ home-bakes/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.10+
+- Python 3.11+
 - Firebase project with Firestore, Auth, and Storage enabled
 - A `firebase_admin_key.json` service account key
 
@@ -140,12 +139,11 @@ python app.py
 
 Visit `http://localhost:5000`
 
-### Deployment (Render)
+### Deployment (Railway)
 
 1. Push to `main` branch on GitHub
-2. GitHub Actions triggers automatically
-3. Render builds and deploys from `render.yaml`
-4. Set `FIREBASE_CREDENTIALS` as an environment variable in Render dashboard
+2. Railway detects the push and auto-deploys
+3. Set `FIREBASE_CREDENTIALS` as an environment variable in the Railway dashboard (paste the full contents of `firebase_admin_key.json`)
 
 ---
 
@@ -155,6 +153,7 @@ Visit `http://localhost:5000`
 - Firebase Storage rules restrict frame photo uploads to the authenticated user
 - Recipe images are publicly readable but only writable by the recipe owner
 - Frontend also hides edit/delete buttons from non-owners
+- `firebase_admin_key.json` is gitignored and passed via environment variable in production
 
 ---
 
@@ -167,7 +166,7 @@ This project is being built over a 10-week class term:
 | 1 ✅ | Project setup, Firebase, auth, home dashboard |
 | 2 ✅ | Recipe form, recipe view, ingredient typeahead, image upload |
 | 3 ✅ | Recipe listing, universal nav, FlowerPetal Formica, kitchen scene |
-| 4 🔄 | Admin ingredients page, meal planner foundation |
+| 4 ✅ | Admin ingredients page, meal planner foundation |
 | 5 | Meal planner — adding meals |
 | 6 | Shopping list generation |
 | 7 | Shopping lists page |
@@ -179,9 +178,7 @@ This project is being built over a 10-week class term:
 
 ## 🌐 Live Demo
 
-**[https://home-bakes-404h.onrender.com](https://home-bakes-404h.onrender.com)**
-
-> Note: The app is hosted on Render's free tier and may take 30-60 seconds to wake up after inactivity.
+**[https://home-bakes-production.up.railway.app](https://home-bakes-production.up.railway.app)**
 
 ---
 
