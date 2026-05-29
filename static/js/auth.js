@@ -31,10 +31,7 @@ export async function resendVerificationEmail() {
 }
 
 export async function resetPassword(email) {
-  await sendPasswordResetEmail(auth, email, {
-    url: window.location.origin + "/login.html",
-    handleCodeInApp: false
-  });
+  await sendPasswordResetEmail(auth, email);
 }
 
 export async function isAdmin() {
