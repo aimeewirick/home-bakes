@@ -84,11 +84,12 @@
               <th>Submitted By</th>
               <th>Allergens</th>
               <th>Calories</th>
+              <th>Unit</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="pendingTableBody">
-            <tr><td colspan="5" class="loading-cell">Loading submissions...</td></tr>
+            <tr><td colspan="7" class="loading-cell">Loading submissions...</td></tr>
           </tbody>
         </table>
       </div>
@@ -177,6 +178,9 @@
     adminDeleteIngredient, adminGetPending, adminApproveIngredient,
     adminRejectIngredient, getIngredientCategories, getAllergens, getUnits
   } from "/static/js/api.js";
+  import { populateUnitSelect } from "/static/js/units.js";
+  import { populateAllergenCheckboxes, getCheckedAllergens, setCheckedAllergens } from "/static/js/allergens.js";
+  import { populateIngredientCategories } from "/static/js/ingredient-categories.js";
 
   let allIngredients  = [];
   let allergenList    = [];
@@ -191,14 +195,14 @@
         getAllergens(),
         getUnits()
       ]);
-      populateUnitSelect(units);
+      populateUnitSelect(units, "modalCalorieUnit");
 
       allIngredients = ingredients;
       allergenList   = allergens;
 
-      populateCategoryFilter(categories);
-      populateModalCategory(categories);
-      populateAllergenCheckboxes(allergens);
+      populateIngredientCategories(categories, "categoryFilter");
+      populateIngredientCategories(categories, "modalCategory");
+      populateAllergenCheckboxes(allergens, "allergenCheckboxes", "admin");
       renderIngredients(allIngredients);
       loadPending();
     } catch (err) {
@@ -206,56 +210,7 @@
     }
   });
 
-  // ── Populate filters ──────────────────────────────────────────────────────
-  function populateCategoryFilter(categories) {
-    const sel = document.getElementById("categoryFilter");
-    categories.filter(c => c.name !== "All").forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.name;
-      opt.textContent = cat.name;
-      sel.appendChild(opt);
-    });
-  }
-
-  function populateModalCategory(categories) {
-    const sel = document.getElementById("modalCategory");
-    categories.filter(c => c.name !== "All").forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.name;
-      opt.textContent = cat.name;
-      sel.appendChild(opt);
-    });
-  }
-
-  function populateAllergenCheckboxes(allergens) {
-    const container = document.getElementById("allergenCheckboxes");
-    container.innerHTML = allergens.map(a => `
-      <label class="allergen-check">
-        <input type="checkbox" value="${a.name}" />
-        ${a.icon} ${a.name}
-      </label>
-    `).join("");
-  }
-
-  // ── Populate unit select from Firestore ──────────────────────────────────
-  function populateUnitSelect(units) {
-    const sel = document.getElementById("modalCalorieUnit");
-    sel.innerHTML = '<option value="">Select unit...</option>';
-    const groups = { volume: "Volume", weight: "Weight", count: "Count", other: "Other" };
-    Object.entries(groups).forEach(([type, label]) => {
-      const groupUnits = units.filter(u => u.type === type);
-      if (!groupUnits.length) return;
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = label;
-      groupUnits.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u.abbreviation;
-        opt.textContent = `${u.abbreviation} (${u.name})`;
-        optgroup.appendChild(opt);
-      });
-      sel.appendChild(optgroup);
-    });
-  }
+  // ── Populate filters (using shared modules) ──────────────────────────────
 
   // ── Render ingredient table ───────────────────────────────────────────────
   function renderIngredients(ingredients) {
@@ -321,7 +276,7 @@
     document.getElementById("modalCalorieUnit").value = "";
     document.getElementById("modalError").classList.remove("visible");
     // Clear allergen checkboxes
-    document.querySelectorAll("#allergenCheckboxes input").forEach(cb => cb.checked = false);
+    setCheckedAllergens("allergenCheckboxes", []);
     document.getElementById("ingredientModal").style.display = "flex";
     document.getElementById("modalName").focus();
   }
@@ -337,9 +292,7 @@
     document.getElementById("modalCalorieUnit").value = ing.calorie_unit || "";
     document.getElementById("modalError").classList.remove("visible");
     // Set allergen checkboxes
-    document.querySelectorAll("#allergenCheckboxes input").forEach(cb => {
-      cb.checked = (ing.allergens || []).includes(cb.value);
-    });
+    setCheckedAllergens("allergenCheckboxes", ing.allergens || []);
     document.getElementById("ingredientModal").style.display = "flex";
   }
 
@@ -358,8 +311,7 @@
     const category    = document.getElementById("modalCategory").value;
     const calories    = document.getElementById("modalCalories").value;
     const calUnit     = document.getElementById("modalCalorieUnit").value;
-    const allergens   = [...document.querySelectorAll("#allergenCheckboxes input:checked")]
-                          .map(cb => cb.value);
+    const allergens   = getCheckedAllergens("allergenCheckboxes");
     const errorEl     = document.getElementById("modalError");
 
     if (!name)     { errorEl.textContent = "Name is required"; errorEl.classList.add("visible"); return; }
@@ -442,7 +394,7 @@
   function renderPending(pending) {
     const tbody = document.getElementById("pendingTableBody");
     if (pending.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No pending submissions</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">No pending submissions</td></tr>`;
       return;
     }
     tbody.innerHTML = pending.map(ing => `
@@ -459,6 +411,7 @@
           }).join("") || "—"}
         </td>
         <td>${ing.calories ? `${ing.calories} / ${ing.calorie_unit || "?"}` : "—"}</td>
+        <td>${ing.calorie_unit || "—"}</td>
         <td class="action-cell">
           <button class="btn-approve" data-id="${ing.id}">✅ Approve</button>
           <button class="btn-reject"  data-id="${ing.id}">❌ Reject</button>

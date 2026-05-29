@@ -239,6 +239,8 @@
     getMealPlan, createMealPlan, updateMealPlan, deleteMealPlan,
     getMyRecipes, getPublicRecipes, getMealTypes, getRecipeCategories, getAllergens
   } from "/static/js/api.js";
+  import { populateMealTypes } from "/static/js/meal-types.js";
+  import { populateRecipeCategories } from "/static/js/recipe-categories.js";
 
   const DAYS_OF_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
@@ -486,13 +488,7 @@
 
   // ── Add meal slot modal ───────────────────────────────────────────────────
   function populateNewMealSelect() {
-    const sel = document.getElementById("newMealTypeSelect");
-    sel.innerHTML = '<option value="">Select meal type...</option>';
-    mealTypes.forEach(mt => {
-      const opt = document.createElement("option");
-      opt.value = mt.name;
-      opt.textContent = mt.name;
-      sel.appendChild(opt);
+    populateMealTypes(mealTypes, "newMealTypeSelect", "Select meal type...");
     });
   }
 
@@ -513,21 +509,11 @@
   // ── Filters ───────────────────────────────────────────────────────────────
   function populateFilters() {
     // Meal type filter in recipe search modal
-    const mtSel = document.getElementById("mealTypeFilter");
-    mealTypes.forEach(mt => {
-      const opt = document.createElement("option");
-      opt.value = mt.name;
-      opt.textContent = mt.name;
-      mtSel.appendChild(opt);
+    populateMealTypes(mealTypes, "mealTypeFilter", "");
     });
 
     // Category filter in recipe search modal
-    const catSel = document.getElementById("categoryFilter");
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.name;
-      opt.textContent = cat.name;
-      catSel.appendChild(opt);
+    populateRecipeCategories(categories, "categoryFilter", "", true);
     });
 
     // New meal slot select

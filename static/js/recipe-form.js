@@ -21,6 +21,9 @@ import {
   getIngredientCategories,
   getAllergens
 } from "/static/js/api.js";
+import { buildUnitSelect, populateUnitSelect } from "/static/js/units.js";
+import { populateAllergenCheckboxes, getCheckedAllergens } from "/static/js/allergens.js";
+import { populateIngredientCategories } from "/static/js/ingredient-categories.js";
 
 const storage = getStorage();
 
@@ -225,7 +228,6 @@ function createTypeahead(rowIndex) {
   function selectIngredient(ingredient) {
     input.value = ingredient.name;
     // Snapshot full ingredient data including allergens + calories
-    // Look up unit type from ingredient's calorie_unit
     const calorieUnitData = allUnits.find(u => u.abbreviation === ingredient.calorie_unit);
     const unitType = calorieUnitData?.type || "count";
 
@@ -268,18 +270,14 @@ function createTypeahead(rowIndex) {
     setTimeout(() => {
       dropdown.classList.remove("open");
 
-      // ── Validation: if text doesn't match a selected ingredient, clear it ──
-      // This prevents free-text entries that won't save properly
+      // Validation: if text doesn't match a selected ingredient, clear it
       if (input.value && !ingredientRows[rowIndex]) {
-        // Check if typed text exactly matches an ingredient name
         const exact = allIngredients.find(
           i => i.name.toLowerCase() === input.value.toLowerCase()
         );
         if (exact) {
-          // Exact match found — auto-select it
           selectIngredient(exact);
         } else {
-          // No match — clear the field and show hint
           input.value = "";
           input.placeholder = "⚠️ Select from list...";
           input.style.borderColor = "#C0392B";
@@ -300,36 +298,6 @@ function createTypeahead(rowIndex) {
   return wrapper;
 }
 
-// ── Build unit select ─────────────────────────────────────────────────────────
-function buildUnitSelect(selectedUnitId = "") {
-  const select = document.createElement("select");
-  select.className = "unit-select";
-
-  const blank = document.createElement("option");
-  blank.value = "";
-  blank.textContent = "unit";
-  select.appendChild(blank);
-
-  const groups = { volume: "Volume", weight: "Weight", count: "Count", other: "Other" };
-  Object.entries(groups).forEach(([type, label]) => {
-    const unitGroup = allUnits.filter(u => u.type === type);
-    if (!unitGroup.length) return;
-    const optgroup = document.createElement("optgroup");
-    optgroup.label = label;
-    unitGroup.forEach(unit => {
-      const opt = document.createElement("option");
-      opt.value = unit.id;
-      opt.textContent = unit.abbreviation;
-      opt.dataset.name = unit.name;
-      if (unit.id === selectedUnitId) opt.selected = true;
-      optgroup.appendChild(opt);
-    });
-    select.appendChild(optgroup);
-  });
-
-  return select;
-}
-
 // ── Add ingredient row ────────────────────────────────────────────────────────
 function addIngredientRow(prefill = null) {
   const rowIndex = ingredientRows.length;
@@ -342,7 +310,6 @@ function addIngredientRow(prefill = null) {
   const tdIngredient = document.createElement("td");
   const typeahead = createTypeahead(rowIndex);
   if (prefill) {
-    // Look up full ingredient data so allergens/calories are preserved
     const fullIngredient = allIngredients.find(i => i.id === prefill.ingredientId)
       || { id: prefill.ingredientId, name: prefill.ingredientName, category: "", allergens: prefill.allergens || [], calories: prefill.calories || null, calorie_unit: prefill.calorie_unit || null };
     typeahead._setIngredient(fullIngredient);
@@ -362,7 +329,7 @@ function addIngredientRow(prefill = null) {
 
   const tdUnit = document.createElement("td");
   tdUnit.style.width = "90px";
-  tdUnit.appendChild(buildUnitSelect(prefill?.unitId || ""));
+  tdUnit.appendChild(buildUnitSelect(allUnits, prefill?.unitId || ""));
 
   const tdNote = document.createElement("td");
   const noteInput = document.createElement("input");
@@ -435,7 +402,6 @@ async function loadRecipeForEdit(id) {
     document.getElementById("isPublic").checked     = recipe.isPublic || false;
     document.getElementById("recipeNotes").value    = recipe.notes || "";
 
-    // Load existing image
     if (recipe.imageUrl) {
       imagePreview.src = recipe.imageUrl;
       imagePreview.style.display = "block";
@@ -527,7 +493,6 @@ saveBtn.addEventListener("click", async () => {
       recipeId = result.id;
     }
 
-    // Upload image if one was selected
     if (pendingImageFile && recipeId) {
       const imageUrl = await uploadRecipeImage(recipeId);
       if (imageUrl) {
@@ -535,7 +500,6 @@ saveBtn.addEventListener("click", async () => {
       }
     }
 
-    // If inside iframe (meal planner), notify parent instead of navigating
     if (window.parent !== window) {
       window.parent.postMessage("recipe-saved", "*");
     } else {
@@ -552,7 +516,6 @@ saveBtn.addEventListener("click", async () => {
 
 
 // ── Create private ingredient modal ──────────────────────────────────────────
-// Inject modal HTML once
 const createIngModal = document.createElement("div");
 createIngModal.id = "createIngModal";
 createIngModal.style.cssText = `
@@ -659,59 +622,16 @@ document.body.appendChild(createIngModal);
 let _createIngCallback = null;
 
 function openCreateIngredientModal(query, rowIndex, input, dropdown) {
-  // Populate category dropdown
+  // Populate category dropdown using shared module
   const catSel = document.getElementById("createIngCategory");
   catSel.innerHTML = '<option value="">Select category...</option>';
-  allIngCategories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat.name;
-    opt.textContent = cat.name;
-    catSel.appendChild(opt);
-  });
+  populateIngredientCategories(allIngCategories, "createIngCategory");
 
-  // Populate allergen checkboxes
-  const allergenContainer = document.getElementById("createIngAllergens");
-  allergenContainer.innerHTML = allAllergens.map(a => `
-    <label style="display:inline-flex; align-items:center; gap:0.3rem;
-                  background:#F8F5EE; border:1.5px solid #E8E0D5;
-                  border-radius:100px; padding:0.2rem 0.6rem;
-                  font-size:0.78rem; font-family:'Lato',sans-serif;
-                  cursor:pointer; user-select:none; transition:all 0.15s;"
-           class="ing-allergen-chip">
-      <input type="checkbox" value="${a.name}"
-             style="accent-color:#DC2626; cursor:pointer;" />
-      ${a.icon} ${a.name}
-    </label>
-  `).join("");
+  // Populate allergen checkboxes using shared module
+  populateAllergenCheckboxes(allAllergens, "createIngAllergens", "chips");
 
-  // Style checked allergens red
-  allergenContainer.querySelectorAll("input[type=checkbox]").forEach(cb => {
-    cb.addEventListener("change", () => {
-      const chip = cb.closest(".ing-allergen-chip");
-      chip.style.background    = cb.checked ? "rgba(220,38,38,0.08)" : "#F8F5EE";
-      chip.style.borderColor   = cb.checked ? "rgba(220,38,38,0.4)"  : "#E8E0D5";
-      chip.style.color         = cb.checked ? "#DC2626" : "";
-      chip.style.fontWeight    = cb.checked ? "700" : "";
-    });
-  });
-
-  // Populate calorie unit dropdown
-  const unitSel = document.getElementById("createIngCalorieUnit");
-  unitSel.innerHTML = '<option value="">unit...</option>';
-  const groups = { volume: "Volume", weight: "Weight", count: "Count" };
-  Object.entries(groups).forEach(([type, label]) => {
-    const groupUnits = allUnits.filter(u => u.type === type);
-    if (!groupUnits.length) return;
-    const og = document.createElement("optgroup");
-    og.label = label;
-    groupUnits.forEach(u => {
-      const opt = document.createElement("option");
-      opt.value = u.abbreviation;
-      opt.textContent = `${u.abbreviation} (${u.name})`;
-      og.appendChild(opt);
-    });
-    unitSel.appendChild(og);
-  });
+  // Populate calorie unit dropdown using shared module
+  populateUnitSelect(allUnits, "createIngCalorieUnit");
 
   document.getElementById("createIngName").value     = query;
   document.getElementById("createIngCalories").value = "";
@@ -727,34 +647,28 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
     if (!name)     { alert("Please enter a name."); return; }
     if (!category) { alert("Please select a category."); return; }
 
-    const allergens = [...document.querySelectorAll("#createIngAllergens input:checked")]
-                        .map(cb => cb.value);
-    const calories    = parseFloat(document.getElementById("createIngCalories").value) || null;
-    const calUnit     = document.getElementById("createIngCalorieUnit").value || null;
+    const allergens = getCheckedAllergens("createIngAllergens");
+    const calories  = parseFloat(document.getElementById("createIngCalories").value) || null;
+    const calUnit   = document.getElementById("createIngCalorieUnit").value || null;
 
     const ingData = { name, category, allergens, calories, calorie_unit: calUnit };
 
     try {
-      // Always save to private ingredients
       await addPrivateIngredient(ingData);
 
-      // If suggest toggle is on → also add to pending_ingredients
       if (suggest) {
         await addPendingIngredient({ ...ingData, submitted_by: "user" });
       }
 
-      // Determine unitType from calorie unit
       const calUnitData = allUnits.find(u => u.abbreviation === ingData.calorie_unit);
       const unitType    = calUnitData?.type || "count";
 
-      // Add to local allIngredients and select it
       allIngredients.push({ ...ingData, id: name, unitType });
       allIngredients.sort((a,b) => a.name.localeCompare(b.name));
 
       input.value = name;
       dropdown.classList.remove("open");
 
-      // Snapshot onto row
       ingredientRows[rowIndex] = { ...ingData, id: name, unitType };
 
       createIngModal.style.display = "none";

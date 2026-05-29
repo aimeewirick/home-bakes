@@ -178,6 +178,8 @@
   import "/static/js/nav.js";
   import "/static/js/recipe-form.js";
   import { getMealTypes, getRecipeCategories } from "/static/js/api.js";
+  import { populateMealTypes } from "/static/js/meal-types.js";
+  import { populateRecipeCategories } from "/static/js/recipe-categories.js";
 
   // ── Load dropdowns from Firestore ─────────────────────────────────────────
   async function loadDropdowns() {
@@ -187,24 +189,8 @@
         getRecipeCategories()
       ]);
 
-      const mealSelect = document.getElementById("mealType");
-      mealSelect.innerHTML = '<option value="">Select...</option>';
-      mealTypes.forEach(mt => {
-        const opt = document.createElement("option");
-        opt.value = mt.name;
-        opt.textContent = mt.name;
-        mealSelect.appendChild(opt);
-      });
-
-      const catSelect = document.getElementById("recipeCategory");
-      catSelect.innerHTML = '<option value="">Select...</option>';
-      // Skip "All" — that's only for filtering
-      categories.filter(c => c.name !== "All").forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat.name;
-        opt.textContent = cat.name;
-        catSelect.appendChild(opt);
-      });
+      populateMealTypes(mealTypes, "mealType");
+      populateRecipeCategories(categories, "recipeCategory");
 
     } catch (err) {
       console.error("Failed to load dropdowns:", err);
