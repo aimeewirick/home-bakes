@@ -235,6 +235,9 @@
 <script type="module">
   import "/static/js/nav.js";
   import { requireAuth } from "/static/js/auth.js";
+  import { populateMealTypes } from "/static/js/meal-types.js";
+  import { populateRecipeCategories } from "/static/js/recipe-categories.js";
+  import { populateAllergenChips } from "/static/js/allergens.js";
   import {
     getMealPlan, createMealPlan, updateMealPlan, deleteMealPlan,
     getMyRecipes, getPublicRecipes, getMealTypes, getRecipeCategories, getAllergens
@@ -263,7 +266,7 @@
       ]);
       mealTypes  = mt;
       categories = cats.filter(c => c.name !== "All");
-      populateAllergenChips(allergenList);
+      setupAllergenChips(allergenList);
 
       const seen = new Set();
       allRecipes = [...mine, ...pub].filter(r => {
@@ -486,14 +489,7 @@
 
   // ── Add meal slot modal ───────────────────────────────────────────────────
   function populateNewMealSelect() {
-    const sel = document.getElementById("newMealTypeSelect");
-    sel.innerHTML = '<option value="">Select meal type...</option>';
-    mealTypes.forEach(mt => {
-      const opt = document.createElement("option");
-      opt.value = mt.name;
-      opt.textContent = mt.name;
-      sel.appendChild(opt);
-    });
+    populateMealTypes(mealTypes, "newMealTypeSelect", "Select meal type...");
   }
 
   document.getElementById("addMealModalClose").addEventListener("click", () => {
@@ -513,38 +509,20 @@
   // ── Filters ───────────────────────────────────────────────────────────────
   function populateFilters() {
     // Meal type filter in recipe search modal
-    const mtSel = document.getElementById("mealTypeFilter");
-    mealTypes.forEach(mt => {
-      const opt = document.createElement("option");
-      opt.value = mt.name;
-      opt.textContent = mt.name;
-      mtSel.appendChild(opt);
-    });
+    populateMealTypes(mealTypes, "mealTypeFilter", "");
 
     // Category filter in recipe search modal
-    const catSel = document.getElementById("categoryFilter");
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.name;
-      opt.textContent = cat.name;
-      catSel.appendChild(opt);
-    });
+    populateRecipeCategories(categories, "categoryFilter", "", true);
 
     // New meal slot select
     populateNewMealSelect();
   }
 
   // ── Allergen exclusion chips ──────────────────────────────────────────────
-  function populateAllergenChips(allergens) {
-    const container = document.getElementById("allergenExclusionChips");
-    container.innerHTML = allergens.map(a => `
-      <label class="allergen-exclusion-chip" data-allergen="${a.name}">
-        <input type="checkbox" value="${a.name}" />
-        ${a.icon} ${a.name}
-      </label>
-    `).join("");
+  function setupAllergenChips(allergens) {
+    populateAllergenChips(allergens, "allergenExclusionChips");
 
-    container.querySelectorAll("input[type='checkbox']").forEach(cb => {
+    document.getElementById("allergenExclusionChips").querySelectorAll("input[type='checkbox']").forEach(cb => {
       cb.addEventListener("change", () => {
         if (cb.checked) {
           excludedAllergens.add(cb.value);

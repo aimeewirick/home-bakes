@@ -215,7 +215,7 @@
   import { decimalToFraction } from "/static/js/amounts.js";
   import { formatCalories, formatCaloriesNote } from "/static/js/calories.js";
   import { requireAuth, logout } from "/static/js/auth.js";
-  import { getRecipe, deleteRecipe } from "/static/js/api.js";
+  import { getRecipe, deleteRecipe, getAllergens } from "/static/js/api.js";
 
   const FONT_KEY = "hb_recipe_font";
 
@@ -228,16 +228,19 @@
     document.getElementById("recipeCardBody").className = `recipe-card-body ${savedFont}`;
 
     try {
-      const recipe = await getRecipe(recipeId);
+      const [recipe, allergenList] = await Promise.all([
+        getRecipe(recipeId),
+        getAllergens().catch(() => [])
+      ]);
       const token   = await user.getIdTokenResult();
       const isAdmin = token.claims.admin === true;
-      renderRecipe(recipe, user.uid, isAdmin);
+      renderRecipe(recipe, user.uid, isAdmin, allergenList);
     } catch (err) {
       document.getElementById("loadingCard").textContent = "Recipe not found.";
     }
   });
 
-  function renderRecipe(recipe, uid, isAdmin = false) {
+  function renderRecipe(recipe, uid, isAdmin = false, allergenList = []) {
     document.title = `HomeBakes — ${recipe.title}`;
     document.getElementById("recipeName").textContent = recipe.title || "Untitled";
     document.getElementById("recipeCategory").textContent =
@@ -303,14 +306,10 @@
     if (allergens.length > 0) {
       const warningEl = document.getElementById("allergenWarning");
       const badgesEl  = document.getElementById("allergenBadges");
-      const icons = {
-        "Eggs": "🥚", "Fish": "🐟", "Milk": "🥛", "Peanuts": "🥜",
-        "Sesame": "🫙", "Shellfish": "🦐", "Soybeans": "🫘",
-        "Tree Nuts": "🌰", "Wheat": "🌾"
-      };
-      badgesEl.innerHTML = allergens.map(a =>
-        `<span class="allergen-badge">${icons[a] || "⚠️"} ${a}</span>`
-      ).join("");
+      badgesEl.innerHTML = allergens.map(id => {
+        const found = allergenList.find(al => al.id === id);
+        return `<span class="allergen-badge">${found?.icon || "⚠️"} ${found?.name || id}</span>`;
+      }).join("");
       warningEl.style.display = "block";
     }
 

@@ -12,7 +12,7 @@ def get_ingredients():
     category = request.args.get("category")
     ref = db.collection("ingredients")
     if category:
-        ref = ref.where("category", "==", category)
+        ref = ref.where("category", "==", category)  # category is a document ID
     docs = ref.order_by("name").stream()
     return jsonify([{**d.to_dict(), "id": d.id} for d in docs])
 

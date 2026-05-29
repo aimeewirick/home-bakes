@@ -370,14 +370,15 @@
               const recipe = await getRecipe(recipeRef.id);
               for (const ing of (recipe.ingredients || [])) {
                 // Check ingredient's own base unit type first (most reliable)
+                // Look up units by ID — no string matching
                 const ingData     = allIngredients.find(i => i.name.toLowerCase() === ing.ingredientName?.toLowerCase());
-                const calorieUnit = allUnits.find(u => u.abbreviation === ingData?.calorie_unit);
-                // Also check the recipe's selected unit
-                const recipeUnit  = allUnits.find(u => u.abbreviation === ing.unitName || u.name?.toLowerCase() === ing.unitName?.toLowerCase());
+                const calorieUnit = allUnits.find(u => u.id === ingData?.calorie_unit);
+                const recipeUnit  = allUnits.find(u => u.id === ing.unitId);
                 // Volume if EITHER the ingredient's base unit OR recipe unit is volume
                 const isVolume    = calorieUnit?.type === "volume" || recipeUnit?.type === "volume";
                 const unitType    = isVolume ? "volume" : (recipeUnit?.type || calorieUnit?.type || "count");
-                const key      = `${ing.ingredientName.toLowerCase()}|${isVolume ? "volume" : (ing.unitName||"")}`;
+                const unitDisplay = recipeUnit?.abbreviation || "";
+                const key         = `${ing.ingredientName.toLowerCase()}|${isVolume ? "volume" : unitDisplay}`;
 
                 if (ingredientMap[key]) {
                   if (!isVolume) ingredientMap[key].qty = (ingredientMap[key].qty||0) + (parseFloat(ing.amount)||0);
@@ -385,7 +386,7 @@
                   ingredientMap[key] = {
                     name: ing.ingredientName,
                     qty:  isVolume ? null : (parseFloat(ing.amount)||null),
-                    unit: isVolume ? "" : (ing.unitName||""),
+                    unit: isVolume ? "" : unitDisplay,
                     unitType, have_it: false, note: "",
                   };
                 }

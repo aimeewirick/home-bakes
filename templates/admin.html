@@ -184,6 +184,8 @@
 
   let allIngredients  = [];
   let allergenList    = [];
+  let allCategories   = [];
+  let allUnits        = [];
   let editingId       = null;
   let deleteId        = null;
 
@@ -199,6 +201,8 @@
 
       allIngredients = ingredients;
       allergenList   = allergens;
+      allCategories  = categories;
+      allUnits       = units;
 
       populateIngredientCategories(categories, "categoryFilter");
       populateIngredientCategories(categories, "modalCategory");
@@ -226,15 +230,15 @@
     tbody.innerHTML = ingredients.map(ing => `
       <tr data-id="${ing.id}">
         <td class="ing-name">${ing.name}</td>
-        <td>${ing.category || "—"}</td>
+        <td>${allCategories.find(c => c.id === ing.category)?.name || ing.category || "—"}</td>
         <td class="allergen-cell">
-          ${(ing.allergens || []).map(a => {
-            const found = allergenList.find(al => al.name === a);
-            return found ? `<span class="allergen-pill">${found.icon} ${a}</span>` : `<span class="allergen-pill">${a}</span>`;
+          ${(ing.allergens || []).map(id => {
+            const found = allergenList.find(al => al.id === id);
+            return found ? `<span class="allergen-pill">${found.icon} ${found.name}</span>` : `<span class="allergen-pill">${id}</span>`;
           }).join("") || "—"}
         </td>
         <td>${ing.calories ?? "—"}</td>
-        <td>${ing.calorie_unit || "—"}</td>
+        <td>${(() => { const u = allUnits.find(u => u.id === ing.calorie_unit); return u ? u.abbreviation : (ing.calorie_unit || "—"); })()}</td>
         <td class="action-cell">
           <button class="btn-edit" data-id="${ing.id}">✏️</button>
           <button class="btn-delete" data-id="${ing.id}" data-name="${ing.name}">🗑️</button>
@@ -259,7 +263,7 @@
     const cat = document.getElementById("categoryFilter").value;
     let filtered = allIngredients;
     if (q)   filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
-    if (cat) filtered = filtered.filter(i => i.category === cat);
+    if (cat) filtered = filtered.filter(i => i.category === cat); // cat is now a category ID
     renderIngredients(filtered);
   }
 
@@ -318,9 +322,11 @@
     if (!category) { errorEl.textContent = "Category is required"; errorEl.classList.add("visible"); return; }
 
     const data = {
-      name, category, allergens,
-      calories:     calories ? Number(calories) : null,
-      calorie_unit: calUnit || null
+      name,
+      category,      // category document ID
+      allergens,     // allergen document IDs
+      calories:      calories ? Number(calories) : null,
+      calorie_unit:  calUnit || null,  // unit document ID
     };
 
     try {
@@ -400,18 +406,18 @@
     tbody.innerHTML = pending.map(ing => `
       <tr data-id="${ing.id}">
         <td class="ing-name">${ing.name}</td>
-        <td>${ing.category || "—"}</td>
+        <td>${allCategories.find(c => c.id === ing.category)?.name || ing.category || "—"}</td>
         <td style="font-size:0.78rem; color:var(--text-light);">${ing.submitted_by || "—"}</td>
         <td class="allergen-cell">
-          ${(ing.allergens || []).map(a => {
-            const found = allergenList.find(al => al.name === a);
+          ${(ing.allergens || []).map(id => {
+            const found = allergenList.find(al => al.id === id);
             return found
-              ? `<span class="allergen-pill">${found.icon} ${a}</span>`
-              : `<span class="allergen-pill">${a}</span>`;
+              ? `<span class="allergen-pill">${found.icon} ${found.name}</span>`
+              : `<span class="allergen-pill">${id}</span>`;
           }).join("") || "—"}
         </td>
-        <td>${ing.calories ? `${ing.calories} / ${ing.calorie_unit || "?"}` : "—"}</td>
-        <td>${ing.calorie_unit || "—"}</td>
+        <td>${ing.calories ? `${ing.calories} / ${(() => { const u = allUnits?.find(u => u.id === ing.calorie_unit); return u ? u.abbreviation : (ing.calorie_unit || "?"); })()}` : "—"}</td>
+        <td>${(() => { const u = allUnits?.find(u => u.id === ing.calorie_unit); return u ? u.abbreviation : (ing.calorie_unit || "—"); })()}</td>
         <td class="action-cell">
           <button class="btn-approve" data-id="${ing.id}">✅ Approve</button>
           <button class="btn-reject"  data-id="${ing.id}">❌ Reject</button>

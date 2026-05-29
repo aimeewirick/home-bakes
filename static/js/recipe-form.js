@@ -196,9 +196,10 @@ function createTypeahead(rowIndex) {
     matches.forEach(ingredient => {
       const item = document.createElement("div");
       item.className = "typeahead-item";
+      const catName = allIngCategories.find(c => c.id === ingredient.category)?.name || "";
       item.innerHTML = `
         <span>${highlightMatch(ingredient.name, query)}</span>
-        <span class="typeahead-category">${ingredient.category}</span>`;
+        <span class="typeahead-category">${catName}</span>`;
       item.addEventListener("mousedown", (e) => {
         e.preventDefault();
         selectIngredient(ingredient);
@@ -229,18 +230,18 @@ function createTypeahead(rowIndex) {
 
   function selectIngredient(ingredient) {
     input.value = ingredient.name;
-    // Snapshot full ingredient data including allergens + calories
-    const calorieUnitData = allUnits.find(u => u.abbreviation === ingredient.calorie_unit);
+    // Look up calorie unit type by ID
+    const calorieUnitData = allUnits.find(u => u.id === ingredient.calorie_unit);
     const unitType = calorieUnitData?.type || "count";
 
     ingredientRows[rowIndex] = {
       id:           ingredient.id,
       name:         ingredient.name,
-      category:     ingredient.category || "",
-      allergens:    ingredient.allergens || [],
+      category:     ingredient.category || "",   // category document ID
+      allergens:    ingredient.allergens || [],   // allergen document IDs
       calories:     ingredient.calories  || null,
-      calorie_unit: ingredient.calorie_unit || null,
-      unitType:     unitType,
+      calorie_unit: ingredient.calorie_unit || null, // unit document ID
+      unitType,
     };
     dropdown.classList.remove("open");
   }
@@ -437,21 +438,21 @@ function collectFormData() {
     const rowIndex   = parseInt(row.dataset.rowIndex);
     const ingredient = ingredientRows[rowIndex];
     if (!ingredient) return;
-    const unitSelect = row.querySelector(".unit-select");
+    const unitSelect  = row.querySelector(".unit-select");
     const selectedUnit = unitSelect.options[unitSelect.selectedIndex];
     ingredients.push({
       order:          index + 1,
       ingredientId:   ingredient.id,
       ingredientName: ingredient.name,
       amount:         getAmountValue(row.querySelector(".amount-wrapper")),
-      unitId:         unitSelect.value,
-      unitName:       selectedUnit?.dataset?.name || "",
+      unitId:         unitSelect.value || "",          // unit document ID
+      unitName:       selectedUnit?.dataset?.name || "", // full name for display
+      unitType:       selectedUnit?.dataset?.type || ingredient.unitType || "count",
       note:           row.querySelector(".note-input").value.trim(),
-      allergens:      ingredient.allergens    || [],
+      allergens:      ingredient.allergens    || [],   // allergen document IDs
       calories:       ingredient.calories     || null,
-      calorie_unit:   ingredient.calorie_unit || null,
-      unitType:       ingredient.unitType     || "count",
-      category:       ingredient.category     || "",
+      calorie_unit:   ingredient.calorie_unit || null, // unit document ID
+      category:       ingredient.category     || "",   // category document ID
     });
   });
 
@@ -472,7 +473,7 @@ function collectFormData() {
   const allergens = [...allergenSet].sort();
 
   // Calculate calories per serving
-  const calorieResult = calculateRecipeCalories(ingredients, servings);
+  const calorieResult = calculateRecipeCalories(ingredients, servings, allUnits);
 
   return {
     title,
@@ -675,7 +676,7 @@ function openCreateIngredientModal(query, rowIndex, input, dropdown) {
         await addPendingIngredient({ ...ingData, submitted_by: "user" });
       }
 
-      const calUnitData = allUnits.find(u => u.abbreviation === ingData.calorie_unit);
+      const calUnitData = allUnits.find(u => u.id === ingData.calorie_unit);
       const unitType    = calUnitData?.type || "count";
 
       allIngredients.push({ ...ingData, id: name, unitType });

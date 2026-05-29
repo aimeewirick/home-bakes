@@ -1,11 +1,13 @@
 // units.js
 // Single source of truth for unit dropdown rendering.
-// Import this wherever a unit select is needed — never duplicate this logic.
+// Stores unit.id as option value — never abbreviation or name strings.
+// Display shows unit.abbreviation (e.g. "Tbsp") for readability.
 
 const UNIT_GROUPS = { volume: "Volume", weight: "Weight", count: "Count", other: "Other" };
 
 // ── buildUnitSelect ───────────────────────────────────────────────────────────
 // Returns a <select> element for ingredient rows.
+// Stores unit.id as value, displays unit.abbreviation.
 // selectedUnitId: the unit.id to pre-select (optional)
 export function buildUnitSelect(allUnits, selectedUnitId = "") {
   const select = document.createElement("select");
@@ -23,9 +25,10 @@ export function buildUnitSelect(allUnits, selectedUnitId = "") {
     optgroup.label = label;
     unitGroup.forEach(unit => {
       const opt = document.createElement("option");
-      opt.value = unit.id;
-      opt.textContent = unit.abbreviation;
-      opt.dataset.name = unit.name;
+      opt.value        = unit.id;              // store ID — never strings
+      opt.textContent  = unit.abbreviation;    // display abbreviation (e.g. "Tbsp")
+      opt.dataset.name = unit.name;            // full name for display in recipe view
+      opt.dataset.type = unit.type;            // type for calorie calculation
       if (unit.id === selectedUnitId) opt.selected = true;
       optgroup.appendChild(opt);
     });
@@ -37,9 +40,9 @@ export function buildUnitSelect(allUnits, selectedUnitId = "") {
 
 // ── populateUnitSelect ────────────────────────────────────────────────────────
 // Populates an existing <select> element by DOM id.
-// Used for modals where the <select> already exists in HTML.
-// selectedValue: the unit.abbreviation to pre-select (optional)
-export function populateUnitSelect(allUnits, elementId, selectedValue = "") {
+// Stores unit.id as value, displays "Tbsp (tablespoon)" format.
+// selectedUnitId: the unit.id to pre-select (optional)
+export function populateUnitSelect(allUnits, elementId, selectedUnitId = "") {
   const sel = document.getElementById(elementId);
   if (!sel) return;
   sel.innerHTML = '<option value="">Select unit...</option>';
@@ -51,11 +54,21 @@ export function populateUnitSelect(allUnits, elementId, selectedValue = "") {
     optgroup.label = label;
     groupUnits.forEach(u => {
       const opt = document.createElement("option");
-      opt.value = u.abbreviation;
-      opt.textContent = `${u.abbreviation} (${u.name})`;
-      if (u.abbreviation === selectedValue) opt.selected = true;
+      opt.value       = u.id;                            // store ID
+      opt.textContent = `${u.abbreviation} (${u.name})`; // display "Tbsp (tablespoon)"
+      opt.dataset.name = u.name;
+      opt.dataset.type = u.type;
+      if (u.id === selectedUnitId) opt.selected = true;
       optgroup.appendChild(opt);
     });
     sel.appendChild(optgroup);
   });
+}
+
+// ── getUnitById ───────────────────────────────────────────────────────────────
+// Looks up a unit from allUnits by its document ID.
+// Returns the unit object or null.
+export function getUnitById(allUnits, unitId) {
+  if (!unitId) return null;
+  return allUnits.find(u => u.id === unitId) || null;
 }

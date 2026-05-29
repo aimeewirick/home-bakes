@@ -1,12 +1,12 @@
 // allergens.js
 // Single source of truth for allergen rendering.
-// Import this wherever allergen checkboxes or chips are needed.
+// Stores allergen.id as checkbox value — never name strings.
 
 // ── populateAllergenCheckboxes ────────────────────────────────────────────────
 // Renders allergen checkboxes into a container element.
-// Used in admin modal and recipe-form create-ingredient modal.
 // style: "admin" uses .allergen-check CSS class
 //        "chips" uses inline styled chips (recipe-form modal style)
+// Checkbox value = allergen.id (document ID)
 export function populateAllergenCheckboxes(allergens, elementId, style = "admin") {
   const container = document.getElementById(elementId);
   if (!container) return;
@@ -19,13 +19,12 @@ export function populateAllergenCheckboxes(allergens, elementId, style = "admin"
                     font-size:0.78rem; font-family:'Lato',sans-serif;
                     cursor:pointer; user-select:none; transition:all 0.15s;"
              class="ing-allergen-chip">
-        <input type="checkbox" value="${a.name}"
+        <input type="checkbox" value="${a.id}"
                style="accent-color:#DC2626; cursor:pointer;" />
         ${a.icon} ${a.name}
       </label>
     `).join("");
 
-    // Style checked allergens red
     container.querySelectorAll("input[type=checkbox]").forEach(cb => {
       cb.addEventListener("change", () => {
         const chip = cb.closest(".ing-allergen-chip");
@@ -38,7 +37,7 @@ export function populateAllergenCheckboxes(allergens, elementId, style = "admin"
   } else {
     container.innerHTML = allergens.map(a => `
       <label class="allergen-check">
-        <input type="checkbox" value="${a.name}" />
+        <input type="checkbox" value="${a.id}" />
         ${a.icon} ${a.name}
       </label>
     `).join("");
@@ -48,28 +47,37 @@ export function populateAllergenCheckboxes(allergens, elementId, style = "admin"
 // ── populateAllergenChips ─────────────────────────────────────────────────────
 // Renders allergen exclusion chips (toggle style) into a container.
 // Used in meal-plan-form recipe search modal.
+// Chip value = allergen.id
 export function populateAllergenChips(allergens, elementId) {
   const container = document.getElementById(elementId);
   if (!container) return;
   container.innerHTML = allergens.map(a => `
-    <label class="allergen-exclusion-chip" data-allergen="${a.name}">
-      <input type="checkbox" value="${a.name}" />
+    <label class="allergen-exclusion-chip" data-allergen="${a.id}">
+      <input type="checkbox" value="${a.id}" />
       ${a.icon} ${a.name}
     </label>
   `).join("");
 }
 
 // ── getCheckedAllergens ───────────────────────────────────────────────────────
-// Returns array of checked allergen names from a container element.
+// Returns array of checked allergen IDs from a container element.
 export function getCheckedAllergens(elementId) {
   return [...document.querySelectorAll(`#${elementId} input:checked`)]
     .map(cb => cb.value);
 }
 
 // ── setCheckedAllergens ───────────────────────────────────────────────────────
-// Sets checkboxes to match an array of allergen names.
-export function setCheckedAllergens(elementId, allergens = []) {
+// Sets checkboxes to match an array of allergen IDs.
+export function setCheckedAllergens(elementId, allergenIds = []) {
   document.querySelectorAll(`#${elementId} input[type=checkbox]`).forEach(cb => {
-    cb.checked = allergens.includes(cb.value);
+    cb.checked = allergenIds.includes(cb.value);
   });
+}
+
+// ── getAllergenDisplay ────────────────────────────────────────────────────────
+// Given an allergen ID and the full allergen list, returns display HTML.
+// Used for rendering allergen pills/badges from stored IDs.
+export function getAllergenDisplay(allergenId, allergenList) {
+  const found = allergenList.find(a => a.id === allergenId);
+  return found ? { icon: found.icon, name: found.name } : { icon: "⚠️", name: allergenId };
 }

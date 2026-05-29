@@ -1,127 +1,147 @@
 // calories.js
 // Single source of truth for calorie calculation logic.
-// Import this wherever calorie counts need to be calculated or displayed.
+// Uses Firestore document IDs for all lookups — no string matching.
 
 // ── Unit conversion tables ────────────────────────────────────────────────────
-// Base unit for volume: tsp
-// Base unit for weight: g
+// Keyed by unit NAME (full lowercase word) — names are unambiguous unlike abbreviations.
+// Base unit for volume: teaspoon (1)
+// Base unit for weight: gram (1)
 
 const VOLUME_TO_TSP = {
-  "tsp":   1,
-  "tbsp":  3,
-  "fl oz": 6,
-  "cup":   48,
-  "ml":    0.202,
-  "l":     202.884,
+  "teaspoon":    1,
+  "tablespoon":  3,
+  "fluid ounce": 6,
+  "cup":         48,
+  "pint":        96,
+  "quart":       192,
+  "gallon":      768,
+  "milliliter":  0.202,
+  "liter":       202.884,
 };
 
 const WEIGHT_TO_G = {
-  "g":   1,
-  "kg":  1000,
-  "oz":  28.3495,
-  "lb":  453.592,
+  "gram":     1,
+  "kilogram": 1000,
+  "ounce":    28.3495,
+  "pound":    453.592,
 };
 
-// ── Categories silently skipped in calorie calculation ────────────────────────
-// These are used in such tiny amounts that calories are negligible.
-const SKIP_CATEGORIES = new Set([
-  "Herbs & Spices",
-  "Extracts & Flavorings",
+// ── Category IDs that are silently skipped ────────────────────────────────────
+// Herbs & Spices and Extracts & Flavorings are always skipped.
+// Baking < 1 tbsp and Vegetables < 1 tbsp are also skipped (see logic below).
+const SKIP_CATEGORY_IDS = new Set([
+  "bcypMARswiOWsaeH6zMB",  // Herbs & Spices
+  "Qx1JjwWIE0kKIzUNsFFc",  // Extracts & Flavorings
 ]);
 
-// Baking ingredients used in tiny amounts (< 1 tbsp = < 3 tsp) are also skipped.
-// This catches salt, baking powder, baking soda, yeast etc.
-// but correctly counts flour, sugar, cornstarch (always used in larger amounts).
-const SMALL_BAKING_THRESHOLD_TSP = 3; // 1 tbsp
-
-// ── getUnitType ───────────────────────────────────────────────────────────────
-export function getUnitType(abbreviation) {
-  if (!abbreviation) return "count";
-  if (VOLUME_TO_TSP[abbreviation] !== undefined) return "volume";
-  if (WEIGHT_TO_G[abbreviation]   !== undefined) return "weight";
-  return "count";
-}
+const BAKING_CATEGORY_ID    = "BMIrCHKScNU3abUmVkuv";
+const VEGETABLE_CATEGORY_ID = "AGkrf7qgPeTfLf0inX2Y";
+const SMALL_AMOUNT_TSP      = 3; // 1 tbsp — threshold for small baking/vegetable amounts
 
 // ── convertToBase ─────────────────────────────────────────────────────────────
-function convertToBase(amount, unit) {
-  if (VOLUME_TO_TSP[unit] !== undefined) return amount * VOLUME_TO_TSP[unit];
-  if (WEIGHT_TO_G[unit]   !== undefined) return amount * WEIGHT_TO_G[unit];
+// Converts amount to base unit (tsp for volume, g for weight) using unit name.
+function convertToBase(amount, unitName) {
+  if (!unitName) return null;
+  const name = unitName.toLowerCase();
+  if (VOLUME_TO_TSP[name] !== undefined) return amount * VOLUME_TO_TSP[name];
+  if (WEIGHT_TO_G[name]   !== undefined) return amount * WEIGHT_TO_G[name];
   return null;
+}
+
+// ── getUnitType ───────────────────────────────────────────────────────────────
+// Returns "volume", "weight", or "count" for a unit name.
+export function getUnitType(unitName) {
+  if (!unitName) return "count";
+  const name = unitName.toLowerCase();
+  if (VOLUME_TO_TSP[name] !== undefined) return "volume";
+  if (WEIGHT_TO_G[name]   !== undefined) return "weight";
+  return "count";
 }
 
 // ── calculateIngredientCalories ───────────────────────────────────────────────
 // Returns { calories, status, name }
 // status: "ok" | "missing" | "incompatible" | "skipped"
-export function calculateIngredientCalories(ingredient) {
-  const { amount, unitName, calories, calorie_unit, category, ingredientName } = ingredient;
+//
+// ingredient shape (all IDs stored in Firestore):
+// {
+//   amount:         1.5,                    // recipe amount
+//   unitId:         "k4Ni3YyE4nqP94ELwnjG", // unit document ID
+//   calories:       120,                    // calories per calorie_unit
+//   calorie_unit:   "k4Ni3YyE4nqP94ELwnjG", // unit document ID
+//   category:       "BMIrCHKScNU3abUmVkuv", // category document ID
+//   ingredientName: "Butter Salted",
+// }
+// allUnits: full units array from Firestore (each has id, name, type)
+export function calculateIngredientCalories(ingredient, allUnits) {
+  const { amount, unitId, calories, calorie_unit, category, ingredientName } = ingredient;
 
-  // Silently skip spices and extracts
-  if (SKIP_CATEGORIES.has(category)) {
+  // Always skip these categories
+  if (SKIP_CATEGORY_IDS.has(category)) {
     return { calories: null, status: "skipped", name: ingredientName };
   }
 
-  // Silently skip small baking amounts (< 1 tbsp)
-  // Catches salt, baking powder, baking soda, yeast etc.
-  // Also skips if no amount/unit (e.g. "to taste")
-  if (category === "Baking") {
-    if (!amount || !unitName) {
+  // Look up units by ID
+  const recipeUnit   = allUnits.find(u => u.id === unitId);
+  const calorieUnit  = allUnits.find(u => u.id === calorie_unit);
+
+  // Baking: skip if no amount/unit or amount < 1 tbsp (volume) or count unit
+  if (category === BAKING_CATEGORY_ID) {
+    if (!amount || !recipeUnit) {
       return { calories: null, status: "skipped", name: ingredientName };
     }
-    const unitType = getUnitType(unitName);
-    if (unitType === "volume") {
-      const amountInTsp = convertToBase(amount, unitName);
-      if (amountInTsp !== null && amountInTsp < SMALL_BAKING_THRESHOLD_TSP) {
+    if (recipeUnit.type === "volume") {
+      const amountInTsp = convertToBase(amount, recipeUnit.name);
+      if (amountInTsp !== null && amountInTsp < SMALL_AMOUNT_TSP) {
         return { calories: null, status: "skipped", name: ingredientName };
       }
-    } else if (unitType === "count") {
-      // count units in baking (e.g. 1 pinch) — always skip
+    } else if (recipeUnit.type === "count") {
       return { calories: null, status: "skipped", name: ingredientName };
     }
   }
 
-  // Silently skip small vegetable amounts used as garnish (< 1 tbsp, volume only)
-  // Catches green onions, parsley etc. but correctly counts avocado, potato etc.
-  if (category === "Vegetables" && amount && unitName) {
-    const unitType = getUnitType(unitName);
-    if (unitType === "volume") {
-      const amountInTsp = convertToBase(amount, unitName);
-      if (amountInTsp !== null && amountInTsp < SMALL_BAKING_THRESHOLD_TSP) {
+  // Vegetables: skip if volume amount < 1 tbsp (garnish amounts)
+  if (category === VEGETABLE_CATEGORY_ID && amount && recipeUnit) {
+    if (recipeUnit.type === "volume") {
+      const amountInTsp = convertToBase(amount, recipeUnit.name);
+      if (amountInTsp !== null && amountInTsp < SMALL_AMOUNT_TSP) {
         return { calories: null, status: "skipped", name: ingredientName };
       }
     }
   }
 
-  // No calorie data stored
+  // No calorie data
   if (!calories || !calorie_unit) {
     return { calories: null, status: "missing", name: ingredientName };
   }
 
   // No amount or unit
-  if (!amount || !unitName) {
+  if (!amount || !unitId) {
     return { calories: null, status: "missing", name: ingredientName };
   }
 
-  // Same unit — direct multiplication
-  if (unitName === calorie_unit) {
+  // Units not found in allUnits
+  if (!recipeUnit || !calorieUnit) {
+    return { calories: null, status: "missing", name: ingredientName };
+  }
+
+  // Same unit ID — direct multiplication
+  if (unitId === calorie_unit) {
     return { calories: amount * calories, status: "ok", name: ingredientName };
   }
 
-  const recipeType  = getUnitType(unitName);
-  const calorieType = getUnitType(calorie_unit);
-
-  // Both count/other — proportional scaling
-  if (recipeType === "count" && calorieType === "count") {
+  // Both count — proportional scaling
+  if (recipeUnit.type === "count" && calorieUnit.type === "count") {
     return { calories: amount * calories, status: "ok", name: ingredientName };
   }
 
-  // Different measurement types — can't convert
-  if (recipeType !== calorieType) {
+  // Different types — can't convert
+  if (recipeUnit.type !== calorieUnit.type) {
     return { calories: null, status: "incompatible", name: ingredientName };
   }
 
-  // Same type — convert both to base unit then divide
-  const recipeInBase  = convertToBase(amount, unitName);
-  const calorieInBase = convertToBase(1, calorie_unit);
+  // Same type — convert both to base using unit name, then divide
+  const recipeInBase  = convertToBase(amount, recipeUnit.name);
+  const calorieInBase = convertToBase(1, calorieUnit.name);
 
   if (recipeInBase === null || calorieInBase === null) {
     return { calories: null, status: "incompatible", name: ingredientName };
@@ -134,41 +154,36 @@ export function calculateIngredientCalories(ingredient) {
 // ── calculateRecipeCalories ───────────────────────────────────────────────────
 // Returns:
 // {
-//   caloriesPerServing: number | null,
-//   totalCalories:      number | null,
-//   status:             "ok" | "partial" | "unavailable",
-//   excludedIngredients: string[],  // names of ingredients missing calorie data
+//   caloriesPerServing:  number | null,
+//   totalCalories:       number | null,
+//   status:              "ok" | "partial" | "unavailable",
+//   excludedIngredients: string[],
 // }
-export function calculateRecipeCalories(ingredients, servings) {
-  if (!ingredients || ingredients.length === 0) {
+export function calculateRecipeCalories(ingredients, servings, allUnits) {
+  if (!ingredients || ingredients.length === 0 || !allUnits) {
     return { caloriesPerServing: null, totalCalories: null, status: "unavailable", excludedIngredients: [] };
   }
 
-  let totalCalories    = 0;
-  let hasAnyCalories   = false;
+  let totalCalories = 0;
+  let hasAnyCalories = false;
   const excludedIngredients = [];
 
   ingredients.forEach(ing => {
-    const result = calculateIngredientCalories(ing);
+    const result = calculateIngredientCalories(ing, allUnits);
     if (result.status === "ok") {
       totalCalories += result.calories;
       hasAnyCalories = true;
     } else if (result.status === "missing" || result.status === "incompatible") {
-      // Only flag non-skipped ingredients
       if (result.name) excludedIngredients.push(result.name);
     }
     // "skipped" silently ignored
   });
 
-  if (!hasAnyCalories && excludedIngredients.length === 0) {
-    return { caloriesPerServing: null, totalCalories: null, status: "unavailable", excludedIngredients: [] };
-  }
-
   if (!hasAnyCalories) {
     return { caloriesPerServing: null, totalCalories: null, status: "unavailable", excludedIngredients };
   }
 
-  const numServings      = servings && servings > 0 ? servings : 1;
+  const numServings     = servings && servings > 0 ? servings : 1;
   const caloriesPerServing = Math.round(totalCalories / numServings);
 
   return {
@@ -180,11 +195,6 @@ export function calculateRecipeCalories(ingredients, servings) {
 }
 
 // ── formatCalories ────────────────────────────────────────────────────────────
-// Returns display string for the calorie badge.
-// Examples:
-//   "320 cal/serving"
-//   "~320 cal/serving*"
-//   "Incomplete calorie data"
 export function formatCalories(result) {
   if (!result || result.status === "unavailable" || result.caloriesPerServing === null) {
     return "Incomplete calorie data";
@@ -196,8 +206,6 @@ export function formatCalories(result) {
 }
 
 // ── formatCaloriesNote ────────────────────────────────────────────────────────
-// Returns footnote string for partial calculations, or null if not needed.
-// Example: "* Estimated — calorie data unavailable for: Butter, Vanilla Extract"
 export function formatCaloriesNote(result) {
   if (!result || result.status !== "partial" || !result.excludedIngredients?.length) return null;
   return `* Estimated — calorie data unavailable for: ${result.excludedIngredients.join(", ")}`;
