@@ -6,8 +6,13 @@
   <title>HomeBakes — My Kitchen</title>
   <link rel="stylesheet" href="/static/css/style.css" />
   <link rel="stylesheet" href="/static/css/index.css" />
+  <style>
+    #pageContent { display: none; }
+  </style>
 </head>
 <body>
+
+<div id="pageContent">
 
   <!-- Universal nav injected by nav.js -->
   <!-- nav.js detects home page and adds personalized welcome -->
@@ -68,12 +73,15 @@
     </div><!-- end kitchen-scene -->
   </div><!-- end dashboard -->
 
+</div><!-- end pageContent -->
+
 <script type="module">
   import "/static/js/nav.js";
   import { requireAuth } from "/static/js/auth.js";
   import "/static/js/profile.js";
 
   requireAuth(user => {
+    document.getElementById("pageContent").style.display = "block";
     // Pass username to nav.js for home page welcome
     const name = user.displayName || user.email.split("@")[0];
     document.getElementById("userName").textContent = name;

@@ -56,13 +56,13 @@ def health():
 
 # ── Serve HTML pages ──────────────────────────────────────────────────────────
 @app.route("/")
+@app.route("/login.html")
+def login_page():
+    return send_from_directory("templates", "login.html")
+
 @app.route("/index.html")
 def home():
     return send_from_directory("templates", "index.html")
-
-@app.route("/login.html")
-def login():
-    return send_from_directory("templates", "login.html")
 
 @app.route("/register.html")
 def register():
