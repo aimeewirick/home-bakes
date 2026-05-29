@@ -5,7 +5,8 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  sendEmailVerification
+  sendEmailVerification,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 export async function register(email, password, displayName) {
@@ -27,6 +28,13 @@ export async function resendVerificationEmail() {
       handleCodeInApp: false
     });
   }
+}
+
+export async function resetPassword(email) {
+  await sendPasswordResetEmail(auth, email, {
+    url: window.location.origin + "/login.html",
+    handleCodeInApp: false
+  });
 }
 
 export async function isAdmin() {

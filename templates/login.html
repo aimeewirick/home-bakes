@@ -49,6 +49,8 @@
 
         <button class="btn-login" id="loginBtn">Login</button>
         <div class="login-error" id="loginError"></div>
+        <div class="login-success" id="loginSuccess"></div>
+        <div class="forgot-link"><a href="#" id="forgotPasswordLink">Forgot Password?</a></div>
         <div class="register-link"><a href="/register.html">Create an Account</a></div>
       </div>
     </div>
@@ -70,8 +72,35 @@
     </div>
   </div>
 
+<!-- Forgot Password Modal -->
+<div id="forgotModal" style="display:none; position:fixed; inset:0;
+     background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:16px; padding:2rem;
+              max-width:400px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <h2 style="font-family:'Playfair Display',serif; margin-bottom:0.5rem; font-size:1.3rem;">Reset Password</h2>
+    <p style="color:#6B5B4E; font-size:0.88rem; margin-bottom:1.25rem;">
+      Enter your email and we'll send you a link to reset your password.
+    </p>
+    <input type="email" id="resetEmail" placeholder="your@email.com"
+           style="width:100%; padding:0.6rem 0.9rem; border:1.5px solid #E8E0D5;
+                  border-radius:8px; font-family:'Lato',sans-serif; font-size:0.9rem;
+                  box-sizing:border-box; outline:none; margin-bottom:0.75rem;" />
+    <div id="resetError" style="color:#DC2626; font-size:0.82rem; min-height:1.2rem; margin-bottom:0.75rem;"></div>
+    <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+      <button id="resetCancelBtn"
+              style="background:#F8F5EE; border:1.5px solid #E8E0D5; border-radius:8px;
+                     padding:0.5rem 1.1rem; font-family:'Lato',sans-serif; font-weight:700;
+                     font-size:0.85rem; cursor:pointer; color:#6B5B4E;">Cancel</button>
+      <button id="resetSendBtn"
+              style="background:#98D0D6; border:none; border-radius:8px;
+                     padding:0.5rem 1.25rem; font-family:'Lato',sans-serif; font-weight:700;
+                     font-size:0.85rem; cursor:pointer; color:#35595F;">Send Reset Link</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-  import { login, redirectIfLoggedIn } from "/static/js/auth.js";
+  import { login, redirectIfLoggedIn, resetPassword } from "/static/js/auth.js";
   redirectIfLoggedIn();
 
   document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -95,6 +124,48 @@
 
   document.addEventListener("keydown", e => {
     if (e.key === "Enter") document.getElementById("loginBtn").click();
+  });
+
+  // ── Forgot Password ──────────────────────────────────────────────────────
+  const forgotModal = document.getElementById("forgotModal");
+
+  document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("resetEmail").value = document.getElementById("email").value;
+    document.getElementById("resetError").textContent = "";
+    forgotModal.style.display = "flex";
+    document.getElementById("resetEmail").focus();
+  });
+
+  document.getElementById("resetCancelBtn").addEventListener("click", () => {
+    forgotModal.style.display = "none";
+  });
+
+  document.getElementById("resetSendBtn").addEventListener("click", async () => {
+    const email   = document.getElementById("resetEmail").value.trim();
+    const errorEl = document.getElementById("resetError");
+    errorEl.textContent = "";
+
+    if (!email) {
+      errorEl.textContent = "Please enter your email address.";
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+      forgotModal.style.display = "none";
+      const successEl = document.getElementById("loginSuccess");
+      successEl.textContent = "Password reset email sent! Check your inbox.";
+      successEl.classList.add("visible");
+    } catch (err) {
+      errorEl.textContent = err.code === "auth/user-not-found"
+        ? "No account found with that email."
+        : "Failed to send reset email. Please try again.";
+    }
+  });
+
+  document.getElementById("resetEmail").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("resetSendBtn").click();
   });
 
   function friendlyError(code) {

@@ -161,6 +161,27 @@ body {
 
 .login-error.visible { display: block; }
 
+.login-success {
+  color: #fff;
+  background: rgba(22, 163, 74, 0.85);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  display: none;
+}
+.login-success.visible { display: block; }
+
+.forgot-link { text-align: center; margin-top: 0.6rem; }
+.forgot-link a {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  text-decoration: none;
+  cursor: pointer;
+}
+.forgot-link a:hover { color: white; text-decoration: underline; }
+
 .register-link { text-align: center; margin-top: 0.75rem; }
 
 .register-link a {
