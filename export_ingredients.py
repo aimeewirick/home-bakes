@@ -2,7 +2,8 @@
 export_ingredients.py
 ─────────────────────
 Exports all current ingredients from Firestore to a CSV file.
-Captures ALL fields and flags data quality issues.
+Resolves unit and category IDs to human-readable names.
+Flags genuine data quality issues.
 
 Run from your project root:
   python export_ingredients.py
@@ -15,89 +16,89 @@ import json
 import csv
 import firebase_admin
 from firebase_admin import credentials, firestore
+from collections import defaultdict
 
 # ── Firebase init ─────────────────────────────────────────────────────────────
 if os.environ.get("FIREBASE_CREDENTIALS"):
     cred_dict = json.loads(os.environ["FIREBASE_CREDENTIALS"])
     cred = credentials.Certificate(cred_dict)
 else:
-    key_path = os.path.join(os.path.dirname(__file__), "firebase_admin_key.json")
-    cred = credentials.Certificate(key_path)
+    cred = credentials.Certificate("firebase_admin_key.json")
 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-VALID_UNITS = {"tsp","tbsp","fl oz","c","pt","qt","gal","ml","l",
-               "oz","lb","g","kg","ea","whole","piece","slice",
-               "clove","sprig","bunch","pinch","dash","to taste",
-               "pkg","can","jar","bag","box"}
+print("Loading reference data...")
+units      = {d.id: d.to_dict() for d in db.collection("units").stream()}
+allergens  = {d.id: d.to_dict() for d in db.collection("allergens").stream()}
+categories = {d.id: d.to_dict() for d in db.collection("ingredient_categories").stream()}
+print(f"  Units: {len(units)}, Allergens: {len(allergens)}, Categories: {len(categories)}")
 
-print("\nFetching ingredients from Firestore...")
+print("Fetching ingredients from Firestore...")
 docs = db.collection("ingredients").stream()
-
 ingredients = []
 for doc in docs:
     data = doc.to_dict()
     data["id"] = doc.id
     ingredients.append(data)
-
 ingredients.sort(key=lambda x: x.get("name", "").lower())
-print(f"Found {len(ingredients)} ingredients\n")
+print(f"Found {len(ingredients)} ingredients")
 
-# Write to CSV
 with open("ingredients_current.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow([
-        "name", "category", "allergens", 
-        "calories", "calorie_unit",
+        "name", "category_name", "category_id",
+        "allergen_names", "allergen_ids",
+        "calories", "calorie_unit_name", "calorie_unit_id",
         "missing_calories", "unit_issue", "id"
     ])
     for ing in ingredients:
-        cal       = ing.get("calories")
-        cal_unit  = ing.get("calorie_unit", "") or ""
-        missing   = "YES" if not cal else ""
+        name         = ing.get("name", "")
+        cat_id       = ing.get("category", "")
+        cal          = ing.get("calories")
+        cal_unit_id  = ing.get("calorie_unit", "")
+        allergen_ids = ing.get("allergens", [])
+
+        cat_name       = categories.get(cat_id, {}).get("name", f"UNKNOWN: {cat_id}") if cat_id else ""
+        allergen_names = [allergens.get(a, {}).get("name", f"UNKNOWN:{a}") for a in allergen_ids]
+        cal_unit_name  = units.get(cal_unit_id, {}).get("name", "") if cal_unit_id else ""
+
+        missing    = "YES" if not cal else ""
         unit_issue = ""
-        if cal and not cal_unit:
+        if cal and not cal_unit_id:
             unit_issue = "HAS CALORIES BUT NO UNIT"
-        elif cal_unit and cal_unit.lower().strip() not in VALID_UNITS:
-            unit_issue = f"UNKNOWN UNIT: {cal_unit}"
-        elif cal_unit and cal_unit != cal_unit.lower().strip():
-            unit_issue = f"NOT LOWERCASE: {cal_unit}"
+        elif cal_unit_id and cal_unit_id not in units:
+            unit_issue = f"INVALID UNIT ID: {cal_unit_id}"
 
         writer.writerow([
-            ing.get("name", ""),
-            ing.get("category", ""),
-            "|".join(ing.get("allergens", [])),
-            cal or "",
-            cal_unit,
-            missing,
-            unit_issue,
-            ing.get("id", ""),
+            name, cat_name, cat_id,
+            "|".join(allergen_names), "|".join(allergen_ids),
+            cal or "", cal_unit_name, cal_unit_id,
+            missing, unit_issue, ing.get("id", "")
         ])
 
-print("✅ Exported to ingredients_current.csv")
+print("Exported to ingredients_current.csv")
 
-# Summary
-from collections import defaultdict
-by_cat = defaultdict(list)
-missing_cal = []
-unit_issues = []
+by_cat       = defaultdict(list)
+missing_list = []
+issues_list  = []
 
 for ing in ingredients:
-    by_cat[ing.get("category", "Unknown")].append(ing.get("name", ""))
+    cat_name = categories.get(ing.get("category",""), {}).get("name", "Unknown")
+    by_cat[cat_name].append(ing.get("name",""))
     if not ing.get("calories"):
-        missing_cal.append(ing.get("name", ""))
-    cal_unit = (ing.get("calorie_unit") or "").strip()
-    if ing.get("calories") and (not cal_unit or cal_unit.lower() not in VALID_UNITS or cal_unit != cal_unit.lower()):
-        unit_issues.append(f"{ing.get('name')} → '{cal_unit}'")
+        missing_list.append(ing.get("name",""))
+    cal_unit_id = ing.get("calorie_unit","")
+    if ing.get("calories") and cal_unit_id and cal_unit_id not in units:
+        issues_list.append(f"{ing.get('name')} -> INVALID ID: {cal_unit_id}")
 
-print("\n── By category ──")
+print(f"\n-- By category --")
 for cat in sorted(by_cat.keys()):
     print(f"  {cat}: {len(by_cat[cat])}")
 
-print(f"\n── Total: {len(ingredients)} ingredients ──")
-print(f"── Missing calories: {len(missing_cal)} ──")
-print(f"── Unit issues: {len(unit_issues)} ──")
-if unit_issues:
-    for u in unit_issues:
+print(f"\n-- Missing calories: {len(missing_list)} --")
+print(f"-- Unit issues: {len(issues_list)} --")
+if issues_list:
+    for u in issues_list:
         print(f"  {u}")
+print(f"\nTotal: {len(ingredients)}")
