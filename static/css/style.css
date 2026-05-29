@@ -112,3 +112,47 @@ textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.6; }
   h1 { font-size: 1.5rem; }
   .nav-links { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Shared "add new" button — used on Recipes, Meal Plans, Shopping Lists
+   ══════════════════════════════════════════════════════════════════ */
+.btn-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #35595F;
+  background: rgba(255,255,255,0.7);
+  border: none;
+  border-radius: 100px;
+  padding: 0.5rem 1.25rem 0.5rem 0.5rem;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.btn-new:hover { background: rgba(255,255,255,0.9); }
+
+.btn-new-circle {
+  width: 36px;
+  height: 36px;
+  background: #98D0D6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.btn-new:hover .btn-new-circle { background: #35595F; }
+
+.btn-new-circle svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  stroke-width: 2.5;
+}

@@ -17,12 +17,13 @@
     <div class="shopping-sidebar">
       <div class="sidebar-header">
         <h2>Shopping Lists</h2>
-        <button class="btn-new-list" id="newListBtn">
-          <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
-            <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="1.8"/>
-            <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.8"/>
-          </svg>
+        <button class="btn-new" id="newListBtn">
+          <span class="btn-new-circle">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </span>
           new shopping list
         </button>
       </div>
@@ -44,7 +45,15 @@
       <div class="shopping-empty-state" id="emptyState">
         <div style="font-size:3rem; margin-bottom:1rem;">🛒</div>
         <h3>Select a list or create a new one</h3>
-        <button class="btn-create-first" id="createFirstBtn">+ New Shopping List</button>
+        <button class="btn-new" id="createFirstBtn">
+          <span class="btn-new-circle">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </span>
+          new shopping list
+        </button>
       </div>
 
       <!-- Notepad card -->
@@ -177,7 +186,6 @@
     getShoppingLists, getShoppingList, createShoppingList, deleteShoppingList,
     getMealPlan, getRecipe, getIngredients, getPrivateIngredients, getUnits
   } from "/static/js/api.js";
-  import { decimalToFraction } from "/static/js/amounts.js";
 
   let allLists       = [];
   let currentListId  = null;
@@ -301,7 +309,7 @@
           </div>
           <div class="item-qty-controls">
             <button class="qty-btn" data-idx="${origIdx}" data-action="minus">−</button>
-            <span class="item-qty">${showQty ? `${decimalToFraction(item.qty)} ${item.unit}`.trim() : ""}</span>
+            <span class="item-qty">${showQty ? `${item.qty} ${item.unit}`.trim() : ""}</span>
             <button class="qty-btn" data-idx="${origIdx}" data-action="plus">+</button>
           </div>
         </div>

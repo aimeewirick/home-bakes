@@ -34,31 +34,30 @@
     <!-- Search bar -->
 
 
-          <!-- Add recipe button -->
-      <a href="/recipe-form.html" class="btn-add-new">
-        <span class="btn-add-new-circle">
-          <svg viewBox="0 0 24 24" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </span>
-        <span class="btn-add-new-oval">add recipe</span>
-      </a>
-
-
     <!-- Main layout: recipe grid + vertical tabs -->
     <div class="recipes-layout">
 
-      <!-- Recipe grid — 75% -->
+      <!-- Button + content box -->
       <div class="recipes-grid-wrapper">
-        <div class="recipes-grid" id="recipesGrid">
-          <div class="loading-state">Loading your recipes...</div>
+        <a href="/recipe-form.html" class="btn-new recipes-btn-new">
+          <span class="btn-new-circle">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </span>
+          new recipe
+        </a>
+        <!-- Grid + tabs in same box so they must start at same line -->
+        <div class="recipes-content-box">
+          <div class="recipes-grid" id="recipesGrid">
+            <div class="loading-state">Loading your recipes...</div>
+          </div>
+          <!-- Vertical category tabs — 25% -->
+          <div class="category-tabs" id="categoryTabs">
+            <!-- Injected by JS from Firestore -->
+          </div>
         </div>
-      </div>
-
-      <!-- Vertical category tabs — 25% -->
-      <div class="category-tabs" id="categoryTabs">
-        <!-- Injected by JS from Firestore -->
       </div>
 
     </div>

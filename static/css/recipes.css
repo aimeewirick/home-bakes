@@ -44,6 +44,18 @@ body {
 
 /* ── Main layout — recipe grid left, tabs right ── */
 .recipes-layout {
+  margin-top: 1.25rem;
+}
+
+/* Fix button natural pill shape */
+.recipes-btn-new {
+  align-self: flex-start;
+  width: fit-content;
+  margin-bottom: 0.75rem; /* this gap is matched by recipes-content-box top */
+}
+
+/* Grid + tabs in the same box — forces identical top alignment */
+.recipes-content-box {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
@@ -51,11 +63,13 @@ body {
 
 /* ── Recipe grid — 75% ── */
 .recipes-grid-wrapper {
-  flex: 3;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .recipes-grid {
+  flex: 3;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
@@ -74,6 +88,7 @@ body {
   gap: 0;
   position: sticky;
   top: 100px;
+
 }
 
 .category-tab {
@@ -181,7 +196,7 @@ body {
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-  .recipes-layout { flex-direction: column-reverse; }
+  .recipes-content-box { flex-direction: column-reverse; }
   .category-tabs { flex-direction: row; flex-wrap: wrap; position: static; }
   .category-tab { border-radius: 20px; margin: 0.2rem; }
   .recipes-grid { grid-template-columns: 1fr; }
@@ -191,55 +206,4 @@ body {
 /* ══════════════════════════════════════════
    ADD RECIPE BUTTON
 ══════════════════════════════════════════ */
-.btn-add-new {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  position: relative;
-  gap: 1rem;
-  margin: 1.25rem 0 1rem;
-}
-
-.btn-add-new-oval {
-  background: rgba(255,255,255,0.65);
-  border: none;
-  border-radius: 100px;
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
-  font-family: 'Lato', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #35595F;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-  backdrop-filter: blur(4px);
-}
-
-.btn-add-new:hover .btn-add-new-oval { background: rgba(255,255,255,0.85); }
-
-.btn-add-new-circle {
-  position: absolute;
-  left: -1px;
-  width: 34px;
-  height: 34px;
-  background: #98D0D6;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  z-index: 1;
-  transition: background 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-
-}
-
-.btn-add-new:hover .btn-add-new-circle { background: #35595F; }
-
-.btn-add-new-circle svg {
-  width: 18px;
-  height: 18px;
-  stroke: white;
-  stroke-width: 2.5;
-}
+/* btn-add-new removed — use shared .btn-new in style.css */

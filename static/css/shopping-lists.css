@@ -49,21 +49,7 @@ body {
   margin-bottom: 0.6rem;
 }
 
-.btn-new-list {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: none;
-  border: none;
-  font-family: 'Lato', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--teal-dark);
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.2s;
-}
-.btn-new-list:hover { opacity: 0.7; }
+/* btn-new-list removed — use shared .btn-new in style.css */
 
 .sidebar-search {
   margin: 0.6rem 0.75rem;
@@ -131,19 +117,7 @@ body {
   margin-bottom: 1.25rem;
 }
 
-.btn-create-first {
-  background: var(--teal);
-  border: none;
-  border-radius: 100px;
-  padding: 0.6rem 1.5rem;
-  font-family: 'Lato', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #35595F;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-create-first:hover { background: #7EC4CA; }
+/* btn-create-first removed — use shared .btn-new in style.css */
 
 /* ══════════════════════════════════════════════════════
    NOTEPAD CARD
