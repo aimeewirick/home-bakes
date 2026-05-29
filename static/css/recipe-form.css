@@ -244,6 +244,15 @@ body {
 .amount-input:focus { background: rgba(255,255,255,0.82); border-color: #35595F; }
 .unit-select { width: 100%; padding: 0.45rem 0.3rem; border: 1px solid rgba(53,89,95,0.22); border-radius: 6px; background: rgba(255,255,255,0.55); color: #35595F; font-family: 'Lato', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer; }
 .unit-select:focus { background: rgba(255,255,255,0.82); border-color: #35595F; }
+
+/* ── Amount widget (amounts.js) ─────────────────────────────────────────── */
+.amount-wrapper { display: flex; flex-direction: column; gap: 0.25rem; }
+.amount-select { width: 100%; padding: 0.45rem 0.3rem; border: 1px solid rgba(53,89,95,0.22); border-radius: 6px; background: rgba(255,255,255,0.55); color: #35595F; font-family: 'Lato', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer; }
+.amount-select:focus { background: rgba(255,255,255,0.82); border-color: #35595F; }
+.amount-custom-wrapper { display: flex; flex-direction: column; gap: 0.2rem; }
+.amount-custom-input { width: 100%; padding: 0.45rem 0.4rem; border: 1px solid rgba(53,89,95,0.22); border-radius: 6px; background: rgba(255,255,255,0.55); color: #35595F; font-family: inherit; font-size: 0.9rem; outline: none; text-align: center; box-sizing: border-box; }
+.amount-custom-input:focus { background: rgba(255,255,255,0.82); border-color: #35595F; }
+.amount-helper-text { font-size: 0.7rem; color: rgba(53,89,95,0.65); font-style: italic; font-family: 'Lato', sans-serif; line-height: 1.2; }
 .note-input { width: 100%; padding: 0.45rem 0.6rem; border: 1px solid rgba(53,89,95,0.22); border-radius: 6px; background: rgba(255,255,255,0.55); color: #35595F; font-family: inherit; font-size: 0.85rem; font-style: italic; outline: none; }
 .note-input:focus { background: rgba(255,255,255,0.82); border-color: #35595F; font-style: normal; }
 .note-input::placeholder { color: rgba(53,89,95,0.38); }

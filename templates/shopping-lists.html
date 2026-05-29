@@ -177,6 +177,7 @@
     getShoppingLists, getShoppingList, createShoppingList, deleteShoppingList,
     getMealPlan, getRecipe, getIngredients, getPrivateIngredients, getUnits
   } from "/static/js/api.js";
+  import { decimalToFraction } from "/static/js/amounts.js";
 
   let allLists       = [];
   let currentListId  = null;
@@ -300,7 +301,7 @@
           </div>
           <div class="item-qty-controls">
             <button class="qty-btn" data-idx="${origIdx}" data-action="minus">−</button>
-            <span class="item-qty">${showQty ? `${item.qty} ${item.unit}`.trim() : ""}</span>
+            <span class="item-qty">${showQty ? `${decimalToFraction(item.qty)} ${item.unit}`.trim() : ""}</span>
             <button class="qty-btn" data-idx="${origIdx}" data-action="plus">+</button>
           </div>
         </div>

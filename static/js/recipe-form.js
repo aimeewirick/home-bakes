@@ -24,6 +24,7 @@ import {
 import { buildUnitSelect, populateUnitSelect } from "/static/js/units.js";
 import { populateAllergenCheckboxes, getCheckedAllergens } from "/static/js/allergens.js";
 import { populateIngredientCategories } from "/static/js/ingredient-categories.js";
+import { buildAmountInput, getAmountValue } from "/static/js/amounts.js";
 
 const storage = getStorage();
 
@@ -317,15 +318,9 @@ function addIngredientRow(prefill = null) {
   tdIngredient.appendChild(typeahead);
 
   const tdAmount = document.createElement("td");
-  tdAmount.style.width = "80px";
-  const amountInput = document.createElement("input");
-  amountInput.type = "number";
-  amountInput.className = "amount-input";
-  amountInput.placeholder = "amt";
-  amountInput.min = "0";
-  amountInput.step = "0.25";
-  if (prefill) amountInput.value = prefill.amount;
-  tdAmount.appendChild(amountInput);
+  tdAmount.style.width = "110px";
+  const amountWidget = buildAmountInput(prefill?.amount ?? null);
+  tdAmount.appendChild(amountWidget);
 
   const tdUnit = document.createElement("td");
   tdUnit.style.width = "90px";
@@ -445,7 +440,7 @@ function collectFormData() {
       order:          index + 1,
       ingredientId:   ingredient.id,
       ingredientName: ingredient.name,
-      amount:         parseFloat(row.querySelector(".amount-input").value) || 0,
+      amount:         getAmountValue(row.querySelector(".amount-wrapper")),
       unitId:         unitSelect.value,
       unitName:       selectedUnit?.dataset?.name || "",
       note:           row.querySelector(".note-input").value.trim(),

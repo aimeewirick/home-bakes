@@ -201,6 +201,7 @@
 
 <script type="module">
   import "/static/js/nav.js";
+  import { decimalToFraction } from "/static/js/amounts.js";
   import { requireAuth, logout } from "/static/js/auth.js";
   import { getRecipe, deleteRecipe } from "/static/js/api.js";
 
@@ -241,7 +242,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${ing.ingredientName || "—"}</td>
-          <td class="ingredient-amount">${ing.amount || "—"}</td>
+          <td class="ingredient-amount">${ing.amount ? decimalToFraction(ing.amount) : "—"}</td>
           <td>${ing.unitName || "—"}</td>
           <td class="ingredient-note">${ing.note || ""}</td>`;
         tbody.appendChild(tr);

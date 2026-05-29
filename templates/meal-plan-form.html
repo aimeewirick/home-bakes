@@ -489,7 +489,7 @@
   // ── Add meal slot modal ───────────────────────────────────────────────────
   function populateNewMealSelect() {
     populateMealTypes(mealTypes, "newMealTypeSelect", "Select meal type...");
-    });
+
   }
 
   document.getElementById("addMealModalClose").addEventListener("click", () => {
@@ -510,11 +510,11 @@
   function populateFilters() {
     // Meal type filter in recipe search modal
     populateMealTypes(mealTypes, "mealTypeFilter", "");
-    });
+  
 
     // Category filter in recipe search modal
     populateRecipeCategories(categories, "categoryFilter", "", true);
-    });
+
 
     // New meal slot select
     populateNewMealSelect();
