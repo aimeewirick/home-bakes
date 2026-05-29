@@ -25,6 +25,7 @@ import { buildUnitSelect, populateUnitSelect } from "/static/js/units.js";
 import { populateAllergenCheckboxes, getCheckedAllergens } from "/static/js/allergens.js";
 import { populateIngredientCategories } from "/static/js/ingredient-categories.js";
 import { buildAmountInput, getAmountValue } from "/static/js/amounts.js";
+import { calculateRecipeCalories, formatCalories } from "/static/js/calories.js";
 
 const storage = getStorage();
 
@@ -396,6 +397,7 @@ async function loadRecipeForEdit(id) {
     document.getElementById("recipeCategory").value = recipe.recipe_category || "";
     document.getElementById("isPublic").checked     = recipe.isPublic || false;
     document.getElementById("recipeNotes").value    = recipe.notes || "";
+    if (recipe.servings) document.getElementById("recipeServings").value = recipe.servings;
 
     if (recipe.imageUrl) {
       imagePreview.src = recipe.imageUrl;
@@ -426,6 +428,7 @@ function collectFormData() {
   const category = document.getElementById("recipeCategory").value;
   const isPublic = document.getElementById("isPublic").checked;
   const notes    = document.getElementById("recipeNotes").value.trim();
+  const servings = parseInt(document.getElementById("recipeServings")?.value) || null;
 
   if (!title) { alert("Please enter a recipe name."); return null; }
 
@@ -448,6 +451,7 @@ function collectFormData() {
       calories:       ingredient.calories     || null,
       calorie_unit:   ingredient.calorie_unit || null,
       unitType:       ingredient.unitType     || "count",
+      category:       ingredient.category     || "",
     });
   });
 
@@ -467,7 +471,23 @@ function collectFormData() {
   ingredients.forEach(ing => (ing.allergens || []).forEach(a => allergenSet.add(a)));
   const allergens = [...allergenSet].sort();
 
-  return { title, meal_type: mealType, recipe_category: category, isPublic, ingredients, directions, allergens, notes };
+  // Calculate calories per serving
+  const calorieResult = calculateRecipeCalories(ingredients, servings);
+
+  return {
+    title,
+    meal_type:              mealType,
+    recipe_category:        category,
+    isPublic,
+    ingredients,
+    directions,
+    allergens,
+    notes,
+    servings,
+    calories_per_serving:   calorieResult.caloriesPerServing,
+    calorie_status:         calorieResult.status,
+    calories_excluded_list: calorieResult.excludedIngredients || [],
+  };
 }
 
 // ── Save recipe ───────────────────────────────────────────────────────────────

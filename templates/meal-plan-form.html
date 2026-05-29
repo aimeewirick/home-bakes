@@ -239,8 +239,6 @@
     getMealPlan, createMealPlan, updateMealPlan, deleteMealPlan,
     getMyRecipes, getPublicRecipes, getMealTypes, getRecipeCategories, getAllergens
   } from "/static/js/api.js";
-  import { populateMealTypes } from "/static/js/meal-types.js";
-  import { populateRecipeCategories } from "/static/js/recipe-categories.js";
 
   const DAYS_OF_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
@@ -488,8 +486,14 @@
 
   // ── Add meal slot modal ───────────────────────────────────────────────────
   function populateNewMealSelect() {
-    populateMealTypes(mealTypes, "newMealTypeSelect", "Select meal type...");
-
+    const sel = document.getElementById("newMealTypeSelect");
+    sel.innerHTML = '<option value="">Select meal type...</option>';
+    mealTypes.forEach(mt => {
+      const opt = document.createElement("option");
+      opt.value = mt.name;
+      opt.textContent = mt.name;
+      sel.appendChild(opt);
+    });
   }
 
   document.getElementById("addMealModalClose").addEventListener("click", () => {
@@ -509,12 +513,22 @@
   // ── Filters ───────────────────────────────────────────────────────────────
   function populateFilters() {
     // Meal type filter in recipe search modal
-    populateMealTypes(mealTypes, "mealTypeFilter", "");
-  
+    const mtSel = document.getElementById("mealTypeFilter");
+    mealTypes.forEach(mt => {
+      const opt = document.createElement("option");
+      opt.value = mt.name;
+      opt.textContent = mt.name;
+      mtSel.appendChild(opt);
+    });
 
     // Category filter in recipe search modal
-    populateRecipeCategories(categories, "categoryFilter", "", true);
-
+    const catSel = document.getElementById("categoryFilter");
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      catSel.appendChild(opt);
+    });
 
     // New meal slot select
     populateNewMealSelect();
@@ -594,7 +608,7 @@
           <div class="recipe-search-title">${r.title}</div>
           <div class="recipe-search-meta">${[r.meal_type, r.recipe_category].filter(Boolean).join(" · ") || ""}</div>
         </div>
-        <button class="btn-add-to-plan" data-id="${r.id}" data-title="${r.title}">+ Add</button>
+        <button class="btn-add-to-plan" data-id="${r.id}" data-title="${r.title}" data-image="${r.imageUrl || ''}">+ Add</button>
       </div>
     `).join("");
 
@@ -603,7 +617,9 @@
         if (!addingTo) return;
         const { dayIndex, mealIndex } = addingTo;
         currentDays[dayIndex].meals[mealIndex].recipes.push({
-          id: btn.dataset.id, title: btn.dataset.title
+          id:       btn.dataset.id,
+          title:    btn.dataset.title,
+          imageUrl: btn.dataset.image || null
         });
         document.getElementById("recipeModal").style.display = "none";
         renderDays();
@@ -642,11 +658,8 @@
       } else {
         const result = await createMealPlan({ title, days });
         editingId = result.id;
-        history.replaceState(null, "", `/meal-plan-form.html?id=${editingId}`);
       }
-      document.getElementById("planTitleView").textContent = title;
-      document.getElementById("deletePlanBtn").title = "Delete meal plan";
-      setViewMode();
+      window.location.href = "/meal-plans.html";
     } catch(err) {
       console.error("Save failed:", err);
       alert("Failed to save. Please try again.");

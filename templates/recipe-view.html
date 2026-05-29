@@ -93,10 +93,21 @@
               </thead>
               <tbody id="ingredientsList"></tbody>
             </table>
+
           </div>
 
           <div class="section-header" style="margin-top:1.25rem">Directions</div>
           <div class="directions-section" id="directionsList"></div>
+
+          <!-- Calorie info at the bottom -->
+          <div class="recipe-calorie-section" id="recipeCalorieSection" style="display:none;">
+            <div class="section-header" style="margin-top:1.5rem">Nutrition</div>
+            <div class="recipe-calorie-info">
+              <span class="recipe-calories-badge" id="recipeCalories"></span>
+              <span class="recipe-servings-badge" id="recipeServings"></span>
+            </div>
+            <div class="recipe-calories-note" id="recipeCaloriesNote"></div>
+          </div>
 
           <div class="section-header" style="margin-top:1.25rem">Notes</div>
           <div class="notes-section">
@@ -202,6 +213,7 @@
 <script type="module">
   import "/static/js/nav.js";
   import { decimalToFraction } from "/static/js/amounts.js";
+  import { formatCalories, formatCaloriesNote } from "/static/js/calories.js";
   import { requireAuth, logout } from "/static/js/auth.js";
   import { getRecipe, deleteRecipe } from "/static/js/api.js";
 
@@ -230,6 +242,24 @@
     document.getElementById("recipeName").textContent = recipe.title || "Untitled";
     document.getElementById("recipeCategory").textContent =
       [recipe.meal_type, recipe.recipe_category].filter(Boolean).join(" · ") || "Uncategorized";
+
+    // Calories per serving
+    const calorieResult = {
+      caloriesPerServing:  recipe.calories_per_serving   || null,
+      status:              recipe.calorie_status         || "unavailable",
+      excludedIngredients: recipe.calories_excluded_list || [],
+    };
+    const calorieSection = document.getElementById("recipeCalorieSection");
+    const calorieEl      = document.getElementById("recipeCalories");
+    const servingsEl     = document.getElementById("recipeServings");
+    const noteEl         = document.getElementById("recipeCaloriesNote");
+
+    if (recipe.calories_per_serving || recipe.servings) {
+      if (calorieSection) calorieSection.style.display = "block";
+      if (calorieEl)  calorieEl.textContent  = formatCalories(calorieResult);
+      if (servingsEl) servingsEl.textContent = recipe.servings ? `${recipe.servings} servings` : "";
+      if (noteEl)     noteEl.textContent     = formatCaloriesNote(calorieResult) || "";
+    }
 
     const isOwner = recipe.uid === uid || isAdmin;
     document.getElementById("editBtn").style.display   = isOwner ? "flex" : "none";

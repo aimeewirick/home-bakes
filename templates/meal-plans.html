@@ -82,10 +82,24 @@
           <div class="meal-plan-card-preview">
             <div class="meal-plan-preview-title">WEEKLY MEAL PLAN</div>
             <div class="meal-plan-preview-grid">
-              ${(plan.days || []).slice(0, 5).map(d => `
+              ${(plan.days || []).slice(0, 7).map(d => {
+                // Collect all recipe images for this day across all meals
+                const allRecipes = (d.meals || []).flatMap(m => m.recipes || []);
+                const images = allRecipes
+                  .filter(r => r.imageUrl)
+                  .map(r => r.imageUrl)
+                  .slice(0, 3);
+                return `
                 <div class="preview-day">
                   <div class="preview-day-name">${d.day_name?.slice(0,3) || "Day"}</div>
-                </div>`).join("")}
+                  <div class="preview-day-images">
+                    ${images.length > 0
+                      ? images.map(url => `<img src="${url}" alt="" class="preview-recipe-img" />`).join("")
+                      : `<div class="preview-recipe-placeholder"></div>`
+                    }
+                  </div>
+                </div>`;
+              }).join("")}
             </div>
           </div>
           <div class="meal-plan-card-info">

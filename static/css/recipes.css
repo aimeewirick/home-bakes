@@ -184,6 +184,7 @@ body {
 /* ── Card info ── */
 .recipe-card-info { padding: 0.6rem 0.75rem; flex: 1; min-width: 0; }
 .recipe-card-title { font-weight: 700; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recipe-card-calories { font-size: 0.72rem; font-family: 'Lato', sans-serif; font-weight: 700; color: #35595F; background: rgba(152,208,214,0.3); padding: 0.1rem 0.45rem; border-radius: 100px; display: inline-block; margin-top: 0.2rem; }
 .recipe-card-meta { font-size: 0.78rem; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ── Empty state ── */
