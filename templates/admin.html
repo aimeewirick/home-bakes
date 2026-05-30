@@ -176,7 +176,7 @@
   import {
     adminGetIngredients, adminAddIngredient, adminUpdateIngredient,
     adminDeleteIngredient, adminGetPending, adminApproveIngredient,
-    adminRejectIngredient, getIngredientCategories, getAllergens, getUnits
+    adminRejectIngredient, adminUpdatePendingIngredient, getIngredientCategories, getAllergens, getUnits
   } from "/static/js/api.js";
   import { populateUnitSelect } from "/static/js/units.js";
   import { populateAllergenCheckboxes, getCheckedAllergens, setCheckedAllergens } from "/static/js/allergens.js";
@@ -184,6 +184,7 @@
 
   let allIngredients  = [];
   let allergenList    = [];
+  let pendingList     = [];
   let allCategories   = [];
   let allUnits        = [];
   let editingId       = null;
@@ -330,18 +331,29 @@
     };
 
     try {
-      if (editingId) {
+      const mode = document.getElementById("ingredientModal").dataset.mode;
+      if (mode === "pending" && editingPendingId) {
+        await adminUpdatePendingIngredient(editingPendingId, data);
+        // Update local pending list
+        const idx = pendingList.findIndex(i => i.id === editingPendingId);
+        if (idx > -1) pendingList[idx] = { ...pendingList[idx], ...data };
+        editingPendingId = null;
+        document.getElementById("ingredientModal").dataset.mode = "";
+        closeModal();
+        renderPending(pendingList);
+      } else if (editingId) {
         await adminUpdateIngredient(editingId, data);
-        // Update local array
         const idx = allIngredients.findIndex(i => i.id === editingId);
         if (idx > -1) allIngredients[idx] = { ...allIngredients[idx], ...data };
+        closeModal();
+        filterIngredients();
       } else {
         const result = await adminAddIngredient(data);
         allIngredients.push({ id: result.id, ...data });
         allIngredients.sort((a,b) => a.name.localeCompare(b.name));
+        closeModal();
+        filterIngredients();
       }
-      closeModal();
-      filterIngredients();
     } catch (err) {
       errorEl.textContent = err.message || "Failed to save. Please try again.";
       errorEl.classList.add("visible");
@@ -391,6 +403,7 @@
         badge.textContent = pending.length;
         badge.style.display = "inline";
       }
+      pendingList = pending;
       renderPending(pending);
     } catch (err) {
       console.error("Failed to load pending:", err);
@@ -419,6 +432,7 @@
         <td>${ing.calories ? `${ing.calories} / ${(() => { const u = allUnits?.find(u => u.id === ing.calorie_unit); return u ? u.abbreviation : (ing.calorie_unit || "?"); })()}` : "—"}</td>
         <td>${(() => { const u = allUnits?.find(u => u.id === ing.calorie_unit); return u ? u.abbreviation : (ing.calorie_unit || "—"); })()}</td>
         <td class="action-cell">
+          <button class="btn-edit-pending" data-id="${ing.id}">✏️</button>
           <button class="btn-approve" data-id="${ing.id}">✅ Approve</button>
           <button class="btn-reject"  data-id="${ing.id}">❌ Reject</button>
         </td>
@@ -441,6 +455,29 @@
         loadPending();
       });
     });
+
+    tbody.querySelectorAll(".btn-edit-pending").forEach(btn => {
+      btn.addEventListener("click", () => openEditPendingModal(btn.dataset.id));
+    });
+  }
+
+  // ── Edit Pending Modal ────────────────────────────────────────────────────
+  let editingPendingId = null;
+
+  function openEditPendingModal(id) {
+    const ing = pendingList.find(i => i.id === id);
+    if (!ing) return;
+    editingPendingId = id;
+    document.getElementById("modalTitle").textContent    = "Edit Pending Ingredient";
+    document.getElementById("modalName").value           = ing.name || "";
+    document.getElementById("modalCategory").value       = ing.category || "";
+    document.getElementById("modalCalories").value       = ing.calories ?? "";
+    document.getElementById("modalCalorieUnit").value    = ing.calorie_unit || "";
+    document.getElementById("modalError").classList.remove("visible");
+    setCheckedAllergens("allergenCheckboxes", ing.allergens || []);
+    // Mark modal as editing pending
+    document.getElementById("ingredientModal").dataset.mode = "pending";
+    document.getElementById("ingredientModal").style.display = "flex";
   }
 </script>
 </body>

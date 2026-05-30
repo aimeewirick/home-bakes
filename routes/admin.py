@@ -104,6 +104,20 @@ def approve_ingredient(pending_id):
     db.collection("pending_ingredients").document(pending_id).delete()
     return jsonify({"success": True})
 
+# ── Update pending ingredient ────────────────────────────────────────────────
+@admin_bp.route("/pending-ingredients/<pending_id>", methods=["PUT"])
+@require_admin
+def update_pending_ingredient(pending_id):
+    body = request.json
+    db.collection("pending_ingredients").document(pending_id).update({
+        "name":         body["name"],
+        "category":     body["category"],
+        "allergens":    body.get("allergens", []),
+        "calories":     body.get("calories"),
+        "calorie_unit": body.get("calorie_unit"),
+    })
+    return jsonify({"success": True})
+
 # ── Reject pending ingredient ─────────────────────────────────────────────────
 @admin_bp.route("/pending-ingredients/<pending_id>/reject", methods=["DELETE"])
 @require_admin

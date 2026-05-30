@@ -64,5 +64,6 @@ export const adminAddIngredient      = (data)    => apiFetch("/api/admin/ingredi
 export const adminUpdateIngredient   = (id,data) => apiFetch(`/api/admin/ingredients/${id}`,    { method: "PUT",    body: JSON.stringify(data) });
 export const adminDeleteIngredient   = (id)      => apiFetch(`/api/admin/ingredients/${id}`,    { method: "DELETE" });
 export const adminGetPending         = ()        => apiFetch("/api/admin/pending-ingredients");
+export const adminUpdatePendingIngredient = (id,data) => apiFetch(`/api/admin/pending-ingredients/${id}`,         { method: "PUT",    body: JSON.stringify(data) });
 export const adminApproveIngredient  = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/approve`, { method: "POST" });
 export const adminRejectIngredient   = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/reject`,  { method: "DELETE" });
