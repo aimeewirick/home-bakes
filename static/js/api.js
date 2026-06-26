@@ -67,3 +67,9 @@ export const adminGetPending         = ()        => apiFetch("/api/admin/pending
 export const adminUpdatePendingIngredient = (id,data) => apiFetch(`/api/admin/pending-ingredients/${id}`,         { method: "PUT",    body: JSON.stringify(data) });
 export const adminApproveIngredient  = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/approve`, { method: "POST" });
 export const adminRejectIngredient   = (id)      => apiFetch(`/api/admin/pending-ingredients/${id}/reject`,  { method: "DELETE" });
+
+// ── User Admin ────────────────────────────────────────────────────────────────
+export const adminGetUsers       = ()          => apiFetch("/api/user-admin/users");
+export const adminSetAdmin       = (uid, val)  => apiFetch(`/api/user-admin/users/${uid}/admin`,    { method: "PUT", body: JSON.stringify({ admin: val }) });
+export const adminSetDisabled    = (uid, val)  => apiFetch(`/api/user-admin/users/${uid}/disabled`, { method: "PUT", body: JSON.stringify({ disabled: val }) });
+export const adminDeleteUser     = (uid)       => apiFetch(`/api/user-admin/users/${uid}`,          { method: "DELETE" });

@@ -14,11 +14,23 @@
   <div class="page-content">
 
     <div class="admin-header">
-      <h1>🔧 Ingredient Management</h1>
-      <p class="admin-subtitle">Manage the global ingredient database</p>
+      <h1>🔧 Admin Portal</h1>
+      <p class="admin-subtitle">HomeBakes administration</p>
     </div>
 
-    <!-- Tabs -->
+    <!-- Top-level section tabs -->
+    <div class="admin-section-tabs">
+      <button class="admin-section-tab active" data-section="ingredients">🥕 Ingredients</button>
+      <button class="admin-section-tab" data-section="users">👥 Users</button>
+      <button class="admin-section-tab" data-section="recipes">📖 Recipes</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         INGREDIENTS SECTION
+    ══════════════════════════════════════════ -->
+    <div class="admin-section active" id="section-ingredients">
+
+    <!-- Sub-tabs -->
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="global">Global Ingredients</button>
       <button class="admin-tab" data-tab="pending">
@@ -95,6 +107,51 @@
       </div>
     </div>
 
+    </div><!-- end section-ingredients -->
+
+    <!-- ══════════════════════════════════════════
+         USERS SECTION
+    ══════════════════════════════════════════ -->
+    <div class="admin-section" id="section-users">
+      <div class="admin-toolbar">
+        <div class="search-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="userSearch" placeholder="Search users..." />
+        </div>
+      </div>
+      <p class="ingredient-count" id="userCount">Loading...</p>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Verified</th>
+              <th>Admin</th>
+              <th>Status</th>
+              <th>Last Sign In</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="7" class="loading-cell">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- end section-users -->
+
+    <!-- ══════════════════════════════════════════
+         RECIPES SECTION
+    ══════════════════════════════════════════ -->
+    <div class="admin-section" id="section-recipes">
+      <div class="loading-cell" style="text-align:center; padding:3rem; color:var(--text-light); font-style:italic;">
+        Recipe administration coming soon.
+      </div>
+    </div><!-- end section-recipes -->
+
   </div><!-- end page-content -->
 
   <!-- ══════════════════════════════════════════
@@ -170,6 +227,26 @@
     </div>
   </div>
 
+<!-- Delete User Modal -->
+<div class="modal-overlay" id="deleteUserModal" style="display:none;">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>Delete User?</h2>
+      <button class="modal-close" id="deleteUserModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong id="deleteUserEmail"></strong>?</p>
+      <p style="color:#DC2626; font-size:0.85rem; margin-top:0.5rem;">
+        This will permanently delete their account, recipes, meal plans and shopping lists.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="deleteUserCancelBtn">Cancel</button>
+      <button class="btn-danger" id="deleteUserConfirmBtn">Delete User</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import "/static/js/nav.js";
   import { requireAdmin } from "/static/js/auth.js";
@@ -179,6 +256,9 @@
     adminRejectIngredient, adminUpdatePendingIngredient, getIngredientCategories, getAllergens, getUnits
   } from "/static/js/api.js";
   import { populateUnitSelect } from "/static/js/units.js";
+  import {
+    adminGetUsers, adminSetAdmin, adminSetDisabled, adminDeleteUser
+  } from "/static/js/api.js";
   import { populateAllergenCheckboxes, getCheckedAllergens, setCheckedAllergens } from "/static/js/allergens.js";
   import { populateIngredientCategories } from "/static/js/ingredient-categories.js";
 
@@ -479,6 +559,142 @@
     document.getElementById("ingredientModal").dataset.mode = "pending";
     document.getElementById("ingredientModal").style.display = "flex";
   }
+
+  // ── Section tabs ──────────────────────────────────────────────────────────
+  document.querySelectorAll(".admin-section-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".admin-section-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".admin-section").forEach(s => s.classList.remove("active"));
+      tab.classList.add("active");
+      const section = tab.dataset.section;
+      document.getElementById(`section-${section}`).classList.add("active");
+      if (section === "users" && !usersLoaded) loadUsers();
+    });
+  });
+
+  // ── User Admin ─────────────────────────────────────────────────────────────
+  let allUsers    = [];
+  let usersLoaded = false;
+  let deleteUserId = null;
+
+  async function loadUsers() {
+    try {
+      allUsers    = await adminGetUsers();
+      usersLoaded = true;
+      renderUsers(allUsers);
+    } catch (err) {
+      console.error("Failed to load users:", err);
+      document.getElementById("userTableBody").innerHTML =
+        `<tr><td colspan="7" class="loading-cell">Failed to load users</td></tr>`;
+    }
+  }
+
+  function renderUsers(users) {
+    const tbody = document.getElementById("userTableBody");
+    const count = document.getElementById("userCount");
+    count.textContent = `${users.length} users`;
+
+    if (users.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">No users found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = users.map(u => `
+      <tr data-uid="${u.uid}">
+        <td class="ing-name">${u.email}</td>
+        <td>${u.displayName || "—"}</td>
+        <td>${u.emailVerified ? "✅" : "❌"}</td>
+        <td>
+          <label class="toggle-switch">
+            <input type="checkbox" class="toggle-admin" data-uid="${u.uid}"
+                   ${u.isAdmin ? "checked" : ""} />
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td>
+          <span class="status-badge ${u.disabled ? "status-disabled" : "status-active"}">
+            ${u.disabled ? "Disabled" : "Active"}
+          </span>
+        </td>
+        <td style="font-size:0.78rem; color:var(--text-light);">
+          ${u.lastSignIn ? new Date(u.lastSignIn).toLocaleDateString() : "Never"}
+        </td>
+        <td class="action-cell">
+          <button class="btn-toggle-disabled" data-uid="${u.uid}" data-disabled="${u.disabled}"
+                  title="${u.disabled ? "Enable user" : "Disable user"}">
+            ${u.disabled ? "🔓" : "🔒"}
+          </button>
+          <button class="btn-delete-user" data-uid="${u.uid}" data-email="${u.email}">🗑️</button>
+        </td>
+      </tr>
+    `).join("");
+
+    // Admin toggle
+    tbody.querySelectorAll(".toggle-admin").forEach(cb => {
+      cb.addEventListener("change", async () => {
+        try {
+          await adminSetAdmin(cb.dataset.uid, cb.checked);
+          const user = allUsers.find(u => u.uid === cb.dataset.uid);
+          if (user) user.isAdmin = cb.checked;
+        } catch (err) {
+          alert(err.message || "Failed to update admin status");
+          cb.checked = !cb.checked; // revert
+        }
+      });
+    });
+
+    // Enable/disable toggle
+    tbody.querySelectorAll(".btn-toggle-disabled").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const isDisabled = btn.dataset.disabled === "true";
+        try {
+          await adminSetDisabled(btn.dataset.uid, !isDisabled);
+          const user = allUsers.find(u => u.uid === btn.dataset.uid);
+          if (user) user.disabled = !isDisabled;
+          renderUsers(allUsers);
+        } catch (err) {
+          alert(err.message || "Failed to update user status");
+        }
+      });
+    });
+
+    // Delete
+    tbody.querySelectorAll(".btn-delete-user").forEach(btn => {
+      btn.addEventListener("click", () => {
+        deleteUserId = btn.dataset.uid;
+        document.getElementById("deleteUserEmail").textContent = btn.dataset.email;
+        document.getElementById("deleteUserModal").style.display = "flex";
+      });
+    });
+  }
+
+  // User search
+  document.getElementById("userSearch").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    renderUsers(q ? allUsers.filter(u =>
+      u.email.toLowerCase().includes(q) ||
+      (u.displayName || "").toLowerCase().includes(q)
+    ) : allUsers);
+  });
+
+  // Delete user modal
+  document.getElementById("deleteUserModalClose").addEventListener("click", () => {
+    document.getElementById("deleteUserModal").style.display = "none";
+  });
+  document.getElementById("deleteUserCancelBtn").addEventListener("click", () => {
+    document.getElementById("deleteUserModal").style.display = "none";
+  });
+  document.getElementById("deleteUserConfirmBtn").addEventListener("click", async () => {
+    try {
+      await adminDeleteUser(deleteUserId);
+      allUsers = allUsers.filter(u => u.uid !== deleteUserId);
+      document.getElementById("deleteUserModal").style.display = "none";
+      renderUsers(allUsers);
+    } catch (err) {
+      alert(err.message || "Failed to delete user");
+    }
+  });
+
 </script>
 </body>
 </html>
