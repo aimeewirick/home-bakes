@@ -110,7 +110,7 @@ export function calculateIngredientCalories(ingredient, allUnits) {
   }
 
   // No calorie data
-  if (!calories || !calorie_unit) {
+  if (calories === null || calories === undefined || !calorie_unit) {
     return { calories: null, status: "missing", name: ingredientName };
   }
 
