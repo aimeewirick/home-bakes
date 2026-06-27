@@ -103,7 +103,7 @@ body {
 
 .btn-add-ingredient {
   background: var(--teal);
-  color: var(--teal-dark);
+  color: white;
   border: none;
   border-radius: var(--radius-sm);
   padding: 0.55rem 1.25rem;
@@ -371,7 +371,7 @@ body {
 .admin-section-tab.active {
   background: var(--teal);
   border-color: var(--teal);
-  color: var(--teal-dark);
+  color: white;
 }
 
 .admin-section { display: none; }
