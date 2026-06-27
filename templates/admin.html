@@ -23,6 +23,7 @@
       <button class="admin-section-tab active" data-section="ingredients">🥕 Ingredients</button>
       <button class="admin-section-tab" data-section="users">👥 Users</button>
       <button class="admin-section-tab" data-section="recipes">📖 Recipes</button>
+      <button class="admin-section-tab" data-section="feedback">💬 Feedback</button>
     </div>
 
     <!-- ══════════════════════════════════════════
@@ -151,6 +152,31 @@
         Recipe administration coming soon.
       </div>
     </div><!-- end section-recipes -->
+
+    <!-- ══════════════════════════════════════════
+         FEEDBACK SECTION
+    ══════════════════════════════════════════ -->
+    <div class="admin-section" id="section-feedback">
+      <div class="admin-toolbar" style="justify-content: space-between;">
+        <p class="ingredient-count" id="feedbackCount">Loading...</p>
+        <a href="https://docs.google.com/spreadsheets/d/1T2JmQhE7XYC5mv6eVD8ytCaaGOoH2l8KLhEx1R50SNk"
+           target="_blank"
+           class="btn-add-ingredient"
+           style="text-decoration:none;">
+          📊 Open in Google Sheets
+        </a>
+      </div>
+      <div class="admin-table-wrapper">
+        <table class="admin-table" id="feedbackTable">
+          <thead id="feedbackTableHead">
+            <tr><th>Loading...</th></tr>
+          </thead>
+          <tbody id="feedbackTableBody">
+            <tr><td class="loading-cell">Loading feedback...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- end section-feedback -->
 
   </div><!-- end page-content -->
 
@@ -570,6 +596,7 @@
       const section = tab.dataset.section;
       document.getElementById(`section-${section}`).classList.add("active");
       if (section === "users" && !usersLoaded) loadUsers();
+      if (section === "feedback" && !feedbackLoaded) loadFeedback();
     });
   });
 
@@ -677,6 +704,50 @@
       (u.displayName || "").toLowerCase().includes(q)
     ) : allUsers);
   });
+
+  // ── Feedback ───────────────────────────────────────────────────────────────
+  let feedbackLoaded = false;
+
+  async function loadFeedback() {
+    try {
+      const { auth } = await import("/static/js/firebase-init.js");
+      const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const token = await auth.currentUser.getIdToken();
+
+      const res  = await fetch("/api/feedback/", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      feedbackLoaded = true;
+      document.getElementById("feedbackCount").textContent =
+        `${data.total} response${data.total !== 1 ? "s" : ""}`;
+
+      // Build header row
+      const thead = document.getElementById("feedbackTableHead");
+      thead.innerHTML = `<tr>${data.headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+      // Build data rows
+      const tbody = document.getElementById("feedbackTableBody");
+      if (data.rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${data.headers.length}" class="loading-cell">No responses yet</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.rows.map(row =>
+        `<tr>${data.headers.map((_, i) =>
+          `<td style="font-size:0.82rem;">${row[i] ?? "—"}</td>`
+        ).join("")}</tr>`
+      ).join("");
+
+    } catch (err) {
+      console.error("Failed to load feedback:", err);
+      document.getElementById("feedbackCount").textContent = "Failed to load";
+      document.getElementById("feedbackTableBody").innerHTML =
+        `<tr><td class="loading-cell" style="color:#DC2626;">Error: ${err.message}</td></tr>`;
+    }
+  }
 
   // Delete user modal
   document.getElementById("deleteUserModalClose").addEventListener("click", () => {

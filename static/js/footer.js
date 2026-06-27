@@ -80,9 +80,11 @@ document.body.appendChild(spacer);
 
 document.body.appendChild(footer);
 
-// Feedback link — placeholder until Google Sheets form is wired up
+// Feedback link — opens Google Form in a new tab
 document.getElementById("hb-feedback-link").addEventListener("click", (e) => {
   e.preventDefault();
-  // TODO: replace href with Google Sheets form URL
-  alert("Feedback form coming soon!");
+  window.open(
+    "https://docs.google.com/forms/d/e/1FAIpQLScQVbH9aWcESimHCkWpkMydM6TR0vqLXafT6FEt2Kt4TaPr6w/viewform",
+    "_blank"
+  );
 });
