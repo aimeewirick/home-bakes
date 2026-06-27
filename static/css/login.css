@@ -13,20 +13,83 @@ body {
 /* ── Header ── */
 .login-header {
   background: white;
-  padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-top: 1.5px solid #DDD5C8;
+  border-bottom: 1.5px solid #DDD5C8;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  padding: 0 1.5rem;
+  height: 72px;
   position: relative;
   z-index: 10;
+  overflow: visible;
+}
+
+.login-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+  margin-top: -22px;
+  margin-bottom: -22px;
+  position: relative;
+  z-index: 11;
+}
+
+.login-header-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: drop-shadow(0 3px 10px rgba(0,0,0,0.25));
+  flex-shrink: 0;
+  position: relative;
+  z-index: 11;
 }
 
 .login-header-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #2C3E6B;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  font-variant: small-caps;
+}
+
+/* True center: flex:1 wrapper on both sides */
+.login-header-welcome-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.login-header-right {
+  flex-shrink: 0;
+  /* Match brand width so welcome stays truly centered */
+  width: calc(96px + 0.85rem + 12rem);
+}
+
+.login-header-welcome {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #35595F;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .login-header-title   { font-size: 1.3rem; }
+  .login-header-icon    { width: 68px; height: 68px; }
+  .login-header-welcome { display: none; }
+  .login-header-right   { display: none; }
+}
+
+@media (max-width: 640px) {
+  .login-header-title { font-size: 1.3rem; }
+  .login-header-icon  { width: 68px; height: 68px; }
+  .login-header-welcome { display: none; }
 }
 
 /* ── Full page hero ── */

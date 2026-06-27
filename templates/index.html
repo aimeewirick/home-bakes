@@ -19,6 +19,7 @@
   <!-- nav.js detects home page and adds personalized welcome -->
   <div class="page-banner"><h1>My Kitchen</h1></div>
   <div class="dashboard">
+
     <div class="kitchen-scene">
 
       <!-- Cropped kitchen scene — full width -->
@@ -72,12 +73,30 @@
       </div>
 
     </div><!-- end kitchen-scene -->
+
   </div><!-- end dashboard -->
+
+  <!-- Feature ribbon — index page only, matches login.html aesthetic -->
+  <div class="index-features-strip">
+    <a class="index-feature-item" href="/recipes.html">
+      <img src="/static/images/recipe_box1.png" alt="Recipes" />
+      <span>Archive &amp; Share Heritage Recipes</span>
+    </a>
+    <a class="index-feature-item" href="/meal-plans.html">
+      <img src="/static/images/meal_plan.png" alt="Meal Plans" />
+      <span>Plan Weekly Meals</span>
+    </a>
+    <a class="index-feature-item" href="/shopping-lists.html">
+      <img src="/static/images/short_recipe.png" alt="Shopping Lists" />
+      <span>Make Shopping Lists</span>
+    </a>
+  </div>
 
 </div><!-- end pageContent -->
 
 <script type="module">
   import "/static/js/nav.js";
+  import "/static/js/footer.js";
   import { requireAuth } from "/static/js/auth.js";
   import "/static/js/profile.js";
 

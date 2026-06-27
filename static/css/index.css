@@ -19,17 +19,17 @@ body {
 /* ── Dashboard wrapper ── */
 .dashboard {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
+  justify-content: center;
+  padding: 1.5rem 0;
 }
 
 /* ── Kitchen scene container ── */
 .kitchen-scene {
   position: relative;
   width: 100%;
-  max-width: 660px;   /* ← back to crisp size */
-  margin: 0 auto;
+  max-width: 660px;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 /* ── Kitchen composite image ── */
@@ -131,10 +131,10 @@ body {
 ══════════════════════════════════════════ */
 .fridge-frame-wrapper {
   position: absolute;
-  top: 17%;
-  left: 53%;
+  top: 16%;
+  left: 58%;
   transform: translateX(-50%);
-  width: 18%;
+  width: 22%;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -149,10 +149,10 @@ body {
 
 .fridge-frame-photo {
   position: absolute;
-  top: 38%;
-  left: 13%;
-  width: 74%;
-  height: 40%;
+  top: 36%;
+  left: 14%;
+  width: 72%;
+  height: 38%;
   object-fit: cover;
   border-radius: 2px;
   z-index: 1;
@@ -204,14 +204,20 @@ body {
 
 /* ── Caption below frame ── */
 .frame-caption-wrapper {
-  margin-top: -2rem;
+  margin-top: -2.8rem;
   text-align: center;
   width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   z-index: 10;
+  transform: none;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .frame-caption {
@@ -225,10 +231,11 @@ body {
   width: 100%;
   box-sizing: border-box;
   transition: opacity 0.2s;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0;
   border-bottom: none;
   position: relative;
   z-index: 10;
+  margin: 0 auto;
 }
 
 .frame-caption:hover { opacity: 0.75; border-bottom-color: rgba(255,255,255,0.8); }
@@ -256,4 +263,49 @@ body {
   .teaser-text { font-size: 0.6rem; }
   .frame-caption { font-size: 0.65rem; }
   .magnet-label { font-size: 0.5rem; }
+}
+
+/* ══════════════════════════════════════════
+   FEATURE RIBBON — index page only
+   Matches login.html features-strip aesthetic
+   Links to main app sections
+══════════════════════════════════════════ */
+.index-features-strip {
+  background: var(--cream);
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--teal-light);
+}
+
+.index-feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  max-width: 140px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.index-feature-item:hover {
+  transform: translateY(-4px);
+}
+
+.index-feature-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.index-feature-item span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal-dark);
 }
